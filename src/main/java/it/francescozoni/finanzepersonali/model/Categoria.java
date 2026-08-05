@@ -1,20 +1,33 @@
 package it.francescozoni.finanzepersonali.model;
 
-public enum Categoria {
+import jakarta.persistence.*;
+import lombok.*;
 
-    STIPENDIO,
+import java.util.ArrayList;
+import java.util.List;
 
-    ALIMENTARI,
+@Entity
+@Table(name = "categorie")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Categoria extends BaseEntity {
 
-    CASA,
+    @Column(nullable = false, unique = true)
+    private String nome;
 
-    AUTO,
+    @Column(length = 50)
+    private String icona;
 
-    BOLLETTE,
+    @Column(length = 20)
+    private String colore;
 
-    SALUTE,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_padre_id")
+    private Categoria categoriaPadre;
 
-    TEMPO_LIBERO,
-
-    ALTRO
+    @OneToMany(mappedBy = "categoriaPadre")
+    private List<Categoria> sottoCategorie = new ArrayList<>();
 }

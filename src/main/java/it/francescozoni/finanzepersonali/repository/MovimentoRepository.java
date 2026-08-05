@@ -1,22 +1,23 @@
 package it.francescozoni.finanzepersonali.repository;
 
 import it.francescozoni.finanzepersonali.model.Movimento;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface MovimentoRepository {
+@Repository
+public interface MovimentoRepository extends JpaRepository<Movimento, Long>, JpaSpecificationExecutor<Movimento> {
+    List<Movimento> findAllByDeletedFalse();
 
-    Movimento save(Movimento movimento);
+    Page<Movimento> findAllByDeletedFalse(Pageable pageable);
 
-    Movimento update(Movimento movimento);
-
-    boolean delete(Long id);
-
-    Optional<Movimento> findById(Long id);
-
-    List<Movimento> findAll();
-
-    boolean existsById(Long id);
-
+    Page<Movimento> findAll(
+            Specification<Movimento> specification,
+            Pageable pageable
+    );
 }

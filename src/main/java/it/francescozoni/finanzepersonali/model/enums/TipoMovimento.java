@@ -1,0 +1,1 @@
+package it.francescozoni.finanzepersonali.model.enums;public enum TipoMovimento {    ENTRATA,    USCITA}
