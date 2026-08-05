@@ -1,0 +1,48 @@
+<h1>Dashboard</h1>
+
+
+<div *ngIf="dashboard">
+
+  <h2>Saldo</h2>
+  <p>{{ dashboard.saldo }} €</p>
+
+
+  <h2>Riepilogo</h2>
+
+  <p>
+    Entrate:
+    {{ dashboard.totaleEntrate }} €
+  </p>
+
+  <p>
+    Uscite:
+    {{ dashboard.totaleUscite }} €
+  </p>
+
+
+  <h2>Mese corrente</h2>
+
+  <p>
+    Entrate:
+    {{ dashboard.entrateMeseCorrente }} €
+  </p>
+
+  <p>
+    Uscite:
+    {{ dashboard.usciteMeseCorrente }} €
+  </p>
+
+
+  <h2>Spese per categoria</h2>
+
+  <ul>
+    <li *ngFor="let categoria of dashboard.spesePerCategoria">
+
+      {{ categoria.categoria }}
+      :
+      {{ categoria.totale }} €
+
+    </li>
+  </ul>
+
+</div>
