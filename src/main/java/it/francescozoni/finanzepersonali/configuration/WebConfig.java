@@ -11,7 +11,10 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
 
         registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:4200")
+                .allowedOrigins(
+                        "http://localhost:4200",
+                        "https://finanze-personali-ui.onrender.com"
+                )
                 .allowedMethods(
                         "GET",
                         "POST",
