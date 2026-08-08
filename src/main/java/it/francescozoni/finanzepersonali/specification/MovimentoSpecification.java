@@ -6,20 +6,21 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class MovimentoSpecification {
 
     private MovimentoSpecification() {
     }
 
-    public static Specification<Movimento> dataDa(LocalDate dataDa) {
+    public static Specification<Movimento> dataDa(LocalDateTime dataDa) {
         return (root, query, cb) ->
-                cb.greaterThanOrEqualTo(root.get("dataMovimento"), dataDa.atStartOfDay());
+                cb.greaterThanOrEqualTo(root.get("dataMovimento"), dataDa);
     }
 
-    public static Specification<Movimento> dataA(LocalDate dataA) {
+    public static Specification<Movimento> dataA(LocalDateTime dataA) {
         return (root, query, cb) ->
-                cb.lessThanOrEqualTo(root.get("dataMovimento"), dataA.plusDays(1).atStartOfDay());
+                cb.lessThanOrEqualTo(root.get("dataMovimento"), dataA);
     }
 
     public static Specification<Movimento> categoria(Long categoriaId) {

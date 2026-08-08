@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -12,9 +13,9 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class MovimentoFilter {
-    private LocalDate dataDa;
+    private LocalDateTime dataDa;
 
-    private LocalDate dataA;
+    private LocalDateTime dataA;
 
     private Long categoriaId;
 

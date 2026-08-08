@@ -40,6 +40,24 @@ public class MovimentoController {
         );
     }
 
+    @GetMapping("/pagina")
+    public MovimentiPageResponse trovaPagina(
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "20") int dimensione
+    ) {
+
+        log.info(
+                "Richiesta movimenti paginati pagina={}, dimensione={}",
+                pagina,
+                dimensione
+        );
+
+        return movimentoService.trovaPaginati(
+                pagina,
+                dimensione
+        );
+    }
+
     @GetMapping("/{id}")
     public MovimentoResponse trovaUno(@PathVariable Long id) {
         log.info("Ricerca movimento id={}", id);
@@ -72,23 +90,5 @@ public class MovimentoController {
     public void elimina(@PathVariable Long id) {
         log.info("Delete movimento id={}", id);
         movimentoService.elimina(id);
-    }
-
-    @GetMapping("/pagina")
-    public MovimentiPageResponse trovaPagina(
-            @RequestParam(defaultValue = "0") int pagina,
-            @RequestParam(defaultValue = "20") int dimensione
-    ) {
-
-        log.info(
-                "Richiesta movimenti paginati pagina={}, dimensione={}",
-                pagina,
-                dimensione
-        );
-
-        return movimentoService.trovaPaginati(
-                pagina,
-                dimensione
-        );
     }
 }

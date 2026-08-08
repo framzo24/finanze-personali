@@ -1,5 +1,7 @@
 package it.francescozoni.finanzepersonali.dto;
 
+import java.util.List;
+
 public record CategoriaResponse(
 
         Long id,
@@ -8,7 +10,13 @@ public record CategoriaResponse(
 
         String icona,
 
-        String colore
+        String colore,
+
+        Long categoriaPadreId,
+
+        String categoriaPadreNome,
+
+        List<CategoriaResponse> sottoCategorie
 
 ) {
 }

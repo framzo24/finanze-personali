@@ -2,6 +2,7 @@ package it.francescozoni.finanzepersonali.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,21 @@ public class Categoria extends BaseEntity {
     @JoinColumn(name = "categoria_padre_id")
     private Categoria categoriaPadre;
 
-    @OneToMany(mappedBy = "categoriaPadre")
+    @OneToMany(
+            mappedBy = "categoriaPadre",
+            fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL
+    )
+    @SQLRestriction("deleted=false")
     private List<Categoria> sottoCategorie = new ArrayList<>();
+
+    public void aggiungiSottoCategoria(
+            Categoria categoria
+    ) {
+
+        sottoCategorie.add(categoria);
+
+        categoria.setCategoriaPadre(this);
+
+    }
 }

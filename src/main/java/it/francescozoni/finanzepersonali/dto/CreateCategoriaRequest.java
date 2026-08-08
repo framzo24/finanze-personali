@@ -9,7 +9,9 @@ public record CreateCategoriaRequest(
 
         String icona,
 
-        String colore
+        String colore,
+
+        Long categoriaPadreId
 
 ) {
 }

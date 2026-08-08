@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -22,7 +22,7 @@ public class UpdateMovimentoRequest {
     private BigDecimal importo;
 
     @NotNull(message = "La data è obbligatoria")
-    private LocalDate data;
+    private LocalDateTime dataMovimento;
 
     @NotBlank(message = "La descrizione è obbligatoria")
     @Size(max = 255, message = "La descrizione non può superare i 255 caratteri")

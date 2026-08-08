@@ -1,6 +1,7 @@
 package it.francescozoni.finanzepersonali.service;
 
 import it.francescozoni.finanzepersonali.dto.*;
+import it.francescozoni.finanzepersonali.model.enums.AzioneEliminazioneCategoria;
 
 import java.util.List;
 
@@ -24,6 +25,12 @@ public interface CategoriaService {
     );
 
 
-    void elimina(Long id);
+    void elimina(
+            Long id,
+            AzioneEliminazioneCategoria azioneEliminazioneCategoria,
+            Long nuovaCategoriaPadreId
+    );
+
+    List<CategoriaResponse> trovaTuttePiatte();
 
 }

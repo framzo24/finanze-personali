@@ -97,6 +97,7 @@ public class MovimentoServiceImpl implements MovimentoService {
         movimento.setImporto(input.getImporto());
         movimento.setTipo(input.getTipo());
         movimento.setCategoria(categoria);
+        movimento.setDataMovimento(input.getDataMovimento());
 
         Movimento aggiornato = repository.save(movimento);
 

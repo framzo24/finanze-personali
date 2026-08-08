@@ -31,3 +31,11 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Database locali H2
+/data/
+*.mv.db
+*.trace.db
+
+# macOS
+.DS_Store

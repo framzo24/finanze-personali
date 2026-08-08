@@ -9,7 +9,9 @@ public record UpdateCategoriaRequest(
 
         String icona,
 
-        String colore
+        String colore,
+
+        Long categoriaPadreId
 
 ) {
 }
