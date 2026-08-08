@@ -13,7 +13,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/api/**")
                 .allowedOrigins(
                         "http://localhost:4200",
-                        "https://finanze-personali-ui.onrender.com"
+                        "https://finanze-personali-api.onrender.com"
                 )
                 .allowedMethods(
                         "GET",
