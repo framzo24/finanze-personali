@@ -1,0 +1,136 @@
+.page-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 24px;
+
+
+  h1 {
+
+    margin: 0;
+
+    font-size: 28px;
+
+    font-weight: 600;
+
+  }
+
+
+  p {
+
+    margin: 6px 0 0;
+
+    color: #666;
+
+  }
+
+}
+
+
+
+
+.categorie-card {
+
+  padding: 20px;
+
+}
+
+
+
+mat-tree {
+
+  width: 100%;
+
+}
+
+
+
+
+.categoria-row {
+
+  display: flex;
+
+  align-items: center;
+
+  width: 100%;
+
+  min-height: 52px;
+
+}
+
+
+
+.categoria-info {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  flex: 1;
+
+}
+
+
+
+.icona {
+
+  font-size: 22px;
+
+}
+
+
+
+.nome {
+
+  font-size: 16px;
+
+  font-weight: 500;
+
+}
+
+
+
+.colore-box {
+
+  width: 18px;
+
+  height: 18px;
+
+  border-radius: 50%;
+
+  border: 1px solid #ddd;
+
+}
+
+
+
+.azioni {
+
+  display: flex;
+
+  gap: 4px;
+
+}
+
+.tree-invisible {
+  display: none;
+}
+
+
+.figli {
+  margin-left: 24px;
+}
+
+
+.categoria-row {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  width: 100%;
+}

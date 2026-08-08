@@ -1,0 +1,216 @@
+<h2 mat-dialog-title>
+  Eliminazione categoria
+</h2>
+
+
+<mat-dialog-content>
+
+
+  <p class="messaggio">
+
+    Stai per eliminare la categoria
+
+    <strong>
+      "{{ data.categoria.nome }}"
+    </strong>.
+
+  </p>
+
+
+
+  <!-- CATEGORIA SENZA FIGLI -->
+
+  <ng-container
+    *ngIf="!haFigli(); else categoriaConFigli">
+
+    <p>
+
+      La categoria verrà eliminata.
+      I movimenti associati alla categoria
+      non verranno eliminati.
+
+    </p>
+
+  </ng-container>
+
+
+
+  <!-- CATEGORIA CON FIGLI -->
+
+  <ng-template #categoriaConFigli>
+
+
+    <p>
+
+      La categoria contiene
+
+      <strong>
+        {{ numeroFigli() }}
+      </strong>
+
+      sottocategor{{ numeroFigli() === 1 ? 'ia' : 'ie' }}.
+
+    </p>
+
+
+    <p>
+
+      Verranno coinvolte anche:
+
+    </p>
+
+
+    <ul>
+
+      <li
+        *ngFor="
+          let figlio of data.categoria.sottoCategorie
+        ">
+
+        {{ figlio.nome }}
+
+      </li>
+
+    </ul>
+
+
+
+    <mat-radio-group
+      [(ngModel)]="azione"
+      class="azioni-eliminazione">
+
+
+      <!-- SPOSTA FIGLI -->
+
+      <mat-radio-button
+        value="SPOSTA_FIGLI">
+
+        <div class="opzione">
+
+
+          <strong>
+            Elimina categoria e sposta
+            le sottocategorie
+          </strong>
+
+
+          <span>
+            Le sottocategorie verranno mantenute.
+          </span>
+
+
+        </div>
+
+      </mat-radio-button>
+
+
+
+      <!-- ELIMINA TUTTO -->
+
+      <mat-radio-button
+        value="ELIMINA_ALBERO">
+
+        <div class="opzione">
+
+
+          <strong>
+            Elimina tutto
+          </strong>
+
+
+          <span>
+            Verranno eliminate anche tutte
+            le sottocategorie.
+          </span>
+
+
+        </div>
+
+      </mat-radio-button>
+
+
+    </mat-radio-group>
+
+
+
+    <!-- CATEGORIA PADRE -->
+
+    <mat-form-field
+      *ngIf="azione === 'SPOSTA_FIGLI'"
+      appearance="outline"
+      class="full-width">
+
+
+      <mat-label>
+        Nuova categoria padre
+      </mat-label>
+
+
+      <mat-select
+        [(ngModel)]="nuovaCategoriaPadreId">
+
+
+        <mat-option
+          [value]="null">
+
+          Seleziona una categoria
+
+        </mat-option>
+
+
+        <mat-option
+          *ngFor="
+            let categoria
+            of data.categorieDisponibili
+          "
+          [value]="categoria.id">
+
+
+          {{ categoria.nome }}
+
+
+        </mat-option>
+
+
+      </mat-select>
+
+
+    </mat-form-field>
+
+
+  </ng-template>
+
+
+</mat-dialog-content>
+
+
+
+<mat-dialog-actions align="end">
+
+
+  <button
+    mat-button
+    type="button"
+    (click)="annulla()">
+
+    Annulla
+
+  </button>
+
+
+  <button
+    mat-raised-button
+    color="warn"
+    type="button"
+    [disabled]="
+      azione === 'SPOSTA_FIGLI'
+      && nuovaCategoriaPadreId === null
+    "
+    (click)="conferma()">
+
+    Continua
+
+  </button>
+
+
+</mat-dialog-actions>

@@ -1,0 +1,47 @@
+.messaggio {
+  margin-bottom: 16px;
+}
+
+
+.azioni-eliminazione {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 20px 0;
+}
+
+
+.mat-radio-button {
+  width: 100%;
+}
+
+
+.opzione {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+
+.opzione span {
+  font-size: 13px;
+  color: #666;
+}
+
+
+ul {
+  margin-top: 8px;
+  margin-bottom: 20px;
+  padding-left: 24px;
+}
+
+
+li {
+  margin-bottom: 4px;
+}
+
+
+.full-width {
+  width: 100%;
+}

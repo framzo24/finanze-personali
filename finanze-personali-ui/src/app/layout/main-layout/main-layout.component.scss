@@ -1,0 +1,35 @@
+:host {
+  display: block;
+  height: 100vh;
+}
+
+.layout {
+
+  display: flex;
+  flex-direction: column;
+
+  height: 100vh;
+
+}
+
+.content {
+
+  flex: 1;
+
+  display: flex;
+
+  overflow: hidden;
+
+}
+
+.page {
+
+  flex: 1;
+
+  padding: 32px;
+
+  background: #f5f7fa;
+
+  overflow-y: auto;
+
+}

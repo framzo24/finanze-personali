@@ -1,0 +1,29 @@
+:host {
+  display: block;
+}
+
+.navbar {
+  height: 64px;
+  background: #1976d2;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 28px;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
+  z-index: 100;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: .5px;
+}
+
+.user {
+  font-size: 14px;
+  opacity: .9;
+}

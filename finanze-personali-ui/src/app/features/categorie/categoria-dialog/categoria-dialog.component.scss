@@ -1,0 +1,72 @@
+.full-width {
+  width: 100%;
+}
+
+
+mat-dialog-content {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 16px;
+
+}
+
+
+
+.categoria-option {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  width: 100%;
+
+}
+
+
+
+.icona {
+
+  font-size: 20px;
+
+  width: 28px;
+
+  text-align: center;
+
+}
+
+
+
+.nome {
+
+  flex: 1;
+
+  font-size: 14px;
+
+}
+
+
+
+.colore-box {
+
+  width: 18px;
+
+  height: 18px;
+
+  border-radius: 50%;
+
+  border: 1px solid #ddd;
+
+}
+
+
+
+mat-dialog-actions {
+
+  padding-top: 16px;
+
+}

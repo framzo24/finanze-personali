@@ -1,0 +1,115 @@
+.page-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 24px;
+
+}
+
+.page-header h1 {
+
+  margin: 0;
+
+  font-size: 32px;
+
+  font-weight: 600;
+
+}
+
+.page-header p {
+
+  margin-top: 6px;
+
+  color: #777;
+
+}
+
+mat-card {
+
+  padding: 0;
+
+  overflow: hidden;
+
+}
+
+table {
+
+  width: 100%;
+
+}
+
+.mat-mdc-header-cell {
+
+  font-weight: 600;
+
+  background: #fafafa;
+
+}
+
+.mat-mdc-row:hover {
+
+  background: #f5f5f5;
+
+}
+
+.mat-column-importo {
+
+  font-weight: bold;
+
+}
+
+.mat-column-azioni {
+
+  width: 110px;
+
+  text-align: center;
+
+}
+
+mat-paginator {
+
+  border-top: 1px solid #eee;
+
+}
+
+.filtri {
+
+  display: flex;
+
+  flex-direction: row;
+
+  align-items: center;
+
+  gap: 16px;
+
+  width: 100%;
+
+  padding: 20px;
+
+  margin-bottom: 20px;
+
+  overflow-x: auto;
+
+}
+
+
+.filtri mat-form-field {
+
+  width: 200px;
+
+  flex-shrink: 0;
+
+}
+
+
+.filtri button {
+
+  height: 56px;
+
+  flex-shrink: 0;
+
+}

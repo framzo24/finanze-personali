@@ -1,48 +1,54 @@
-<h1>Dashboard</h1>
+<div class="dashboard-grid">
+
+  <mat-card>
+
+    <h3>Saldo</h3>
+
+    <h1>
+
+      {{dashboard?.saldo | currency:'EUR'}}
+
+    </h1>
+
+  </mat-card>
 
 
-<div *ngIf="dashboard">
+  <mat-card>
 
-  <h2>Saldo</h2>
-  <p>{{ dashboard.saldo }} €</p>
+    <h3>Entrate</h3>
 
+    <h1>
 
-  <h2>Riepilogo</h2>
+      {{dashboard?.totaleEntrate | currency:'EUR'}}
 
-  <p>
-    Entrate:
-    {{ dashboard.totaleEntrate }} €
-  </p>
+    </h1>
 
-  <p>
-    Uscite:
-    {{ dashboard.totaleUscite }} €
-  </p>
+  </mat-card>
 
 
-  <h2>Mese corrente</h2>
+  <mat-card>
 
-  <p>
-    Entrate:
-    {{ dashboard.entrateMeseCorrente }} €
-  </p>
+    <h3>Uscite</h3>
 
-  <p>
-    Uscite:
-    {{ dashboard.usciteMeseCorrente }} €
-  </p>
+    <h1>
+
+      {{dashboard?.totaleUscite | currency:'EUR'}}
+
+    </h1>
+
+  </mat-card>
 
 
-  <h2>Spese per categoria</h2>
+  <mat-card>
 
-  <ul>
-    <li *ngFor="let categoria of dashboard.spesePerCategoria">
+    <h3>Saldo mese</h3>
 
-      {{ categoria.categoria }}
-      :
-      {{ categoria.totale }} €
+    <h1>
 
-    </li>
-  </ul>
+      {{(dashboard?.entrateMeseCorrente ?? 0) - (dashboard?.usciteMeseCorrente ?? 0) | currency:'EUR'}}
+
+    </h1>
+
+  </mat-card>
 
 </div>

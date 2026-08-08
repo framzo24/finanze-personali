@@ -1,0 +1,64 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.sidebar {
+
+  width: 250px;
+  height: 100%;
+
+  background: #263238;
+  color: white;
+
+  padding-top: 20px;
+
+  box-shadow: 2px 0 8px rgba(0,0,0,.1);
+
+}
+
+.menu-title{
+
+  padding:0 24px 20px;
+
+  font-size:13px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+
+  color:#90a4ae;
+
+}
+
+.menu{
+
+  display:flex;
+  flex-direction:column;
+
+}
+
+.menu a{
+
+  text-decoration:none;
+  color:white;
+
+  padding:14px 24px;
+
+  transition:.2s;
+
+  border-left:4px solid transparent;
+
+}
+
+.menu a:hover{
+
+  background:#37474f;
+
+}
+
+.menu a.active{
+
+  background:#455a64;
+
+  border-left-color:#42a5f5;
+
+}

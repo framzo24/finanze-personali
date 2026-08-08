@@ -1,0 +1,147 @@
+<form [formGroup]="form">
+
+
+  <mat-dialog-content>
+
+
+    <mat-form-field
+      appearance="outline"
+      class="full-width">
+
+      <mat-label>
+        Nome
+      </mat-label>
+
+      <input
+        matInput
+        formControlName="nome">
+
+    </mat-form-field>
+
+
+
+    <mat-form-field
+      appearance="outline"
+      class="full-width">
+
+      <mat-label>
+        Icona
+      </mat-label>
+
+      <input
+        matInput
+        formControlName="icona">
+
+    </mat-form-field>
+
+
+
+    <mat-form-field
+      appearance="outline"
+      class="full-width">
+
+      <mat-label>
+        Colore
+      </mat-label>
+
+      <input
+        matInput
+        type="color"
+        formControlName="colore">
+
+    </mat-form-field>
+
+
+
+    <mat-form-field
+      appearance="outline"
+      class="full-width">
+
+      <mat-label>
+        Categoria padre
+      </mat-label>
+
+
+      <mat-select
+        formControlName="categoriaPadreId">
+
+
+        <mat-option [value]="null">
+
+          Nessuna (categoria principale)
+
+        </mat-option>
+
+
+
+        <mat-option
+          *ngFor="let categoria of categorie"
+          [value]="categoria.id">
+
+
+          <div class="categoria-option">
+
+
+            <span class="icona">
+              {{ categoria.icona || '📁' }}
+            </span>
+
+
+            <span class="nome">
+
+              {{ nomeCategoriaVisualizzato(categoria) }}
+
+            </span>
+
+
+            <span
+              class="colore-box"
+              [style.background]="categoria.colore || '#000000'">
+            </span>
+
+
+          </div>
+
+
+        </mat-option>
+
+
+      </mat-select>
+
+
+    </mat-form-field>
+
+
+  </mat-dialog-content>
+
+
+
+  <mat-dialog-actions align="end">
+
+
+    <button
+      mat-button
+      type="button"
+      (click)="annulla()">
+
+      Annulla
+
+    </button>
+
+
+
+    <button
+      mat-raised-button
+      color="primary"
+      type="button"
+      (click)="salva()">
+
+      Salva
+
+    </button>
+
+
+  </mat-dialog-actions>
+
+
+</form>

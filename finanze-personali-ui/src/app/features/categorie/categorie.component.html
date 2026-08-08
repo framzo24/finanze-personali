@@ -1,0 +1,95 @@
+<div class="page-header">
+  <div>
+    <h1>Categorie</h1>
+    <p>
+      Gestisci categorie e sotto-categorie.
+    </p>
+  </div>
+  <button
+    (click)="nuovaCategoria()"
+    color="primary"
+    mat-raised-button>
+    <mat-icon>add</mat-icon>
+    Nuova categoria
+  </button>
+</div>
+<mat-card class="categorie-card">
+  <mat-tree
+    [dataSource]="dataSource"
+    [treeControl]="treeControl">
+    <!-- CATEGORIA CON FIGLI -->
+    <mat-nested-tree-node
+      *matTreeNodeDef="let categoria; when: hasChild">
+      <div class="categoria-row" matTreeNodePadding>
+        <button [attr.aria-label]="'Espandi ' + categoria.nome" mat-icon-button matTreeNodeToggle>
+          <mat-icon>
+            {{
+              treeControl.isExpanded(categoria)
+                ? 'expand_more'
+                : 'chevron_right'
+            }}
+          </mat-icon>
+        </button>
+        <div class="categoria-info">
+          <span class="icona">
+            {{ categoria.icona || '📁' }}
+          </span>
+          <span class="nome">
+          {{ categoria.nome }}
+          </span>
+          <span
+            [style.background]="categoria.colore || '#000000'"
+            class="colore-box">
+          </span>
+        </div>
+        <div class="azioni">
+          <button (click)="modifica(categoria)" color="primary" mat-icon-button>
+            <mat-icon>
+              edit
+            </mat-icon>
+          </button>
+          <button (click)="elimina(categoria)" color="warn" mat-icon-button>
+            <mat-icon>
+              delete
+            </mat-icon>
+          </button>
+        </div>
+      </div>
+      <div [class.tree-invisible]="!treeControl.isExpanded(categoria)" class="figli" role="group">
+        <ng-container
+          matTreeNodeOutlet>
+        </ng-container>
+      </div>
+    </mat-nested-tree-node>
+    <!-- CATEGORIA SENZA FIGLI -->
+    <mat-tree-node *matTreeNodeDef="let categoria" matTreeNodePadding>
+      <div class="categoria-row">
+        <span class="spazio-vuoto"></span>
+        <div class="categoria-info">
+        <span class="icona">
+          {{ categoria.icona || '📁' }}
+        </span>
+          <span class="nome">
+          {{ categoria.nome }}
+        </span>
+          <span
+            [style.background]="categoria.colore || '#000000'"
+            class="colore-box">
+          </span>
+        </div>
+        <div class="azioni">
+          <button (click)="modifica(categoria)" color="primary" mat-icon-button>
+            <mat-icon>
+              edit
+            </mat-icon>
+          </button>
+          <button (click)="elimina(categoria)" color="warn" mat-icon-button>
+            <mat-icon>
+              delete
+            </mat-icon>
+          </button>
+        </div>
+      </div>
+    </mat-tree-node>
+  </mat-tree>
+</mat-card>

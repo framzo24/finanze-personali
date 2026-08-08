@@ -1,0 +1,33 @@
+form {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 16px;
+
+  min-width: 350px;
+
+}
+
+
+mat-form-field {
+
+  width: 100%;
+
+}
+
+
+mat-dialog-actions {
+
+  margin-top: 16px;
+
+}
+
+.errore {
+
+  color: #d32f2f;
+
+  margin-top: 10px;
+
+}
