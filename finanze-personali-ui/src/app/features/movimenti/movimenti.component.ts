@@ -16,19 +16,12 @@ import {CategoriaResponse} from "../../core/models/categoria-response";
 export class MovimentiComponent implements OnInit {
 
   pagina = 0;
-
   dimensione = 20;
-
   totaleElementi = 0;
-
   filtro: MovimentoFilter = {};
-
   categorie: CategoriaResponse[] = [];
-
   dataDa?: Date;
-
   dataA?: Date;
-
   displayedColumns: string[] = [
     'descrizione',
     'categoria',
@@ -37,9 +30,7 @@ export class MovimentiComponent implements OnInit {
     'data',
     'azioni'
   ];
-
   movimenti: MovimentoResponse[] = [];
-
 
   constructor(
     private movimentoService: MovimentoService,
@@ -48,15 +39,12 @@ export class MovimentiComponent implements OnInit {
     private categoriaService: CategoriaService
   ) {}
 
-
   ngOnInit(): void {
     this.caricaMovimenti();
     this.caricaCategorie();
   }
 
-
   caricaMovimenti(): void {
-
     this.movimentoService
       .cerca(
         this.filtro,
@@ -64,17 +52,11 @@ export class MovimentiComponent implements OnInit {
         this.dimensione
       )
       .subscribe(response => {
-
         console.log(response.contenuto);
-
         this.movimenti = response.contenuto;
-
         this.totaleElementi = response.totaleElementi;
-
       });
-
   }
-
 
   cambiaPagina(event: any): void {
 
