@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { ApiInterceptor } from './core/interceptors/api.interceptor';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -34,61 +34,48 @@ import { CategoriaEliminaDialogComponent } from './features/categorie/categoria-
 import {MatRadioModule} from "@angular/material/radio";
 import {MatIconModule} from "@angular/material/icon";
 
-@NgModule({
-  declarations: [
-    AppComponent,
-
-    DashboardComponent,
-
-    NavbarComponent,
-
-    SidebarComponent,
-
-    MainLayoutComponent,
-
-    MovimentiComponent,
-
-    CategorieComponent,
-
-    MovimentoDialogComponent,
-     CategoriaDialogComponent,
-     CategoriaEliminaDialogComponent
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    HttpClientModule,
-    BrowserAnimationsModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatButtonModule,
-    MaterialModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatSnackBarModule,
-    FormsModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatTreeModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatRadioModule
-  ],
-  bootstrap: [AppComponent],
-  providers: [
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: ApiInterceptor,
-      multi: true
-    }
-  ]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        DashboardComponent,
+        NavbarComponent,
+        SidebarComponent,
+        MainLayoutComponent,
+        MovimentiComponent,
+        CategorieComponent,
+        MovimentoDialogComponent,
+        CategoriaDialogComponent,
+        CategoriaEliminaDialogComponent
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatButtonModule,
+        MaterialModule,
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatSnackBarModule,
+        FormsModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatTreeModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatRadioModule], providers: [
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: ApiInterceptor,
+            multi: true
+        },
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class AppModule { }
