@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import {
   MAT_DIALOG_DATA,
@@ -29,6 +29,7 @@ export interface CategoriaEliminaDialogResult {
 @Component({
   selector: 'app-categoria-elimina-dialog',
   templateUrl: './categoria-elimina-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./categoria-elimina-dialog.component.scss']
 })
 export class CategoriaEliminaDialogComponent

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MovimentoService } from '../../core/services/movimento.service';
 import { MovimentoResponse } from '../../core/models/movimento-response';
 import {MatDialog} from "@angular/material/dialog";
@@ -11,6 +11,7 @@ import {CategoriaResponse} from "../../core/models/categoria-response";
 @Component({
   selector: 'app-movimenti',
   templateUrl: './movimenti.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./movimenti.component.scss']
 })
 export class MovimentiComponent implements OnInit {

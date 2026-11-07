@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {MovimentoService} from '../../../core/services/movimento.service';
@@ -16,6 +16,7 @@ interface CategorieFlat extends CategoriaResponse {
 @Component({
   selector: 'app-movimento-dialog',
   templateUrl: './movimento-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./movimento-dialog.component.scss']
 })
 export class MovimentoDialogComponent implements OnInit {

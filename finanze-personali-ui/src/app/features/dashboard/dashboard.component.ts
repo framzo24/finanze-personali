@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { DashboardResponse } from '../../models/dashboard-response';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
