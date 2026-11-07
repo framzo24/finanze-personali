@@ -62,3 +62,26 @@ body {
 .amount-in  { color: var(--app-income); font-weight: 500; }
 .amount-out { color: var(--app-expense); font-weight: 500; }
 .text-muted { color: var(--app-text-muted); }
+
+html {
+  // Bottoni a pillola
+  --mat-button-filled-container-shape: 999px;
+  --mat-button-outlined-container-shape: 999px;
+  --mat-button-text-container-shape: 999px;
+
+  // Dialog
+  --mat-dialog-container-shape: 24px;
+  --mat-dialog-container-color: var(--app-card);
+  --mat-dialog-subhead-color: var(--app-text);
+  --mat-dialog-supporting-text-color: var(--app-text);
+
+  // Tabella
+  --mat-table-background-color: transparent;
+  --mat-table-header-headline-color: var(--app-text-muted);
+  --mat-table-row-item-label-text-color: var(--app-text);
+  --mat-table-row-item-outline-color: var(--app-border);
+
+  // Paginator
+  --mat-paginator-container-background-color: transparent;
+  --mat-paginator-container-text-color: var(--app-text-muted);
+}

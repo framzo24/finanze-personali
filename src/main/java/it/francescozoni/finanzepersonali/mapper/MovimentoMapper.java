@@ -15,7 +15,7 @@ public class MovimentoMapper {
                 movimento.getDescrizione(),
                 movimento.getImporto(),
                 movimento.getTipo(),
-                movimento.getCategoria().getNome(),
+                movimento.getCategoria() != null ? movimento.getCategoria().getNome() : null,
                 movimento.getDataMovimento()
         );
     }

@@ -33,57 +33,62 @@ import { CategoriaDialogComponent } from './features/categorie/categoria-dialog/
 import { CategoriaEliminaDialogComponent } from './features/categorie/categoria-elimina-dialog/categoria-elimina-dialog.component';
 import {MatRadioModule} from "@angular/material/radio";
 import {MatIconModule} from "@angular/material/icon";
-import { LOCALE_ID } from '@angular/core';
+import { LOCALE_ID, provideZoneChangeDetection } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeIt from '@angular/common/locales/it';
+import {MatTooltipModule} from "@angular/material/tooltip";
 
 @NgModule({ declarations: [
-        AppComponent,
-        DashboardComponent,
-        MovimentiComponent,
-        CategorieComponent,
-        MovimentoDialogComponent,
-        CategoriaDialogComponent,
-        CategoriaEliminaDialogComponent
-    ],
-    bootstrap: [AppComponent], imports: [BrowserModule,
-        AppRoutingModule,
-        BrowserAnimationsModule,
-        NavbarComponent,
-        SidebarComponent,
-        MainLayoutComponent,
-        MatTableModule,
-        MatPaginatorModule,
-        MatButtonModule,
-        MaterialModule,
-        ReactiveFormsModule,
-        MatDialogModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatSnackBarModule,
-        FormsModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatTreeModule,
-        MatDialogModule,
-        MatButtonModule,
-        MatIconModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatRadioModule], providers: [
+    AppComponent,
+    DashboardComponent,
+    MovimentiComponent,
+    CategorieComponent,
+    MovimentoDialogComponent,
+    CategoriaDialogComponent,
+    CategoriaEliminaDialogComponent
+  ],
+  bootstrap: [AppComponent]
+  , imports: [BrowserModule,
+    AppRoutingModule,
+    NavbarComponent,
+    SidebarComponent,
+    MainLayoutComponent,
+    MatTableModule,
+    MatPaginatorModule,
+    MatButtonModule,
+    MaterialModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatSnackBarModule,
+    FormsModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatTreeModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatRadioModule,
+    MatTooltipModule], providers: [
+      provideZoneChangeDetection({
+        eventCoalescing: true
+      }),
     {
       provide: LOCALE_ID, useValue: 'it-IT'
     },
-        {
-            provide: HTTP_INTERCEPTORS,
-            useClass: ApiInterceptor,
-            multi: true
-        },
-        provideHttpClient(withXhr(), withInterceptorsFromDi())
-    ] })
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ApiInterceptor,
+      multi: true
+    },
+    provideHttpClient(withXhr(), withInterceptorsFromDi())
+  ] })
 export class AppModule { }
 
 registerLocaleData(localeIt);

@@ -1,340 +1,139 @@
-<div class="page-header">
-
+<header class="page-header">
   <div>
     <h1>Movimenti</h1>
     <p>Gestisci entrate e uscite.</p>
   </div>
-
-  <button
-    mat-raised-button
-    color="primary"
-    (click)="nuovoMovimento()">
-
+  <button mat-flat-button (click)="nuovoMovimento()">
+    <mat-icon>add</mat-icon>
     Nuovo movimento
-
   </button>
+</header>
 
-</div>
-
-<mat-card class="filtri">
-
-
-  <mat-form-field appearance="outline">
-
-    <mat-label>
-      Descrizione
-    </mat-label>
-
-    <input
-      matInput
-      [(ngModel)]="filtro.descrizione">
-
+<section class="panel filtri">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="f-wide">
+    <mat-label>Descrizione</mat-label>
+    <mat-icon matPrefix>search</mat-icon>
+    <input matInput [(ngModel)]="filtro.descrizione" (keyup.enter)="cerca()">
   </mat-form-field>
 
-  <mat-form-field appearance="outline">
-
-    <mat-label>
-      Categoria
-    </mat-label>
-
-
-    <mat-select
-      [(ngModel)]="filtro.categoriaId">
-
-
-      <mat-option [value]="undefined">
-
-        Tutte
-
-      </mat-option>
-
-
-      <mat-option
-        *ngFor="let categoria of categorie"
-        [value]="categoria.id">
-
-        {{ categoria.nome }}
-
-      </mat-option>
-
-
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Categoria</mat-label>
+    <mat-select [(ngModel)]="filtro.categoriaId">
+      <mat-option [value]="undefined">Tutte</mat-option>
+      @for (categoria of categorie(); track categoria.id) {
+      <mat-option [value]="categoria.id">{{ categoria.nome }}</mat-option>
+      }
     </mat-select>
-
-
   </mat-form-field>
 
-  <mat-form-field appearance="outline">
-
-    <mat-label>
-      Data da
-    </mat-label>
-
-
-    <input
-      matInput
-      [matDatepicker]="pickerDa"
-      [(ngModel)]="dataDa">
-
-
-    <mat-datepicker-toggle
-      matSuffix
-      [for]="pickerDa">
-    </mat-datepicker-toggle>
-
-
-    <mat-datepicker #pickerDa>
-    </mat-datepicker>
-
-
-  </mat-form-field>
-
-
-
-  <mat-form-field appearance="outline">
-
-    <mat-label>
-      Data a
-    </mat-label>
-
-
-    <input
-      matInput
-      [matDatepicker]="pickerA"
-      [(ngModel)]="dataA">
-
-
-    <mat-datepicker-toggle
-      matSuffix
-      [for]="pickerA">
-    </mat-datepicker-toggle>
-
-
-    <mat-datepicker #pickerA>
-    </mat-datepicker>
-
-
-  </mat-form-field>
-
-  <mat-form-field appearance="outline">
-
-    <mat-label>
-      Tipo
-    </mat-label>
-
-    <mat-select
-      [(ngModel)]="filtro.tipo">
-
-
-      <mat-option value="">
-        Tutti
-      </mat-option>
-
-
-      <mat-option value="ENTRATA">
-        Entrata
-      </mat-option>
-
-
-      <mat-option value="USCITA">
-        Uscita
-      </mat-option>
-
-
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Tipo</mat-label>
+    <mat-select [(ngModel)]="filtro.tipo">
+      <mat-option value="">Tutti</mat-option>
+      <mat-option value="ENTRATA">Entrata</mat-option>
+      <mat-option value="USCITA">Uscita</mat-option>
     </mat-select>
-
   </mat-form-field>
 
-
-
-  <mat-form-field appearance="outline">
-
-    <mat-label>
-      Importo minimo
-    </mat-label>
-
-    <input
-      matInput
-      type="number"
-      [(ngModel)]="filtro.importoMin">
-
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Data da</mat-label>
+    <input matInput [matDatepicker]="pickerDa" [(ngModel)]="dataDa">
+    <mat-datepicker-toggle matIconSuffix [for]="pickerDa"></mat-datepicker-toggle>
+    <mat-datepicker #pickerDa></mat-datepicker>
   </mat-form-field>
 
-
-
-  <mat-form-field appearance="outline">
-
-    <mat-label>
-      Importo massimo
-    </mat-label>
-
-    <input
-      matInput
-      type="number"
-      [(ngModel)]="filtro.importoMax">
-
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Data a</mat-label>
+    <input matInput [matDatepicker]="pickerA" [(ngModel)]="dataA">
+    <mat-datepicker-toggle matIconSuffix [for]="pickerA"></mat-datepicker-toggle>
+    <mat-datepicker #pickerA></mat-datepicker>
   </mat-form-field>
 
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="f-small">
+    <mat-label>Importo min</mat-label>
+    <input matInput type="number" [(ngModel)]="filtro.importoMin" (keyup.enter)="cerca()">
+  </mat-form-field>
 
-  <button
-    mat-raised-button
-    color="primary"
-    (click)="cerca()">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="f-small">
+    <mat-label>Importo max</mat-label>
+    <input matInput type="number" [(ngModel)]="filtro.importoMax" (keyup.enter)="cerca()">
+  </mat-form-field>
 
-    Cerca
+  <div class="filtri-actions">
+    <button mat-flat-button (click)="cerca()">Cerca</button>
+    <button mat-button (click)="resetFiltri()">Reset</button>
+  </div>
+</section>
 
-  </button>
+<section class="panel table-panel">
+  <div class="table-scroll">
+    <table mat-table [dataSource]="movimenti()">
 
+      <ng-container matColumnDef="descrizione">
+        <th mat-header-cell *matHeaderCellDef>Descrizione</th>
+        <td mat-cell *matCellDef="let m" class="desc">{{ m.descrizione }}</td>
+      </ng-container>
 
-  <button
-    mat-button
-    (click)="resetFiltri()">
+      <ng-container matColumnDef="categoria">
+        <th mat-header-cell *matHeaderCellDef>Categoria</th>
+        <td mat-cell *matCellDef="let m">
+          <span class="cat-chip">{{ m.categoria }}</span>
+        </td>
+      </ng-container>
 
-    Reset
+      <ng-container matColumnDef="tipo">
+        <th mat-header-cell *matHeaderCellDef>Tipo</th>
+        <td mat-cell *matCellDef="let m">
+          <span class="badge" [class.in]="m.tipo === 'ENTRATA'" [class.out]="m.tipo !== 'ENTRATA'">
+            {{ m.tipo === 'ENTRATA' ? 'Entrata' : 'Uscita' }}
+          </span>
+        </td>
+      </ng-container>
 
-  </button>
+      <ng-container matColumnDef="importo">
+        <th mat-header-cell *matHeaderCellDef class="num">Importo</th>
+        <td mat-cell *matCellDef="let m" class="num"
+            [class.amount-in]="m.tipo === 'ENTRATA'"
+            [class.amount-out]="m.tipo !== 'ENTRATA'">
+          {{ m.tipo === 'ENTRATA' ? '+' : '−' }}{{ m.importo | currency:'EUR' }}
+        </td>
+      </ng-container>
 
+      <ng-container matColumnDef="data">
+        <th mat-header-cell *matHeaderCellDef>Data</th>
+        <td mat-cell *matCellDef="let m" class="muted">{{ m.data | date:'dd/MM/yyyy' }}</td>
+      </ng-container>
 
-</mat-card>
+      <ng-container matColumnDef="azioni">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let m" class="actions">
+          <button mat-icon-button matTooltip="Modifica movimento" (click)="modifica(m)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button class="danger" matTooltip="Elimina movimento" (click)="elimina(m.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
 
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </div>
 
-<mat-card>
-
-  <table mat-table [dataSource]="movimenti">
-
-
-    <ng-container matColumnDef="descrizione">
-
-      <th mat-header-cell *matHeaderCellDef>
-        Descrizione
-      </th>
-
-      <td mat-cell *matCellDef="let m">
-        {{ m.descrizione }}
-      </td>
-
-    </ng-container>
-
-
-    <ng-container matColumnDef="categoria">
-
-      <th mat-header-cell *matHeaderCellDef>
-        Categoria
-      </th>
-
-      <td mat-cell *matCellDef="let m">
-        {{ m.categoria }}
-      </td>
-
-    </ng-container>
-
-
-    <ng-container matColumnDef="tipo">
-
-      <th mat-header-cell *matHeaderCellDef>
-        Tipo
-      </th>
-
-      <td mat-cell *matCellDef="let m">
-        {{ m.tipo }}
-      </td>
-
-    </ng-container>
-
-
-    <ng-container matColumnDef="importo">
-
-      <th mat-header-cell *matHeaderCellDef>
-        Importo
-      </th>
-
-      <td mat-cell *matCellDef="let m">
-        {{ m.importo | currency:'EUR' }}
-      </td>
-
-    </ng-container>
-
-
-    <ng-container matColumnDef="data">
-
-      <th mat-header-cell *matHeaderCellDef>
-        Data
-      </th>
-
-      <td mat-cell *matCellDef="let m">
-        {{ m.data | date:'dd/MM/yyyy' }}
-      </td>
-
-    </ng-container>
-
-
-    <ng-container matColumnDef="azioni">
-
-      <th mat-header-cell *matHeaderCellDef>
-      </th>
-
-
-      <td mat-cell *matCellDef="let m">
-
-
-        <button
-          mat-icon-button
-          color="primary"
-          matTooltip="Modifica movimento"
-          (click)="modifica(m)">
-
-          <mat-icon>
-            edit
-          </mat-icon>
-
-        </button>
-
-
-        <button
-          mat-icon-button
-          color="warn"
-          matTooltip="Elimina movimento"
-          (click)="elimina(m.id)">
-
-          <mat-icon>
-            delete
-          </mat-icon>
-
-        </button>
-
-
-      </td>
-
-    </ng-container>
-
-
-    <tr
-      mat-header-row
-      *matHeaderRowDef="displayedColumns">
-    </tr>
-
-
-    <tr
-      mat-row
-      *matRowDef="let row; columns: displayedColumns">
-    </tr>
-
-
-  </table>
-
+  @if (movimenti().length === 0) {
+  <div class="empty">
+    <mat-icon>receipt_long</mat-icon>
+    <strong>Nessun movimento trovato</strong>
+    <span>Prova a cambiare i filtri o aggiungi un nuovo movimento.</span>
+  </div>
+  }
 
   <mat-paginator
-
-    [length]="totaleElementi"
-
-    [pageSize]="dimensione"
-
-    [pageIndex]="pagina"
-
-    [pageSizeOptions]="[10,20,50]"
-
+    [length]="totaleElementi()"
+    [pageSize]="dimensione()"
+    [pageIndex]="pagina()"
+    [pageSizeOptions]="[10, 20, 50]"
     (page)="cambiaPagina($event)">
-
   </mat-paginator>
-
-
-</mat-card>
+</section>

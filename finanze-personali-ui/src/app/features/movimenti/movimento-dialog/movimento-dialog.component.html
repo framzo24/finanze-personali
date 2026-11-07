@@ -1,149 +1,64 @@
-<h2 mat-dialog-title>
-  Nuovo movimento
-</h2>
-
+<h2 mat-dialog-title>{{ data ? 'Modifica movimento' : 'Nuovo movimento' }}</h2>
 
 <mat-dialog-content>
+  <form [formGroup]="form" class="form">
 
-  <form [formGroup]="form">
-
-
-    <mat-form-field appearance="outline">
-
-      <mat-label>
-        Descrizione
-      </mat-label>
-
-      <input matInput formControlName="descrizione">
-
-    </mat-form-field>
-
-
-    <mat-form-field appearance="outline">
-
-      <mat-label>
-        Importo
-      </mat-label>
-
-      <input
-        matInput
-        type="number"
-        formControlName="importo">
-
-    </mat-form-field>
-
-
-    <mat-form-field appearance="outline">
-
-      <mat-label>
-        Tipo
-      </mat-label>
-
-      <mat-select formControlName="tipo">
-
-        <mat-option value="ENTRATA">
-          Entrata
-        </mat-option>
-
-        <mat-option value="USCITA">
-          Uscita
-        </mat-option>
-
-      </mat-select>
-
-    </mat-form-field>
-
-
-    <mat-form-field
-      appearance="outline"
-      class="full-width">
-
-
-      <mat-label>
-        Categoria
-      </mat-label>
-
-
-      <mat-select
-        formControlName="categoriaId">
-
-
-        <mat-option
-          *ngFor="let categoria of categorieFlat"
-          [value]="categoria.id"
-          [style.padding-left.px]="16 + (categoria.livello * 20)">
-
-        <span>
-          {{ categoria.icona || '📁' }}
-          {{ categoria.nome }}
-        </span>
-
-
-        </mat-option>
-
-
-      </mat-select>
-
-      <button
-        mat-button
-        color="primary"
-        type="button"
-        (click)="nuovaCategoria()">
-
-
-        + Nuova categoria
-
-
+    <div class="segment" role="group" aria-label="Tipo di movimento">
+      <button type="button" class="seg out"
+              [class.active]="tipo === 'USCITA'"
+              (click)="form.patchValue({ tipo: 'USCITA' })">
+        <mat-icon>north_east</mat-icon> Uscita
       </button>
-
-
-    </mat-form-field>
+      <button type="button" class="seg in"
+              [class.active]="tipo === 'ENTRATA'"
+              (click)="form.patchValue({ tipo: 'ENTRATA' })">
+        <mat-icon>south_west</mat-icon> Entrata
+      </button>
+    </div>
 
     <mat-form-field appearance="outline">
-
-      <mat-label>Data</mat-label>
-
-      <input
-        matInput
-        [matDatepicker]="picker"
-        formControlName="dataMovimento">
-
-      <mat-datepicker-toggle
-        matSuffix
-        [for]="picker">
-      </mat-datepicker-toggle>
-
-      <mat-datepicker #picker></mat-datepicker>
-
-      <mat-error *ngIf="form.get('dataMovimento')?.hasError('required')">
-        La data è obbligatoria
-      </mat-error>
-
+      <mat-label>Descrizione</mat-label>
+      <input matInput formControlName="descrizione">
+      <mat-error>La descrizione è obbligatoria</mat-error>
     </mat-form-field>
 
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>Importo</mat-label>
+        <input matInput type="number" formControlName="importo">
+        <span matTextSuffix>€</span>
+        <mat-error>Inserisci un importo maggiore di zero</mat-error>
+      </mat-form-field>
 
+      <mat-form-field appearance="outline">
+        <mat-label>Data</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="dataMovimento">
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        <mat-error>La data è obbligatoria</mat-error>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Categoria</mat-label>
+      <mat-select formControlName="categoriaId">
+        @for (categoria of categorieFlat(); track categoria.id) {
+        <mat-option [value]="categoria.id" [style.padding-left.px]="16 + categoria.livello * 20">
+          {{ categoria.icona || '📁' }} {{ categoria.nome }}
+        </mat-option>
+        }
+      </mat-select>
+      <mat-error>Scegli una categoria</mat-error>
+    </mat-form-field>
+
+    <button mat-button type="button" class="new-cat" (click)="nuovaCategoria()">
+      <mat-icon>add</mat-icon>
+      Nuova categoria
+    </button>
   </form>
-
-
 </mat-dialog-content>
 
-
 <mat-dialog-actions align="end">
-
-  <button
-    mat-button
-    type="button"
-    (click)="annulla()">
-    Annulla
-  </button>
-
-  <button
-    mat-raised-button
-    color="primary"
-    (click)="salva()">
-
-    Salva
-
-  </button>
-
+  <button mat-button type="button" (click)="annulla()">Annulla</button>
+  <button mat-flat-button (click)="salva()">Salva</button>
 </mat-dialog-actions>
