@@ -15,6 +15,7 @@ import { CreateCategoriaRequest } from '../../../core/models/create-categoria-re
 
 @Component({
   selector: 'app-categoria-dialog',
+  standalone: false,
   templateUrl: './categoria-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./categoria-dialog.component.scss']

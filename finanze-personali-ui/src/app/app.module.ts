@@ -33,13 +33,13 @@ import { CategoriaDialogComponent } from './features/categorie/categoria-dialog/
 import { CategoriaEliminaDialogComponent } from './features/categorie/categoria-elimina-dialog/categoria-elimina-dialog.component';
 import {MatRadioModule} from "@angular/material/radio";
 import {MatIconModule} from "@angular/material/icon";
+import { LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeIt from '@angular/common/locales/it';
 
 @NgModule({ declarations: [
         AppComponent,
         DashboardComponent,
-        NavbarComponent,
-        SidebarComponent,
-        MainLayoutComponent,
         MovimentiComponent,
         CategorieComponent,
         MovimentoDialogComponent,
@@ -49,6 +49,9 @@ import {MatIconModule} from "@angular/material/icon";
     bootstrap: [AppComponent], imports: [BrowserModule,
         AppRoutingModule,
         BrowserAnimationsModule,
+        NavbarComponent,
+        SidebarComponent,
+        MainLayoutComponent,
         MatTableModule,
         MatPaginatorModule,
         MatButtonModule,
@@ -71,6 +74,9 @@ import {MatIconModule} from "@angular/material/icon";
         MatFormFieldModule,
         MatSelectModule,
         MatRadioModule], providers: [
+    {
+      provide: LOCALE_ID, useValue: 'it-IT'
+    },
         {
             provide: HTTP_INTERCEPTORS,
             useClass: ApiInterceptor,
@@ -79,3 +85,5 @@ import {MatIconModule} from "@angular/material/icon";
         provideHttpClient(withXhr(), withInterceptorsFromDi())
     ] })
 export class AppModule { }
+
+registerLocaleData(localeIt);

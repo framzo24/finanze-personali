@@ -1,54 +1,66 @@
-<div class="dashboard-grid">
+<section class="dashboard">
+  <header class="page-header">
+    <p class="eyebrow">{{ today | date:'MMMM y' }}</p>
+    <h1 class="title">Dashboard</h1>
+  </header>
 
-  <mat-card>
+  @if (errore) {
+  <div class="error">
+    <mat-icon>error_outline</mat-icon>
+    Non è stato possibile caricare i dati. Riprova tra poco.
+  </div>
+  }
 
-    <h3>Saldo</h3>
+  <div class="bento">
+    <mat-card class="card hero">
+      <div class="card-head">
+        <span class="label">Saldo totale</span>
+        <mat-icon>account_balance_wallet</mat-icon>
+      </div>
+      <div class="value big">
+        {{ dashboard?.saldo ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
+      </div>
+      <div class="chip" [class.negative]="saldoMese < 0">
+        <mat-icon>{{ saldoMese >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
+        {{ saldoMese | currency:'EUR':'symbol':'1.2-2' }} questo mese
+      </div>
+    </mat-card>
 
-    <h1>
+    <mat-card class="card income">
+      <div class="card-head">
+        <span class="label">Entrate</span>
+        <mat-icon>south_west</mat-icon>
+      </div>
+      <div class="value">
+        {{ dashboard?.totaleEntrate ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
+      </div>
+      <div class="sub">
+        Questo mese {{ dashboard?.entrateMeseCorrente ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
+      </div>
+    </mat-card>
 
-      {{$safeNavigationMigration(dashboard?.saldo) | currency:'EUR'}}
+    <mat-card class="card expense">
+      <div class="card-head">
+        <span class="label">Uscite</span>
+        <mat-icon>north_east</mat-icon>
+      </div>
+      <div class="value">
+        {{ dashboard?.totaleUscite ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
+      </div>
+      <div class="sub">
+        Questo mese {{ dashboard?.usciteMeseCorrente ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
+      </div>
+    </mat-card>
 
-    </h1>
-
-  </mat-card>
-
-
-  <mat-card>
-
-    <h3>Entrate</h3>
-
-    <h1>
-
-      {{$safeNavigationMigration(dashboard?.totaleEntrate) | currency:'EUR'}}
-
-    </h1>
-
-  </mat-card>
-
-
-  <mat-card>
-
-    <h3>Uscite</h3>
-
-    <h1>
-
-      {{$safeNavigationMigration(dashboard?.totaleUscite) | currency:'EUR'}}
-
-    </h1>
-
-  </mat-card>
-
-
-  <mat-card>
-
-    <h3>Saldo mese</h3>
-
-    <h1>
-
-      {{(dashboard?.entrateMeseCorrente ?? 0) - (dashboard?.usciteMeseCorrente ?? 0) | currency:'EUR'}}
-
-    </h1>
-
-  </mat-card>
-
-</div>
+    <mat-card class="card month">
+      <div class="card-head">
+        <span class="label">Saldo del mese</span>
+        <mat-icon>calendar_month</mat-icon>
+      </div>
+      <div class="value" [class.amount-in]="saldoMese >= 0" [class.amount-out]="saldoMese < 0">
+        {{ saldoMese | currency:'EUR':'symbol':'1.2-2' }}
+      </div>
+      <div class="sub">Entrate meno uscite di {{ today | date:'MMMM' }}</div>
+    </mat-card>
+  </div>
+</section>

@@ -10,6 +10,7 @@ import {CategoriaResponse} from "../../core/models/categoria-response";
 
 @Component({
   selector: 'app-movimenti',
+  standalone: false,
   templateUrl: './movimenti.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./movimenti.component.scss']

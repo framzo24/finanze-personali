@@ -1,9 +1,18 @@
-<div class="layout">
-  <app-navbar></app-navbar>
-  <div class="content">
-    <app-sidebar></app-sidebar>
-    <main class="page">
-      <router-outlet></router-outlet>
-    </main>
-  </div>
-</div>
+<mat-sidenav-container class="shell">
+  <mat-sidenav
+    #drawer
+    class="drawer"
+    [mode]="isMobile() ? 'over' : 'side'"
+    [opened]="!isMobile()">
+    <app-sidebar (navigated)="isMobile() && drawer.close()"></app-sidebar>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="shell-content">
+    <div class="sheet">
+      <app-navbar [showMenuButton]="isMobile()" (menuToggle)="drawer.toggle()"></app-navbar>
+      <main class="page">
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
