@@ -1,136 +1,158 @@
+:host {
+  display: block;
+}
+
 .page-header {
-
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
-
-  margin-bottom: 24px;
-
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 4px 0 20px;
 
   h1 {
-
     margin: 0;
-
     font-size: 28px;
-
-    font-weight: 600;
-
+    font-weight: 500;
+    letter-spacing: -0.4px;
+    color: var(--app-text);
   }
-
 
   p {
-
-    margin: 6px 0 0;
-
-    color: #666;
-
+    margin: 2px 0 0;
+    color: var(--app-text-muted);
   }
-
 }
 
-
-
-
-.categorie-card {
-
-  padding: 20px;
-
+.panel {
+  background: var(--app-card);
+  border: 1px solid var(--app-border);
+  border-radius: 22px;
+  padding: 12px;
 }
-
-
 
 mat-tree {
-
-  width: 100%;
-
+  display: block;
+  background: transparent;
+  --mat-tree-container-background-color: transparent;
+  --mat-tree-node-text-color: var(--app-text);
 }
 
-
-
-
-.categoria-row {
-
-  display: flex;
-
-  align-items: center;
-
-  width: 100%;
-
-  min-height: 52px;
-
-}
-
-
-
-.categoria-info {
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 12px;
-
-  flex: 1;
-
-}
-
-
-
-.icona {
-
-  font-size: 22px;
-
-}
-
-
-
-.nome {
-
-  font-size: 16px;
-
-  font-weight: 500;
-
-}
-
-
-
-.colore-box {
-
-  width: 18px;
-
-  height: 18px;
-
-  border-radius: 50%;
-
-  border: 1px solid #ddd;
-
-}
-
-
-
-.azioni {
-
-  display: flex;
-
-  gap: 4px;
-
+mat-tree-node,
+mat-nested-tree-node {
+  display: block;
+  min-height: 0;
 }
 
 .tree-invisible {
   display: none;
 }
 
-
+// livelli annidati con linea guida
 .figli {
-  margin-left: 24px;
+  margin-left: 26px;
+  padding-left: 8px;
+  border-left: 2px solid var(--app-border);
 }
 
-
-.categoria-row {
+// ---------- riga ----------
+.riga {
   display: flex;
   align-items: center;
-  min-height: 48px;
-  width: 100%;
+  gap: 12px;
+  min-height: 56px;
+  padding: 0 8px 0 4px;
+  border-radius: 14px;
+  transition: background-color 150ms ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--cat) 10%, transparent);
+  }
+}
+
+.toggle {
+  --mat-icon-button-icon-color: var(--app-text-muted);
+}
+
+.toggle-vuoto {
+  width: 48px;
+  flex-shrink: 0;
+}
+
+.tile {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  font-size: 20px;
+  background: color-mix(in srgb, var(--cat) 20%, transparent);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--cat) 55%, transparent);
+}
+
+.nome {
+  font-weight: 500;
+  color: var(--app-text);
+}
+
+.conteggio {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: var(--app-text-muted);
+  background: color-mix(in srgb, var(--app-text) 7%, transparent);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.azioni {
+  display: flex;
+  gap: 2px;
+
+  button {
+    --mat-icon-button-icon-color: var(--app-text-muted);
+  }
+
+  button:hover {
+    --mat-icon-button-icon-color: var(--app-primary);
+  }
+
+  .danger:hover {
+    --mat-icon-button-icon-color: var(--app-expense);
+  }
+}
+
+// ---------- stato vuoto ----------
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--app-text-muted);
+
+  mat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 40px;
+    color: var(--app-primary);
+  }
+
+  strong {
+    color: var(--app-text);
+    font-weight: 500;
+  }
+
+  button {
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .conteggio { display: none; }
+  .figli { margin-left: 16px; }
 }
