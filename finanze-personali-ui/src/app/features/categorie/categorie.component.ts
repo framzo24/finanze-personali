@@ -26,6 +26,7 @@ import {
 
 @Component({
   selector: 'app-categorie',
+  standalone: false,
   templateUrl: './categorie.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./categorie.component.scss']

@@ -15,6 +15,7 @@ interface CategorieFlat extends CategoriaResponse {
 
 @Component({
   selector: 'app-movimento-dialog',
+  standalone: false,
   templateUrl: './movimento-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./movimento-dialog.component.scss']

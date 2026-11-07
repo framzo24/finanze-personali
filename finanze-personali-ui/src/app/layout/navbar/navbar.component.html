@@ -1,8 +1,22 @@
 <header class="navbar">
-  <div class="logo">
-    💰 Finanze Personali
-  </div>
+  @if (showMenuButton()) {
+  <button mat-icon-button aria-label="Apri menu" (click)="menuToggle.emit()">
+    <mat-icon>menu</mat-icon>
+  </button>
+  }
+
+  <span class="spacer"></span>
+
+  <button
+    mat-icon-button
+    class="theme-toggle"
+    [attr.aria-label]="theme.isDark() ? 'Passa al tema chiaro' : 'Passa al tema scuro'"
+    (click)="theme.toggle()">
+    <mat-icon>{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+  </button>
+
   <div class="user">
-    Francesco
+    <span class="user-name">Francesco</span>
+    <div class="avatar">F</div>
   </div>
 </header>

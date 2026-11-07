@@ -1,19 +1,18 @@
 <div class="sidebar">
-  <div class="menu-title">
-    MENU
+  <div class="brand">
+    <div class="brand-icon"><mat-icon>account_balance_wallet</mat-icon></div>
+    <span class="brand-name">Finanze</span>
   </div>
+
   <nav class="menu">
-    <a routerLink="/dashboard"
-       routerLinkActive="active">
-      📊 Dashboard
+    @for (link of links; track link.path) {
+    <a class="menu-item"
+       [routerLink]="link.path"
+       routerLinkActive="active"
+       (click)="navigated.emit()">
+      <mat-icon>{{ link.icon }}</mat-icon>
+      <span>{{ link.label }}</span>
     </a>
-    <a routerLink="/movimenti"
-       routerLinkActive="active">
-      💶 Movimenti
-    </a>
-    <a routerLink="/categorie"
-       routerLinkActive="active">
-      🏷️ Categorie
-    </a>
+    }
   </nav>
 </div>

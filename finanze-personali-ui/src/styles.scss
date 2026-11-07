@@ -1,4 +1,64 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+// Base Material (palette viola per ciò che non personalizziamo, es. stati di errore)
+html {
+  @include mat.theme((
+    color: mat.$violet-palette,
+    typography: Inter,
+    density: 0
+  ));
+}
+
+// I token Material seguono i nostri colori --app-*
+html {
+  --mat-sys-primary: var(--app-primary);
+  --mat-sys-on-primary: var(--app-on-primary);
+  --mat-sys-primary-container: color-mix(in srgb, var(--app-primary) 22%, var(--app-card));
+  --mat-sys-on-primary-container: var(--app-text);
+  --mat-sys-secondary-container: color-mix(in srgb, var(--app-primary) 16%, var(--app-card));
+  --mat-sys-on-secondary-container: var(--app-text);
+
+  --mat-sys-background: var(--app-canvas);
+  --mat-sys-on-background: var(--app-text);
+  --mat-sys-surface: var(--app-card);
+  --mat-sys-surface-variant: var(--app-canvas);
+  --mat-sys-surface-container-lowest: var(--app-card);
+  --mat-sys-surface-container-low: var(--app-card);
+  --mat-sys-surface-container: var(--app-card);
+  --mat-sys-surface-container-high: var(--app-card);
+  --mat-sys-surface-container-highest: var(--app-canvas);
+  --mat-sys-on-surface: var(--app-text);
+  --mat-sys-on-surface-variant: var(--app-text-muted);
+  --mat-sys-outline: var(--app-text-muted);
+  --mat-sys-outline-variant: var(--app-border);
+
+  // Card e tabelle
+  --mat-card-elevated-container-color: var(--app-card);
+  --mat-card-elevated-container-shape: 18px;
+  --mat-card-outlined-container-color: var(--app-card);
+  --mat-card-outlined-container-shape: 18px;
+  --mat-table-background-color: var(--app-card);
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--app-sidebar-bg);
+  color: var(--app-text);
+  font: var(--mat-sys-body-large);
+  -webkit-font-smoothing: antialiased;
+}
+
+// Transizione fluida al cambio tema
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 300ms;
+}
+
+// Utility per gli importi, da usare nelle pagine
+.amount-in  { color: var(--app-income); font-weight: 500; }
+.amount-out { color: var(--app-expense); font-weight: 500; }
+.text-muted { color: var(--app-text-muted); }
