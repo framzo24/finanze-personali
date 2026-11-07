@@ -6,7 +6,7 @@
 
     <h1>
 
-      {{dashboard?.saldo | currency:'EUR'}}
+      {{$safeNavigationMigration(dashboard?.saldo) | currency:'EUR'}}
 
     </h1>
 
@@ -19,7 +19,7 @@
 
     <h1>
 
-      {{dashboard?.totaleEntrate | currency:'EUR'}}
+      {{$safeNavigationMigration(dashboard?.totaleEntrate) | currency:'EUR'}}
 
     </h1>
 
@@ -32,7 +32,7 @@
 
     <h1>
 
-      {{dashboard?.totaleUscite | currency:'EUR'}}
+      {{$safeNavigationMigration(dashboard?.totaleUscite) | currency:'EUR'}}
 
     </h1>
 

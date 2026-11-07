@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -16,6 +16,7 @@ import { CreateCategoriaRequest } from '../../../core/models/create-categoria-re
 @Component({
   selector: 'app-categoria-dialog',
   templateUrl: './categoria-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./categoria-dialog.component.scss']
 })
 export class CategoriaDialogComponent implements OnInit {

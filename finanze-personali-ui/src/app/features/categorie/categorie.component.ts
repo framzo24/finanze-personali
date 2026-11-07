@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { NestedTreeControl } from '@angular/cdk/tree';
 
@@ -27,6 +27,7 @@ import {
 @Component({
   selector: 'app-categorie',
   templateUrl: './categorie.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./categorie.component.scss']
 })
 export class CategorieComponent implements OnInit {
