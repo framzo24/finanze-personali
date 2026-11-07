@@ -1,115 +1,190 @@
+:host {
+  display: block;
+}
+
 .page-header {
-
   display: flex;
-
   justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 4px 0 20px;
 
+  h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.4px;
+    color: var(--app-text);
+  }
+
+  p {
+    margin: 2px 0 0;
+    color: var(--app-text-muted);
+  }
+}
+
+// Contenitore comune
+.panel {
+  background: var(--app-card);
+  border: 1px solid var(--app-border);
+  border-radius: 22px;
+  margin-bottom: 16px;
+}
+
+// ---------- filtri ----------
+.filtri {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px;
   align-items: center;
 
-  margin-bottom: 24px;
+  mat-form-field {
+    flex: 1 1 170px;
+    min-width: 0;
+  }
 
+  .f-wide  { flex: 2 1 240px; }
+  .f-small { flex: 1 1 130px; }
 }
 
-.page-header h1 {
-
-  margin: 0;
-
-  font-size: 32px;
-
-  font-weight: 600;
-
+.filtri-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
 }
 
-.page-header p {
-
-  margin-top: 6px;
-
-  color: #777;
-
-}
-
-mat-card {
-
-  padding: 0;
-
+// ---------- tabella ----------
+.table-panel {
   overflow: hidden;
+}
 
+.table-scroll {
+  overflow-x: auto;
 }
 
 table {
-
   width: 100%;
-
+  background: transparent;
 }
 
-.mat-mdc-header-cell {
-
-  font-weight: 600;
-
-  background: #fafafa;
-
+th.mat-mdc-header-cell {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  color: var(--app-text-muted);
+  border-bottom: 1px solid var(--app-border);
+  padding-top: 4px;
 }
 
-.mat-mdc-row:hover {
-
-  background: #f5f5f5;
-
+td.mat-mdc-cell {
+  border-bottom: 1px solid var(--app-border);
 }
 
-.mat-column-importo {
+tr.mat-mdc-row {
+  height: 64px;
+  transition: background-color 150ms ease;
 
-  font-weight: bold;
+  &:hover {
+    background: color-mix(in srgb, var(--app-primary) 7%, transparent);
+  }
 
+  &:last-child td {
+    border-bottom: none;
+  }
 }
 
-.mat-column-azioni {
+.desc {
+  font-weight: 500;
+}
 
+.muted {
+  color: var(--app-text-muted);
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  padding-right: 24px;
+  white-space: nowrap;
+}
+
+.cat-chip {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  background: color-mix(in srgb, var(--app-primary) 14%, transparent);
+  color: var(--app-text);
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &.in  { background: color-mix(in srgb, var(--app-income) 18%, transparent);  color: var(--app-income); }
+  &.out { background: color-mix(in srgb, var(--app-expense) 18%, transparent); color: var(--app-expense); }
+}
+
+.actions {
   width: 110px;
+  text-align: right;
+  white-space: nowrap;
 
+  button {
+    --mat-icon-button-icon-color: var(--app-text-muted);
+  }
+
+  button:hover {
+    --mat-icon-button-icon-color: var(--app-primary);
+  }
+
+  .danger:hover {
+    --mat-icon-button-icon-color: var(--app-expense);
+  }
+}
+
+// ---------- stato vuoto ----------
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 48px 16px;
   text-align: center;
+  color: var(--app-text-muted);
 
+  mat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 40px;
+    color: var(--app-primary);
+  }
+
+  strong {
+    color: var(--app-text);
+    font-weight: 500;
+  }
 }
 
 mat-paginator {
-
-  border-top: 1px solid #eee;
-
+  border-top: 1px solid var(--app-border);
 }
 
-.filtri {
+// ---------- mobile ----------
+@media (max-width: 760px) {
+  .mat-column-categoria,
+  .mat-column-tipo {
+    display: none;
+  }
 
-  display: flex;
-
-  flex-direction: row;
-
-  align-items: center;
-
-  gap: 16px;
-
-  width: 100%;
-
-  padding: 20px;
-
-  margin-bottom: 20px;
-
-  overflow-x: auto;
-
-}
-
-
-.filtri mat-form-field {
-
-  width: 200px;
-
-  flex-shrink: 0;
-
-}
-
-
-.filtri button {
-
-  height: 56px;
-
-  flex-shrink: 0;
-
+  .filtri-actions {
+    width: 100%;
+    margin-left: 0;
+  }
 }

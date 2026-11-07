@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {Component, Inject, OnInit, ChangeDetectionStrategy, signal} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {MovimentoService} from '../../../core/services/movimento.service';
@@ -23,7 +23,7 @@ interface CategorieFlat extends CategoriaResponse {
 export class MovimentoDialogComponent implements OnInit {
   form!: FormGroup;
   categorie: CategoriaResponse[] = [];
-  categorieFlat: CategorieFlat[] = [];
+  categorieFlat = signal<CategorieFlat[]>([]);
 
   constructor(
     private fb: FormBuilder,
@@ -69,7 +69,7 @@ export class MovimentoDialogComponent implements OnInit {
         importo: this.data.importo,
         tipo: this.data.tipo,
         categoriaId: this.data.categoriaId,
-        dataMovimento: [new Date(), Validators.required]
+        dataMovimento: new Date(this.data.data)
       });
     }
   }
@@ -80,11 +80,7 @@ export class MovimentoDialogComponent implements OnInit {
       .subscribe({
         next: categorie => {
           this.categorie = categorie;
-          this.categorieFlat =
-            this.creaListaCategorie(
-              categorie
-            );
-        }
+          this.categorieFlat.set(this.creaListaCategorie(categorie));        }
       });
   }
 
@@ -170,5 +166,9 @@ export class MovimentoDialogComponent implements OnInit {
       }
     });
     return risultato;
+  }
+
+  get tipo(): string {
+    return this.form.get('tipo')?.value;
   }
 }

@@ -1,33 +1,63 @@
-form {
-
+.form {
   display: flex;
-
   flex-direction: column;
-
-  gap: 16px;
-
-  min-width: 350px;
-
+  gap: 4px;
+  padding-top: 8px;
+  min-width: 0;
 }
-
 
 mat-form-field {
-
   width: 100%;
-
 }
 
-
-mat-dialog-actions {
-
-  margin-top: 16px;
-
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
-.errore {
+@media (max-width: 520px) {
+  .row { grid-template-columns: 1fr; }
+}
 
-  color: #d32f2f;
+// Selettore a segmenti Entrata / Uscita
+.segment {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 16px;
+  border-radius: 999px;
+  background: var(--app-canvas);
+  border: 1px solid var(--app-border);
+}
 
-  margin-top: 10px;
+.seg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 40px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--app-text-muted);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
 
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+
+  &.active.out { background: var(--app-expense); color: #fff; }
+  &.active.in  { background: var(--app-income);  color: #fff; }
+}
+
+.new-cat {
+  align-self: flex-start;
+  margin-top: -4px;
 }
