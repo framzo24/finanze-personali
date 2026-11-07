@@ -1,38 +1,72 @@
+.messaggio {
+  margin: 0 0 12px;
+  color: var(--app-text);
+}
+
+.nota {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--app-primary) 10%, transparent);
+  color: var(--app-text);
+
+  mat-icon {
+    color: var(--app-primary);
+    flex-shrink: 0;
+  }
+}
+
+.figli {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--app-border);
+  max-height: 140px;
+  overflow-y: auto;
+
+  li {
+    padding: 4px 0;
+  }
+}
+
+.scelte {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.scelta {
+  display: block;
+  padding: 6px 12px 6px 4px;
+  border-radius: 16px;
+  border: 1px solid var(--app-border);
+  transition: background-color 150ms ease, border-color 150ms ease;
+
+  &.sel {
+    border-color: var(--app-primary);
+    background: color-mix(in srgb, var(--app-primary) 10%, transparent);
+  }
+}
+
+.opzione {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 0;
+
+  strong { font-weight: 500; }
+  span   { font-size: 13px; color: var(--app-text-muted); }
+}
+
 .full-width {
   width: 100%;
 }
 
-mat-dialog-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.categoria-option {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-}
-
-.icona {
-  font-size: 20px;
-  width: 28px;
-  text-align: center;
-}
-
-.nome {
-  flex: 1;
-  font-size: 14px;
-}
-
-.colore-box {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 1px solid #ddd;
-}
-
-mat-dialog-actions {
-  padding-top: 16px;
+.danger-btn {
+  --mat-button-filled-container-color: var(--app-expense);
+  --mat-button-filled-label-text-color: #fff;
 }

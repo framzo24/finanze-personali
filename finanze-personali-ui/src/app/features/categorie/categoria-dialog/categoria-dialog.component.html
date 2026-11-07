@@ -1,79 +1,68 @@
+<h2 mat-dialog-title>{{ data ? 'Modifica categoria' : 'Nuova categoria' }}</h2>
+
 <form [formGroup]="form">
   <mat-dialog-content>
-    <mat-form-field
-      appearance="outline"
-      class="full-width">
-      <mat-label>
-        Nome
-      </mat-label>
-      <input
-        matInput
-        formControlName="nome">
+
+    <div class="preview" [style.--cat]="colore">
+      <span class="tile">{{ icona || '📁' }}</span>
+      <span class="preview-nome">{{ nome || 'Nome categoria' }}</span>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Nome</mat-label>
+      <input matInput formControlName="nome">
+      <mat-error>Il nome è obbligatorio</mat-error>
     </mat-form-field>
-    <mat-form-field
-      appearance="outline"
-      class="full-width">
-      <mat-label>
-        Icona
-      </mat-label>
-      <input
-        matInput
-        formControlName="icona">
-    </mat-form-field>
-    <mat-form-field
-      appearance="outline"
-      class="full-width">
-      <mat-label>
-        Colore
-      </mat-label>
-      <input
-        matInput
-        type="color"
-        formControlName="colore">
-    </mat-form-field>
-    <mat-form-field
-      appearance="outline"
-      class="full-width">
-      <mat-label>
-        Categoria padre
-      </mat-label>
-      <mat-select
-        formControlName="categoriaPadreId">
-        <mat-option [value]="null">
-          Nessuna (categoria principale)
+
+    <div class="gruppo">
+      <span class="gruppo-label">Colore</span>
+      <div class="swatches">
+        @for (c of colori; track c) {
+        <button type="button" class="swatch"
+                [style.background]="c"
+                [class.sel]="colore.toLowerCase() === c.toLowerCase()"
+                [attr.aria-label]="'Colore ' + c"
+                [attr.aria-pressed]="colore.toLowerCase() === c.toLowerCase()"
+                (click)="scegliColore(c)"></button>
+        }
+        <label class="swatch custom" matTooltip="Colore personalizzato">
+          <mat-icon>colorize</mat-icon>
+          <input type="color" formControlName="colore" aria-label="Colore personalizzato">
+        </label>
+      </div>
+    </div>
+
+    <div class="gruppo">
+      <span class="gruppo-label">Icona</span>
+      <div class="emoji-list">
+        @for (i of icone; track i) {
+        <button type="button" class="emoji"
+                [class.sel]="icona === i"
+                (click)="scegliIcona(i)">{{ i }}</button>
+        }
+      </div>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Oppure scrivine una</mat-label>
+        <input matInput formControlName="icona" maxlength="4">
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Categoria padre</mat-label>
+      <mat-select formControlName="categoriaPadreId">
+        <mat-option [value]="null">Nessuna (categoria principale)</mat-option>
+        @for (categoria of categorie(); track categoria.id) {
+        <mat-option [value]="categoria.id">
+          {{ categoria.icona || '📁' }} {{ nomeCategoriaVisualizzato(categoria) }}
         </mat-option>
-        <mat-option
-          *ngFor="let categoria of categorie"
-          [value]="categoria.id">
-          <div class="categoria-option">
-            <span class="icona">
-              {{ categoria.icona || '📁' }}
-            </span>
-            <span class="nome">
-              {{ nomeCategoriaVisualizzato(categoria) }}
-            </span>
-            <span
-              class="colore-box"
-              [style.background]="categoria.colore || '#000000'">
-            </span>
-          </div>
-        </mat-option>
+        }
       </mat-select>
     </mat-form-field>
+
   </mat-dialog-content>
+
   <mat-dialog-actions align="end">
-    <button
-      mat-button
-      type="button"
-      (click)="annulla()">
-      Annulla
-    </button>
-    <button
-      mat-raised-button
-      color="primary"
-      type="button"
-      (click)="salva()">
-      Salva
-    </button>
+    <button mat-button type="button" (click)="annulla()">Annulla</button>
+    <button mat-flat-button type="button" (click)="salva()">Salva</button>
   </mat-dialog-actions>
 </form>
