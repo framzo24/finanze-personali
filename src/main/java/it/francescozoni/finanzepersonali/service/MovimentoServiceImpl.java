@@ -13,6 +13,8 @@ import it.francescozoni.finanzepersonali.model.enums.StatoMovimento;
 import it.francescozoni.finanzepersonali.model.enums.TipoMovimento;
 import it.francescozoni.finanzepersonali.repository.CategoriaRepository;
 import it.francescozoni.finanzepersonali.repository.MovimentoRepository;
+import it.francescozoni.finanzepersonali.repository.UtenteRepository;
+import it.francescozoni.finanzepersonali.security.UtenteCorrente;
 import it.francescozoni.finanzepersonali.specification.MovimentoSpecification;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.jpa.domain.Specification;
@@ -36,11 +38,15 @@ public class MovimentoServiceImpl implements MovimentoService {
     private final MovimentoRepository repository;
     private final CategoriaRepository categoriaRepository;
     private final MovimentoMapper movimentoMapper;
+    private final UtenteRepository utenteRepository;
+    private final UtenteCorrente utenteCorrente;
 
-    public MovimentoServiceImpl(MovimentoRepository repository, CategoriaRepository categoriaRepository, MovimentoMapper movimentoMapper) {
+    public MovimentoServiceImpl(MovimentoRepository repository, CategoriaRepository categoriaRepository, MovimentoMapper movimentoMapper, UtenteRepository utenteRepository, UtenteCorrente utenteCorrente) {
         this.repository = repository;
         this.categoriaRepository = categoriaRepository;
         this.movimentoMapper = movimentoMapper;
+        this.utenteRepository = utenteRepository;
+        this.utenteCorrente = utenteCorrente;
     }
 
     @Override
@@ -66,6 +72,7 @@ public class MovimentoServiceImpl implements MovimentoService {
                 .categoria(categoria)
                 .dataMovimento(data)
                 .stato(stato)
+                .utente(utenteRepository.getReferenceById(utenteCorrente.id()))
                 .build();
 
         Movimento salvato = repository.save(movimento);
@@ -82,16 +89,15 @@ public class MovimentoServiceImpl implements MovimentoService {
     public Movimento modifica(Long id, UpdateMovimentoRequest input) {
         log.info("Modifica movimento id={}", id);
 
-        Movimento movimento = repository.findById(id)
+        Movimento movimento = repository.findByIdAndUtenteId(id, utenteCorrente.id())
                 .orElseThrow(() -> {
                     log.warn("Tentata modifica movimento inesistente id={}", id);
                     return new MovimentoNotFoundException(id);
                 });
 
-        Categoria categoria = categoriaRepository.findById(
-                input.getCategoriaId())
-                .orElseThrow(() -> new CategoriaNotFoundException(input.getCategoriaId())
-        );
+        Categoria categoria = categoriaRepository
+                .findByIdAndDeletedFalseAndUtenteId(input.getCategoriaId(), utenteCorrente.id())
+                .orElseThrow(() -> new CategoriaNotFoundException(input.getCategoriaId()));
 
         movimento.setDescrizione(input.getDescrizione());
         movimento.setImporto(input.getImporto());
@@ -109,7 +115,7 @@ public class MovimentoServiceImpl implements MovimentoService {
     @Override
     public void elimina(Long id) {
         log.info("Eliminazione movimento id={}", id);
-        if (!repository.existsById(id)) {
+        if (!repository.existsByIdAndUtenteId(id, utenteCorrente.id())) {
             log.warn("Tentata eliminazione movimento inesistente id={}", id);
             throw new MovimentoNotFoundException(id);
         }
@@ -123,13 +129,13 @@ public class MovimentoServiceImpl implements MovimentoService {
     @Override
     @Transactional(readOnly = true)
     public Movimento trova(Long id) {
-        return repository.findById(id).orElseThrow(() -> new MovimentoNotFoundException(id));
+        return repository.findByIdAndUtenteId(id, utenteCorrente.id()).orElseThrow(() -> new MovimentoNotFoundException(id));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Movimento> trovaTutti() {
-        return repository.findAllByDeletedFalse()
+        return repository.findAllByDeletedFalseAndUtenteId(utenteCorrente.id())
                 .stream()
                 .sorted(Comparator.comparing(Movimento::getDataMovimento).reversed())
                 .toList();
@@ -143,7 +149,7 @@ public class MovimentoServiceImpl implements MovimentoService {
     @Override
     @Transactional(readOnly = true)
     public BigDecimal totaleEntrate() {
-        return repository.findAllByDeletedFalse()
+        return repository.findAllByDeletedFalseAndUtenteId(utenteCorrente.id())
                 .stream()
                 .filter(m -> m.getTipo() == TipoMovimento.ENTRATA)
                 .map(Movimento::getImporto)
@@ -153,7 +159,7 @@ public class MovimentoServiceImpl implements MovimentoService {
     @Override
     @Transactional(readOnly = true)
     public BigDecimal totaleUscite() {
-        return repository.findAllByDeletedFalse()
+        return repository.findAllByDeletedFalseAndUtenteId(utenteCorrente.id())
                 .stream()
                 .filter(m -> m.getTipo() == TipoMovimento.USCITA)
                 .map(Movimento::getImporto)
@@ -176,6 +182,8 @@ public class MovimentoServiceImpl implements MovimentoService {
         specification = specification.and(
                 MovimentoSpecification.nonEliminati()
         );
+
+        specification = specification.and(MovimentoSpecification.utente(utenteCorrente.id()));
 
 
         if (filter.getDataDa() != null) {
@@ -284,7 +292,7 @@ public class MovimentoServiceImpl implements MovimentoService {
     ) {
 
         Page<Movimento> page =
-                repository.findAllByDeletedFalse(
+                repository.findAllByDeletedFalseAndUtenteId(utenteCorrente.id(),
                         PageRequest.of(
                                 pagina,
                                 dimensione,
@@ -311,7 +319,8 @@ public class MovimentoServiceImpl implements MovimentoService {
     }
 
     private @NonNull Categoria recuperaCategoria(CreateMovimentoRequest input) {
-        return categoriaRepository.findById(input.getCategoriaId())
+        return categoriaRepository
+                .findByIdAndDeletedFalseAndUtenteId(input.getCategoriaId(), utenteCorrente.id())
                 .orElseThrow(() -> new CategoriaNotFoundException(input.getCategoriaId()));
     }
 }

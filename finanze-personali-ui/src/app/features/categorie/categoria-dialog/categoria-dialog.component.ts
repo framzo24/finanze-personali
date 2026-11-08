@@ -6,6 +6,11 @@ import { CategoriaService } from '../../../core/services/categoria.service';
 import { CategoriaResponse } from '../../../core/models/categoria-response';
 import { CreateCategoriaRequest } from '../../../core/models/create-categoria-request';
 
+/** Dati per creare una sottocategoria con il padre già scelto. */
+export interface CategoriaDialogNuova {
+  padreId: number;
+}
+
 @Component({
   selector: 'app-categoria-dialog',
   standalone: false,
@@ -29,12 +34,17 @@ export class CategoriaDialogComponent implements OnInit {
     private categoriaService: CategoriaService,
     private snackBar: MatSnackBar,
     private dialogRef: MatDialogRef<CategoriaDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: CategoriaResponse | null
+    @Inject(MAT_DIALOG_DATA) public data: CategoriaResponse | CategoriaDialogNuova | null
   ) {}
 
   get nome(): string { return this.form.get('nome')?.value ?? ''; }
   get icona(): string { return this.form.get('icona')?.value ?? ''; }
   get colore(): string { return this.form.get('colore')?.value || '#7C3AED'; }
+
+  /** La categoria in modifica, oppure null se stiamo creando. */
+  get categoria(): CategoriaResponse | null {
+    return this.data && 'id' in this.data ? this.data : null;
+  }
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -46,13 +56,17 @@ export class CategoriaDialogComponent implements OnInit {
 
     this.caricaCategorie();
 
-    if (this.data) {
+    if (this.categoria) {
+      // modifica
       this.form.patchValue({
-        nome: this.data.nome,
-        icona: this.data.icona,
-        colore: this.data.colore || '#7C3AED',
-        categoriaPadreId: this.data.categoriaPadreId
+        nome: this.categoria.nome,
+        icona: this.categoria.icona,
+        colore: this.categoria.colore || '#7C3AED',
+        categoriaPadreId: this.categoria.categoriaPadreId
       });
+    } else if (this.data && 'padreId' in this.data) {
+      // nuova sottocategoria: padre già scelto
+      this.form.patchValue({ categoriaPadreId: this.data.padreId });
     }
   }
 
@@ -60,7 +74,9 @@ export class CategoriaDialogComponent implements OnInit {
     this.categoriaService.trovaTuttePiatte().subscribe({
       next: categorie => {
         // in modifica: niente se stessa né i propri discendenti come padre
-        const esclusi = this.data ? this.conDiscendenti(this.data.id, categorie) : new Set<number>();
+        const esclusi = this.categoria
+          ? this.conDiscendenti(this.categoria.id, categorie)
+          : new Set<number>();
         this.categorie.set(categorie.filter(c => !esclusi.has(c.id)));
       },
       error: errore => {
@@ -85,18 +101,26 @@ export class CategoriaDialogComponent implements OnInit {
     }
 
     const request: CreateCategoriaRequest = this.form.value;
-    const chiamata = this.data
-      ? this.categoriaService.modifica(this.data.id, request)
+    const chiamata = this.categoria
+      ? this.categoriaService.modifica(this.categoria.id, request)
       : this.categoriaService.crea(request);
 
     chiamata.subscribe({
-      next: categoria => {
-        this.snackBar.open(this.data ? 'Categoria modificata' : 'Categoria creata', 'OK', { duration: 3000 });
-        this.dialogRef.close(categoria);
+      next: risultato => {
+        this.snackBar.open(
+          this.categoria ? 'Categoria modificata' : 'Categoria creata',
+          'OK',
+          { duration: 3000 }
+        );
+        this.dialogRef.close(risultato);
       },
       error: errore => {
         console.error(errore);
-        this.snackBar.open(errore.error?.messages?.[0] ?? 'Errore durante il salvataggio', 'OK', { duration: 4000 });
+        this.snackBar.open(
+          errore.error?.messages?.[0] ?? 'Errore durante il salvataggio',
+          'OK',
+          { duration: 4000 }
+        );
       }
     });
   }

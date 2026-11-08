@@ -1,149 +1,104 @@
 package it.francescozoni.finanzepersonali.service;
 
-import it.francescozoni.finanzepersonali.dto.DashboardResponse;
-import it.francescozoni.finanzepersonali.model.Movimento;
-import it.francescozoni.finanzepersonali.model.enums.TipoMovimento;
-import it.francescozoni.finanzepersonali.repository.MovimentoRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import it.francescozoni.finanzepersonali.dto.AndamentoMensileResponse;
 import it.francescozoni.finanzepersonali.dto.CategoriaTotaleResponse;
 import it.francescozoni.finanzepersonali.dto.DashboardResponse;
+import it.francescozoni.finanzepersonali.model.Categoria;
 import it.francescozoni.finanzepersonali.model.Movimento;
 import it.francescozoni.finanzepersonali.model.enums.TipoMovimento;
+import it.francescozoni.finanzepersonali.repository.MovimentoRepository;
+import it.francescozoni.finanzepersonali.security.UtenteCorrente;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import java.math.BigDecimal;
-import java.util.List;
+import java.util.stream.IntStream;
 
 @Service
 @Transactional(readOnly = true)
 public class DashboardServiceImpl implements DashboardService {
 
-    private final MovimentoRepository movimentoRepository;
+    private static final int MESI_ANDAMENTO = 6;
 
-    public DashboardServiceImpl(
-            MovimentoRepository movimentoRepository
-    ) {
+    private final MovimentoRepository movimentoRepository;
+    private final UtenteCorrente utenteCorrente;
+
+    public DashboardServiceImpl(MovimentoRepository movimentoRepository, UtenteCorrente utenteCorrente) {
         this.movimentoRepository = movimentoRepository;
+        this.utenteCorrente = utenteCorrente;
     }
 
     @Override
     public DashboardResponse riepilogo() {
-        List<Movimento> movimenti =
-                movimentoRepository.findAllByDeletedFalse();
-        BigDecimal entrate =
-                totale(movimenti, TipoMovimento.ENTRATA);
-        BigDecimal uscite =
-                totale(movimenti, TipoMovimento.USCITA);
+        List<Movimento> movimenti = movimentoRepository.findAllByDeletedFalseAndUtenteId(utenteCorrente.id());
+        BigDecimal entrate = totale(movimenti, TipoMovimento.ENTRATA);
+        BigDecimal uscite = totale(movimenti, TipoMovimento.USCITA);
 
-        YearMonth meseCorrente =
-                YearMonth.now();
-
-        List<Movimento> movimentiMese =
-                movimenti.stream()
-                        .filter(m -> YearMonth.from(m.getDataMovimento()).equals(meseCorrente))
-                        .toList();
-
-        BigDecimal entrateMese =
-                totale(movimentiMese, TipoMovimento.ENTRATA);
-        BigDecimal usciteMese =
-                totale(movimentiMese, TipoMovimento.USCITA);
+        YearMonth meseCorrente = YearMonth.now();
+        List<Movimento> movimentiMese = movimenti.stream()
+                .filter(m -> YearMonth.from(m.getDataMovimento()).equals(meseCorrente))
+                .toList();
 
         return DashboardResponse.builder()
                 .saldo(entrate.subtract(uscite))
                 .totaleEntrate(entrate)
                 .totaleUscite(uscite)
-                .entrateMeseCorrente(entrateMese)
-                .usciteMeseCorrente(usciteMese)
-                .spesePerCategoria(
-                        calcolaCategorie(movimenti)
-                )
-                .andamentoMensile(
-                        calcolaAndamento(movimenti)
-                )
+                .entrateMeseCorrente(totale(movimentiMese, TipoMovimento.ENTRATA))
+                .usciteMeseCorrente(totale(movimentiMese, TipoMovimento.USCITA))
+                .spesePerCategoria(calcolaCategorie(movimenti))
+                .andamentoMensile(calcolaAndamento(movimenti))
                 .build();
     }
 
-    private BigDecimal totale(
-            List<Movimento> movimenti,
-            TipoMovimento tipo
-    ) {
-
+    private BigDecimal totale(List<Movimento> movimenti, TipoMovimento tipo) {
         return movimenti.stream()
                 .filter(m -> m.getTipo() == tipo)
                 .map(Movimento::getImporto)
-                .reduce(
-                        BigDecimal.ZERO,
-                        BigDecimal::add
-                );
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private List<CategoriaTotaleResponse> calcolaCategorie(
-            List<Movimento> movimenti
-    ) {
-
+    private List<CategoriaTotaleResponse> calcolaCategorie(List<Movimento> movimenti) {
         return movimenti.stream()
-                .filter(m -> m.getTipo() == TipoMovimento.USCITA)
-                .collect(Collectors.groupingBy(
-                        m -> m.getCategoria().getId(),
-                        Collectors.reducing(
-                                BigDecimal.ZERO,
-                                Movimento::getImporto,
-                                BigDecimal::add
-                        )
-                ))
-                .entrySet()
+                .filter(m -> m.getTipo() == TipoMovimento.USCITA && m.getCategoria() != null)
+                .collect(Collectors.groupingBy(m -> m.getCategoria().getId()))
+                .values()
                 .stream()
-                .map(entry ->
-                        CategoriaTotaleResponse.builder()
-                                .categoriaId(entry.getKey())
-                                .categoria(
-                                        movimenti.stream()
-                                                .filter(m ->
-                                                        m.getCategoria().getId()
-                                                                .equals(entry.getKey())
-                                                )
-                                                .findFirst()
-                                                .get()
-                                                .getCategoria()
-                                                .getNome()
-                                )
-                                .totale(entry.getValue())
-                                .build()
-                )
+                .map(lista -> {
+                    Categoria categoria = lista.get(0).getCategoria();
+                    return CategoriaTotaleResponse.builder()
+                            .categoriaId(categoria.getId())
+                            .categoria(categoria.getNome())
+                            .colore(categoria.getColore())
+                            .icona(categoria.getIcona())
+                            .totale(lista.stream()
+                                    .map(Movimento::getImporto)
+                                    .reduce(BigDecimal.ZERO, BigDecimal::add))
+                            .build();
+                })
+                .sorted(Comparator.comparing(CategoriaTotaleResponse::totale).reversed())
                 .toList();
     }
 
-    private List<AndamentoMensileResponse> calcolaAndamento(
-            List<Movimento> movimenti
-    ) {
+    /** Ultimi N mesi in ordine cronologico, compresi quelli senza movimenti. */
+    private List<AndamentoMensileResponse> calcolaAndamento(List<Movimento> movimenti) {
+        Map<YearMonth, List<Movimento>> perMese = movimenti.stream()
+                .collect(Collectors.groupingBy(m -> YearMonth.from(m.getDataMovimento())));
 
-        return movimenti.stream()
-                .collect(Collectors.groupingBy(
-                        m -> YearMonth.from(m.getDataMovimento())
-                ))
-                .entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByKey())
-                .map(entry -> {
+        YearMonth ultimo = YearMonth.now();
 
-                    List<Movimento> mese =
-                            entry.getValue();
-
+        return IntStream.range(0, MESI_ANDAMENTO)
+                .mapToObj(i -> ultimo.minusMonths(MESI_ANDAMENTO - 1L - i))
+                .map(mese -> {
+                    List<Movimento> lista = perMese.getOrDefault(mese, List.of());
                     return AndamentoMensileResponse.builder()
-                            .mese(entry.getKey().toString())
-                            .entrate(
-                                    totale(mese, TipoMovimento.ENTRATA)
-                            )
-                            .uscite(
-                                    totale(mese, TipoMovimento.USCITA)
-                            )
+                            .mese(mese.toString())
+                            .entrate(totale(lista, TipoMovimento.ENTRATA))
+                            .uscite(totale(lista, TipoMovimento.USCITA))
                             .build();
                 })
                 .toList();

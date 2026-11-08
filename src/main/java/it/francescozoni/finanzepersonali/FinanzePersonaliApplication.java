@@ -15,6 +15,7 @@ import java.util.Arrays;
 public class FinanzePersonaliApplication {
 
     public static void main(String[] args) {
+        log.info("Application starting");
         SpringApplication app = new SpringApplication(FinanzePersonaliApplication.class);
         Environment env = app.run(args).getEnvironment();
         logApplicationStartup(env);

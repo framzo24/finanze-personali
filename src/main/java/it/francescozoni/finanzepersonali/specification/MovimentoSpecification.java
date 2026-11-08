@@ -58,4 +58,8 @@ public class MovimentoSpecification {
                         root.get("deleted")
                 );
     }
+
+    public static Specification<Movimento> utente(Long utenteId) {
+        return (root, query, cb) -> cb.equal(root.get("utente").get("id"), utenteId);
+    }
 }

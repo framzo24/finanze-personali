@@ -1,7 +1,25 @@
 <section class="dashboard">
   <header class="page-header">
-    <p class="eyebrow">{{ today | date:'MMMM y' }}</p>
-    <h1 class="title">Dashboard</h1>
+    <div>
+      <p class="eyebrow">{{ today | date:'MMMM y' }}</p>
+      <h1 class="title">Dashboard</h1>
+    </div>
+
+    <div class="header-actions">
+      @if (!modifica()) {
+      <button mat-stroked-button (click)="iniziaModifica()">
+        <mat-icon>dashboard_customize</mat-icon>
+        Modifica layout
+      </button>
+      } @else {
+      <button mat-button (click)="ripristina()">Ripristina</button>
+      <button mat-button (click)="annulla()">Annulla</button>
+      <button mat-flat-button (click)="conferma()">
+        <mat-icon>check</mat-icon>
+        Conferma
+      </button>
+      }
+    </div>
   </header>
 
   @if (errore()) {
@@ -11,56 +29,373 @@
   </div>
   }
 
-  <div class="bento">
-    <mat-card class="card hero">
+  @if (modifica()) {
+  <div class="hint">
+    <mat-icon>info</mat-icon>
+    Trascina le card per riordinarle e scegli la dimensione con i pulsanti in basso.
+  </div>
+  }
+
+  <!-- ===== card ===== -->
+  <div class="bento"
+       [class.editing]="modifica()"
+       cdkDropList
+       cdkDropListOrientation="mixed"
+       [cdkDropListData]="layout()"
+       [cdkDropListDisabled]="!modifica()"
+       (cdkDropListDropped)="sposta($event)">
+
+    @for (c of layout(); track c.id) {
+    <article class="card"
+             cdkDrag
+             [cdkDragDisabled]="!modifica()"
+             [attr.data-card]="c.id"
+             [attr.data-size]="c.size">
+
+      @switch (c.id) {
+
+      @case ('saldo') {
       <div class="card-head">
         <span class="label">Saldo totale</span>
         <mat-icon>account_balance_wallet</mat-icon>
       </div>
-      <div class="value big">
-        {{ dashboard()?.saldo ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
+      <div class="card-main">
+        <div class="value">
+          {{ dashboard()?.saldo ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
+        </div>
+        <div class="chip" [class.negative]="saldoMese() < 0">
+          <mat-icon>{{ saldoMese() >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
+          {{ saldoMese() | currency:'EUR':'symbol':'1.2-2' }} questo mese
+        </div>
       </div>
-      <div class="chip" [class.negative]="saldoMese() < 0">
-        <mat-icon>{{ saldoMese() >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
-        {{ saldoMese() | currency:'EUR':'symbol':'1.2-2' }} questo mese
-      </div>
-    </mat-card>
+      }
 
-    <mat-card class="card income">
+      @case ('entrate') {
       <div class="card-head">
         <span class="label">Entrate</span>
         <mat-icon>south_west</mat-icon>
       </div>
-      <div class="value">
-        {{ dashboard()?.totaleEntrate ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
+      <div class="card-main">
+        <div class="value">
+          {{ dashboard()?.totaleEntrate ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
+        </div>
+        <div class="sub">
+          Questo mese {{ dashboard()?.entrateMeseCorrente ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
+        </div>
       </div>
-      <div class="sub">
-        Questo mese {{ dashboard()?.entrateMeseCorrente ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
-      </div>
-    </mat-card>
+      }
 
-    <mat-card class="card expense">
+      @case ('uscite') {
       <div class="card-head">
         <span class="label">Uscite</span>
         <mat-icon>north_east</mat-icon>
       </div>
-      <div class="value">
-        {{ dashboard()?.totaleUscite ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
+      <div class="card-main">
+        <div class="value">
+          {{ dashboard()?.totaleUscite ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
+        </div>
+        <div class="sub">
+          Questo mese {{ dashboard()?.usciteMeseCorrente ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
+        </div>
       </div>
-      <div class="sub">
-        Questo mese {{ dashboard()?.usciteMeseCorrente ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
-      </div>
-    </mat-card>
+      }
 
-    <mat-card class="card month">
+      @case ('mese') {
       <div class="card-head">
         <span class="label">Saldo del mese</span>
         <mat-icon>calendar_month</mat-icon>
       </div>
-      <div class="value" [class.amount-in]="saldoMese() >= 0" [class.amount-out]="saldoMese() < 0">
-        {{ saldoMese() | currency:'EUR':'symbol':'1.2-2' }}
+      <div class="card-main">
+        <div class="value" [class.amount-in]="saldoMese() >= 0" [class.amount-out]="saldoMese() < 0">
+          {{ saldoMese() | currency:'EUR':'symbol':'1.2-2' }}
+        </div>
+        <div class="sub">Entrate meno uscite di {{ today | date:'MMMM' }}</div>
       </div>
-      <div class="sub">Entrate meno uscite di {{ today | date:'MMMM' }}</div>
-    </mat-card>
+      }
+
+      @case ('nuovo') {
+      <button type="button" class="cta-btn" [disabled]="modifica()" (click)="nuovoMovimento()">
+        <span class="plus"><mat-icon>add</mat-icon></span>
+        <span class="cta-text">
+                <span class="cta-title">Nuovo movimento</span>
+                <span class="cta-sub">Registra un'entrata o un'uscita</span>
+              </span>
+      </button>
+      }
+      }
+
+      @if (modifica()) {
+      <div class="edit-bar">
+        <mat-icon class="grip">drag_indicator</mat-icon>
+        @for (m of misure; track m.size) {
+        <button type="button"
+                class="size-btn"
+                [class.on]="c.size === m.size"
+                [attr.aria-label]="'Dimensione ' + m.label"
+                [attr.aria-pressed]="c.size === m.size"
+                [title]="m.label"
+                (click)="impostaMisura(c.id, m.size)">
+          <span class="glyph" [attr.data-g]="m.size"></span>
+        </button>
+        }
+      </div>
+      }
+    </article>
+    }
+  </div>
+
+  <!-- ===== statistiche ===== -->
+  <div class="carousel">
+    <div class="track" #track (scroll)="onScroll($event)">
+      @for (p of pagine(); track p.chiave) {
+      <article class="slide" [attr.aria-label]="p.titolo">
+        <div class="slide-grid" [class.singola]="p.stats[0].larga">
+          @for (s of p.stats; track s.id) {
+          @switch (s.id) {
+
+          @case ('andamento') {
+          <section class="panel">
+            <header class="panel-head">
+              <div>
+                <h2>Entrate e uscite</h2>
+                <p>Ultimi {{ andamento().length }} mesi</p>
+              </div>
+              <div class="legend">
+                <span class="dot in"></span>Entrate
+                <span class="dot out"></span>Uscite
+              </div>
+            </header>
+
+            @if (andamentoVuoto()) {
+            <div class="empty">
+              <mat-icon>bar_chart</mat-icon>
+              <span>Quando registri dei movimenti, qui vedrai l'andamento mese per mese.</span>
+            </div>
+            } @else {
+            <div class="bars">
+              @for (m of andamento(); track m.chiave) {
+              <div class="mese" [class.corrente]="m.corrente" tabindex="0">
+                <div class="tip">
+                  <strong>{{ m.label }}</strong>
+                  <span class="tip-in">Entrate {{ m.entrate | currency:'EUR':'symbol':'1.0-0' }}</span>
+                  <span class="tip-out">Uscite {{ m.uscite | currency:'EUR':'symbol':'1.0-0' }}</span>
+                </div>
+                <div class="pair">
+                  <span class="bar in" [style.height.%]="m.hIn" [style.--d]="$index"></span>
+                  <span class="bar out" [style.height.%]="m.hOut" [style.--d]="$index"></span>
+                </div>
+                <span class="mese-label">{{ m.label }}</span>
+              </div>
+              }
+            </div>
+            }
+          </section>
+          }
+
+          @case ('categorie') {
+          <section class="panel">
+            <header class="panel-head">
+              <div>
+                <h2>Spese per categoria</h2>
+                <p>Dove vanno i tuoi soldi</p>
+              </div>
+            </header>
+
+            @if (spese().voci.length === 0) {
+            <div class="empty">
+              <mat-icon>donut_large</mat-icon>
+              <span>Nessuna spesa registrata.</span>
+            </div>
+            } @else {
+            <div class="ripartizione">
+              <div class="donut-wrap">
+                <svg class="donut" viewBox="0 0 100 100" role="img" aria-label="Spese per categoria">
+                  <circle class="track-ring" cx="50" cy="50" r="40" pathLength="100"></circle>
+                  @for (v of spese().voci; track $index) {
+                  <circle class="seg" cx="50" cy="50" r="40" pathLength="100"
+                          [attr.stroke]="v.colore"
+                          [attr.stroke-dasharray]="v.dash"
+                          [attr.stroke-dashoffset]="v.offset"
+                          [style.--d]="$index"></circle>
+                  }
+                </svg>
+                <div class="donut-center">
+                  <span class="donut-label">Spese totali</span>
+                  <strong>{{ spese().totale | currency:'EUR':'symbol':'1.0-0' }}</strong>
+                </div>
+              </div>
+
+              <ul class="voci">
+                @for (v of spese().voci; track $index) {
+                <li>
+                  <span class="swatch" [style.background]="v.colore"></span>
+                  <span class="voce-nome">{{ v.icona }} {{ v.nome }}</span>
+                  <span class="voce-pct">{{ v.pct | number:'1.0-0' }}%</span>
+                  <span class="voce-val">{{ v.valore | currency:'EUR':'symbol':'1.0-0' }}</span>
+                </li>
+                }
+              </ul>
+            </div>
+            }
+          </section>
+          }
+
+          @case ('ultimi') {
+          <section class="panel">
+            <header class="panel-head">
+              <div>
+                <h2>Ultimi movimenti</h2>
+                <p>I più recenti</p>
+              </div>
+            </header>
+
+            @if (ultimi().length === 0) {
+            <div class="empty">
+              <mat-icon>receipt_long</mat-icon>
+              <span>Nessun movimento ancora. Usa «Nuovo movimento» per iniziare.</span>
+            </div>
+            } @else {
+            <ul class="recenti">
+              @for (m of ultimi(); track m.id) {
+              <li>
+                            <span class="ico" [class.in]="m.tipo === 'ENTRATA'" [class.out]="m.tipo !== 'ENTRATA'">
+                              <mat-icon>{{ m.tipo === 'ENTRATA' ? 'south_west' : 'north_east' }}</mat-icon>
+                            </span>
+                <span class="rec-testo">
+                              <strong>{{ m.descrizione }}</strong>
+                              <span>{{ m.categoria }} · {{ m.data | date:'d MMM' }}</span>
+                            </span>
+                <span class="rec-importo"
+                      [class.amount-in]="m.tipo === 'ENTRATA'"
+                      [class.amount-out]="m.tipo !== 'ENTRATA'">
+                              {{ m.tipo === 'ENTRATA' ? '+' : '−' }}{{ m.importo | currency:'EUR' }}
+                            </span>
+              </li>
+              }
+            </ul>
+            }
+          </section>
+          }
+
+          @case ('confronto') {
+          <section class="panel">
+            <header class="panel-head">
+              <div>
+                <h2>Mese su mese</h2>
+                <p class="cap">{{ meseCorrenteLabel }} contro {{ mesePrecedenteLabel }}</p>
+              </div>
+              <div class="legend">
+                <span class="dot cur"></span>Questo mese
+                <span class="dot prev"></span>Scorso
+              </div>
+            </header>
+
+            @if (confronto(); as righe) {
+            <ul class="confronti">
+              @for (r of righe; track r.label) {
+              <li [style.--c]="r.colore">
+                <div class="cmp-head">
+                              <span class="cmp-label">
+                                <mat-icon>{{ r.icona }}</mat-icon>{{ r.label }}
+                              </span>
+                  <span class="delta"
+                        [class.buono]="r.stato === 'buono'"
+                        [class.cattivo]="r.stato === 'cattivo'">
+                                <mat-icon>{{ r.direzione === 'su' ? 'arrow_upward' : r.direzione === 'giu' ? 'arrow_downward' : 'remove' }}</mat-icon>
+                                {{ r.testo }}
+                              </span>
+                </div>
+                <div class="cmp-row">
+                  <div class="cmp-track"><span class="cmp-bar cur" [style.width.%]="r.wAtt"></span></div>
+                  <span class="cmp-val">{{ r.attuale | currency:'EUR':'symbol':'1.0-0' }}</span>
+                </div>
+                <div class="cmp-row">
+                  <div class="cmp-track"><span class="cmp-bar prev" [style.width.%]="r.wPrec"></span></div>
+                  <span class="cmp-val muted">{{ r.precedente | currency:'EUR':'symbol':'1.0-0' }}</span>
+                </div>
+              </li>
+              }
+            </ul>
+            } @else {
+            <div class="empty">
+              <mat-icon>compare_arrows</mat-icon>
+              <span>Servono almeno due mesi di dati per il confronto.</span>
+            </div>
+            }
+          </section>
+          }
+
+          @case ('riepilogo') {
+          <section class="panel">
+            <header class="panel-head">
+              <div>
+                <h2>Riepilogo del mese</h2>
+                <p class="cap">{{ today | date:'MMMM y' }}</p>
+              </div>
+            </header>
+
+            <div class="tiles">
+              <div class="tile-stat">
+                <mat-icon>today</mat-icon>
+                <span class="tile-label">Spesa media al giorno</span>
+                <strong>{{ riepilogo().mediaGiorno | currency:'EUR':'symbol':'1.0-0' }}</strong>
+              </div>
+
+              <div class="tile-stat">
+                <mat-icon>moving</mat-icon>
+                <span class="tile-label">Proiezione a fine mese</span>
+                <strong>{{ riepilogo().proiezione | currency:'EUR':'symbol':'1.0-0' }}</strong>
+                <span class="tile-note">Se continui a questo ritmo</span>
+              </div>
+
+              <div class="tile-stat">
+                <mat-icon>savings</mat-icon>
+                <span class="tile-label">Tasso di risparmio</span>
+                <strong>
+                  @if (riepilogo().risparmio !== null) {
+                  {{ riepilogo().risparmio | number:'1.0-0' }}%
+                  } @else {
+                  —
+                  }
+                </strong>
+                <span class="tile-note">Della quota di entrate del mese</span>
+              </div>
+
+              <div class="tile-stat">
+                <mat-icon>local_fire_department</mat-icon>
+                <span class="tile-label">Categoria che pesa di più</span>
+                <strong>
+                  @if (riepilogo().top; as top) {
+                  {{ top.icona }} {{ top.nome }}
+                  } @else {
+                  —
+                  }
+                </strong>
+                @if (riepilogo().top; as top) {
+                <span class="tile-note">{{ top.valore | currency:'EUR':'symbol':'1.0-0' }} in totale</span>
+                }
+              </div>
+            </div>
+          </section>
+          }
+          }
+          }
+        </div>
+      </article>
+      }
+    </div>
+
+    <nav class="dots" aria-label="Scegli la pagina di statistiche">
+      @for (p of pagine(); track p.chiave; let i = $index) {
+      <button type="button"
+              class="dash"
+              [class.active]="i === attiva()"
+              [attr.aria-label]="p.titolo"
+              [attr.aria-current]="i === attiva()"
+              [title]="p.titolo"
+              (click)="vai(i, track)"></button>
+      }
+      <!-- Qui in futuro: pulsante "+" per aggiungere una statistica -->
+    </nav>
   </div>
 </section>

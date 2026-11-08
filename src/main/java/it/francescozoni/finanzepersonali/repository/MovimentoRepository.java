@@ -10,17 +10,21 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MovimentoRepository extends JpaRepository<Movimento, Long>, JpaSpecificationExecutor<Movimento> {
-    List<Movimento> findAllByDeletedFalse();
 
     @EntityGraph(attributePaths = {"categoria"})
-    Page<Movimento> findAllByDeletedFalse(Pageable pageable);
+    List<Movimento> findAllByDeletedFalseAndUtenteId(Long utenteId);
 
     @EntityGraph(attributePaths = {"categoria"})
-    Page<Movimento> findAll(
-            Specification<Movimento> specification,
-            Pageable pageable
-    );
+    Page<Movimento> findAllByDeletedFalseAndUtenteId(Long utenteId, Pageable pageable);
+
+    Optional<Movimento> findByIdAndUtenteId(Long id, Long utenteId);
+
+    boolean existsByIdAndUtenteId(Long id, Long utenteId);
+
+    @EntityGraph(attributePaths = {"categoria"})
+    Page<Movimento> findAll(Specification<Movimento> specification, Pageable pageable);
 }

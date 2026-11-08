@@ -1,0 +1,46 @@
+.riga {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 480px) {
+  .riga { grid-template-columns: 1fr; }
+}
+
+// anteprima del nome utente con lo stato della verifica
+.username {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: -4px 0 20px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--app-text);
+  background: color-mix(in srgb, var(--app-text) 6%, transparent);
+  transition: background-color 200ms ease;
+
+  mat-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    color: var(--app-text-muted);
+  }
+
+  strong { font-weight: 500; }
+
+  &[data-stato='libero'] {
+    background: color-mix(in srgb, var(--app-income) 14%, transparent);
+    mat-icon { color: var(--app-income); }
+  }
+
+  &[data-stato='occupato'] {
+    background: color-mix(in srgb, var(--app-expense) 14%, transparent);
+    mat-icon { color: var(--app-expense); }
+  }
+
+  &[data-stato='verifica'] mat-icon { color: var(--app-primary); }
+}
