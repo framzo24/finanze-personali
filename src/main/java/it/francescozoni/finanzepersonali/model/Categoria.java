@@ -16,7 +16,7 @@ import java.util.List;
 @Builder
 public class Categoria extends BaseEntity {
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String nome;
 
     @Column(length = 50)
@@ -37,13 +37,12 @@ public class Categoria extends BaseEntity {
     @SQLRestriction("deleted=false")
     private List<Categoria> sottoCategorie = new ArrayList<>();
 
-    public void aggiungiSottoCategoria(
-            Categoria categoria
-    ) {
-
+    public void aggiungiSottoCategoria(Categoria categoria) {
         sottoCategorie.add(categoria);
-
         categoria.setCategoriaPadre(this);
-
     }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "utente_id")
+    private Utente utente;
 }

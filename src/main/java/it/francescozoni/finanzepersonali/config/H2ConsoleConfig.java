@@ -1,4 +1,4 @@
-package it.francescozoni.finanzepersonali.configuration;
+package it.francescozoni.finanzepersonali.config;
 
 import org.h2.server.web.JakartaWebServlet;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;

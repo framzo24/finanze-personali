@@ -1,0 +1,62 @@
+<main class="auth-page">
+  <aside class="auth-brand">
+    <div class="auth-logo">
+      <span class="auth-logo-tile"><mat-icon>account_balance_wallet</mat-icon></span>
+      Finanze
+    </div>
+
+    <div class="auth-headline">
+      <h2>Le tue finanze, finalmente chiare.</h2>
+      <p>Entrate, uscite e categorie in un unico posto, con grafici che ti dicono dove vanno i tuoi soldi.</p>
+    </div>
+
+    <div class="auth-chips">
+      <span class="auth-chip"><mat-icon>insights</mat-icon>Statistiche</span>
+      <span class="auth-chip"><mat-icon>sell</mat-icon>Categorie</span>
+      <span class="auth-chip"><mat-icon>palette</mat-icon>Su misura</span>
+    </div>
+  </aside>
+
+  <section class="auth-panel">
+    <button type="button" mat-icon-button class="auth-theme"
+            [attr.aria-label]="theme.isDark() ? 'Passa al tema chiaro' : 'Passa al tema scuro'"
+            (click)="theme.toggle()">
+      <mat-icon>{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+
+    <form class="auth-card" [class.scossa]="scossa()" [formGroup]="form" (ngSubmit)="accedi()">
+      <div class="auth-mobile-logo">
+        <span class="auth-logo-tile"><mat-icon>account_balance_wallet</mat-icon></span>
+        Finanze
+      </div>
+
+      <h1>Bentornato</h1>
+      <p class="lead">Accedi per vedere le tue finanze.</p>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Nome utente</mat-label>
+        <mat-icon matPrefix>person</mat-icon>
+        <input matInput #username formControlName="username" autocomplete="username"
+               autocapitalize="none" spellcheck="false">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <mat-icon matPrefix>lock</mat-icon>
+        <input matInput #password formControlName="password" autocomplete="current-password"
+               [type]="mostra() ? 'text' : 'password'">
+        <button type="button" mat-icon-button matSuffix
+                [attr.aria-label]="mostra() ? 'Nascondi password' : 'Mostra password'"
+                (click)="mostra.set(!mostra())">
+          <mat-icon>{{ mostra() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <button type="submit" mat-flat-button class="auth-submit" [disabled]="invio()">
+        {{ invio() ? 'Accesso in corso…' : 'Accedi' }}
+      </button>
+
+      <p class="auth-alt">Non hai un account? <a routerLink="/registrazione">Registrati</a></p>
+    </form>
+  </section>
+</main>

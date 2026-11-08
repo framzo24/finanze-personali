@@ -1,0 +1,103 @@
+<main class="auth-page">
+  <aside class="auth-brand">
+    <div class="auth-logo">
+      <span class="auth-logo-tile"><mat-icon>account_balance_wallet</mat-icon></span>
+      Finanze
+    </div>
+
+    <div class="auth-headline">
+      <h2>Inizia a tenere in ordine i tuoi conti.</h2>
+      <p>Crea il tuo account: i tuoi movimenti e le tue categorie saranno solo tuoi.</p>
+    </div>
+
+    <div class="auth-chips">
+      <span class="auth-chip"><mat-icon>lock</mat-icon>Password protetta</span>
+      <span class="auth-chip"><mat-icon>person</mat-icon>Dati personali</span>
+    </div>
+  </aside>
+
+  <section class="auth-panel">
+    <button type="button" mat-icon-button class="auth-theme"
+            [attr.aria-label]="theme.isDark() ? 'Passa al tema chiaro' : 'Passa al tema scuro'"
+            (click)="theme.toggle()">
+      <mat-icon>{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+
+    <form class="auth-card" [formGroup]="form" (ngSubmit)="registra()">
+      <div class="auth-mobile-logo">
+        <span class="auth-logo-tile"><mat-icon>account_balance_wallet</mat-icon></span>
+        Finanze
+      </div>
+
+      <h1>Crea il tuo account</h1>
+      <p class="lead">Bastano nome, cognome e una password.</p>
+
+      <div class="riga">
+        <mat-form-field appearance="outline">
+          <mat-label>Nome</mat-label>
+          <input matInput formControlName="nome" autocomplete="given-name">
+          <mat-error>Il nome è obbligatorio</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Cognome</mat-label>
+          <input matInput formControlName="cognome" autocomplete="family-name">
+          <mat-error>Il cognome è obbligatorio</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="username" [attr.data-stato]="stato()" aria-live="polite">
+        @switch (stato()) {
+          @case ('vuoto') {
+            <mat-icon>badge</mat-icon>
+            <span>Il tuo nome utente sarà <strong>nome.cognome</strong></span>
+          }
+          @case ('verifica') {
+            <mat-icon>hourglass_top</mat-icon>
+            <span>Controllo <strong>{{ anteprima() }}</strong>…</span>
+          }
+          @case ('libero') {
+            <mat-icon>check_circle</mat-icon>
+            <span>Il tuo nome utente sarà <strong>{{ anteprima() }}</strong></span>
+          }
+          @case ('occupato') {
+            <mat-icon>error</mat-icon>
+            <span><strong>{{ anteprima() }}</strong> esiste già. Per ora non sono ammessi due utenti con lo stesso nome e cognome.</span>
+          }
+          @case ('errore') {
+            <mat-icon>cloud_off</mat-icon>
+            <span>Non riesco a verificare la disponibilità di <strong>{{ anteprima() }}</strong>. Lo controllerò al salvataggio.</span>
+          }
+        }
+      </div>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <mat-icon matPrefix>lock</mat-icon>
+        <input matInput formControlName="password" autocomplete="new-password"
+               [type]="mostra() ? 'text' : 'password'">
+        <button type="button" mat-icon-button matSuffix
+                [attr.aria-label]="mostra() ? 'Nascondi password' : 'Mostra password'"
+                (click)="mostra.set(!mostra())">
+          <mat-icon>{{ mostra() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        <mat-hint>Da 8 a 72 caratteri</mat-hint>
+        <mat-error>La password deve avere almeno 8 caratteri</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Conferma password</mat-label>
+        <mat-icon matPrefix>lock_reset</mat-icon>
+        <input matInput formControlName="conferma" autocomplete="new-password"
+               [type]="mostra() ? 'text' : 'password'">
+        <mat-error>Le password non coincidono</mat-error>
+      </mat-form-field>
+
+      <button type="submit" mat-flat-button class="auth-submit" [disabled]="bloccato">
+        {{ invio() ? 'Creazione in corso…' : 'Crea account' }}
+      </button>
+
+      <p class="auth-alt">Hai già un account? <a routerLink="/login">Accedi</a></p>
+    </form>
+  </section>
+</main>

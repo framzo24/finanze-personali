@@ -15,8 +15,19 @@
     <mat-icon>{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
   </button>
 
-  <div class="user">
-    <span class="user-name">Francesco</span>
-    <div class="avatar">F</div>
-  </div>
+  <button type="button" class="user" [matMenuTriggerFor]="menu" aria-label="Menu profilo">
+    <span class="user-name">{{ sessione.utente()?.nome }}</span>
+    <span class="avatar">{{ iniziale() }}</span>
+  </button>
+
+  <mat-menu #menu="matMenu" xPosition="before">
+    <div class="menu-head">
+      <strong>{{ sessione.utente()?.nome }} {{ sessione.utente()?.cognome }}</strong>
+      <span>{{ sessione.utente()?.username }}</span>
+    </div>
+    <button mat-menu-item (click)="sessione.esci()">
+      <mat-icon>logout</mat-icon>
+      <span>Esci</span>
+    </button>
+  </mat-menu>
 </header>

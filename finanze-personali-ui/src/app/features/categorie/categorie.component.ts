@@ -20,11 +20,18 @@ export class CategorieComponent implements OnInit {
 
   categorie = signal<CategoriaResponse[]>([]);
   caricamento = signal(true);
-  totale = computed(() => this.appiattisci(this.categorie()).length);
+  query = signal('');
+  aperte = signal<ReadonlySet<number>>(new Set());
 
-  readonly childrenAccessor = (c: CategoriaResponse) => c.sottoCategorie ?? [];
-  readonly expansionKey = (c: CategoriaResponse) => c.id;
-  readonly hasChild = (_: number, c: CategoriaResponse) => !!c.sottoCategorie?.length;
+  principali = computed(() => this.categorie().length);
+  totale = computed(() => this.appiattisci(this.categorie()).length);
+  sottocategorie = computed(() => this.totale() - this.principali());
+
+  filtrate = computed(() => {
+    const q = this.query().trim().toLowerCase();
+    if (!q) return this.categorie();
+    return this.categorie().filter(c => this.corrisponde(c, q));
+  });
 
   constructor(
     private categoriaService: CategoriaService,
@@ -49,21 +56,43 @@ export class CategorieComponent implements OnInit {
     });
   }
 
+  // ---------- schede ----------
+  isAperta(categoria: CategoriaResponse): boolean {
+    if (this.aperte().has(categoria.id)) return true;
+    // durante la ricerca apre le schede che contengono un risultato
+    const q = this.query().trim().toLowerCase();
+    return !!q && (categoria.sottoCategorie ?? []).some(s => this.corrisponde(s, q));
+  }
+
+  toggle(id: number): void {
+    this.aperte.update(set => {
+      const nuovo = new Set(set);
+      nuovo.has(id) ? nuovo.delete(id) : nuovo.add(id);
+      return nuovo;
+    });
+  }
+
+  // ---------- dialog ----------
   nuovaCategoria(): void {
     this.apriDialog(null);
+  }
+
+  nuovaSottocategoria(padre: CategoriaResponse): void {
+    this.apriDialog({ padreId: padre.id });
+    this.aperte.update(set => new Set(set).add(padre.id));
   }
 
   modifica(categoria: CategoriaResponse): void {
     this.apriDialog(categoria);
   }
 
-  private apriDialog(categoria: CategoriaResponse | null): void {
+  private apriDialog(data: CategoriaResponse | { padreId: number } | null): void {
     this.dialog
       .open(CategoriaDialogComponent, {
         width: '480px',
         maxWidth: '95vw',
         autoFocus: false,
-        data: categoria
+        data
       })
       .afterClosed()
       .subscribe(result => {
@@ -72,7 +101,7 @@ export class CategorieComponent implements OnInit {
   }
 
   elimina(categoria: CategoriaResponse): void {
-    // La nuova categoria padre non può essere la categoria stessa né un suo discendente
+    // il nuovo padre dei figli non può essere la categoria stessa né un suo discendente
     const esclusi = new Set(this.appiattisci([categoria]).map(c => c.id));
     const categorieDisponibili = this.appiattisci(this.categorie()).filter(c => !esclusi.has(c.id));
 
@@ -111,6 +140,12 @@ export class CategorieComponent implements OnInit {
             }
           });
       });
+  }
+
+  // ---------- utilità ----------
+  private corrisponde(categoria: CategoriaResponse, q: string): boolean {
+    return categoria.nome.toLowerCase().includes(q)
+      || (categoria.sottoCategorie ?? []).some(s => this.corrisponde(s, q));
   }
 
   private appiattisci(categorie: CategoriaResponse[]): CategoriaResponse[] {

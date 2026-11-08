@@ -6,13 +6,18 @@ import { MainLayoutComponent } from './layout/main-layout/main-layout.component'
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { MovimentiComponent } from './features/movimenti/movimenti.component';
 import { CategorieComponent } from './features/categorie/categorie.component';
+import {authGuard, guestGuard} from "@app/core/guard/auth.guard";
+import {LoginComponent} from "@app/features/auth/login/login.component";
+import {RegistrazioneComponent} from "@app/features/auth/registrazione/registrazione.component";
 
 
 const routes: Routes = [
-
+  { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
+  { path: 'registrazione', component: RegistrazioneComponent, canActivate: [guestGuard] },
   {
     path: '',
     component: MainLayoutComponent,
+    canActivate: [authGuard],
     children: [
 
       {

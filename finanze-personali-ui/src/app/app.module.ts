@@ -37,6 +37,8 @@ import { LOCALE_ID, provideZoneChangeDetection } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeIt from '@angular/common/locales/it';
 import {MatTooltipModule} from "@angular/material/tooltip";
+import {DragDropModule} from "@angular/cdk/drag-drop";
+import {AuthInterceptor} from "@app/core/interceptors/auth.interceptor";
 
 @NgModule({ declarations: [
     AppComponent,
@@ -75,7 +77,9 @@ import {MatTooltipModule} from "@angular/material/tooltip";
     MatFormFieldModule,
     MatSelectModule,
     MatRadioModule,
-    MatTooltipModule], providers: [
+    MatTooltipModule,
+  DragDropModule], providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
       provideZoneChangeDetection({
         eventCoalescing: true
       }),

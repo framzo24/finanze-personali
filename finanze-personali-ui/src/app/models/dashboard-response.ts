@@ -4,19 +4,17 @@ export interface DashboardResponse {
   totaleUscite: number;
   entrateMeseCorrente: number;
   usciteMeseCorrente: number;
-
   spesePerCategoria: CategoriaTotaleResponse[];
-
   andamentoMensile: AndamentoMensileResponse[];
 }
-
 
 export interface CategoriaTotaleResponse {
   categoriaId: number;
   categoria: string;
+  colore?: string | null;
+  icona?: string | null;
   totale: number;
 }
-
 
 export interface AndamentoMensileResponse {
   mese: string;

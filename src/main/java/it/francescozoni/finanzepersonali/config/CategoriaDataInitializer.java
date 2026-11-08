@@ -1,4 +1,4 @@
-package it.francescozoni.finanzepersonali.configuration;
+package it.francescozoni.finanzepersonali.config;
 
 import it.francescozoni.finanzepersonali.model.Categoria;
 import it.francescozoni.finanzepersonali.repository.CategoriaRepository;

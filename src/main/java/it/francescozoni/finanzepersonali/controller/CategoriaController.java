@@ -15,16 +15,11 @@ import java.util.List;
 @Slf4j
 public class CategoriaController {
 
-
     private final CategoriaService service;
 
-
-    public CategoriaController(
-            CategoriaService service
-    ) {
+    public CategoriaController(CategoriaService service) {
         this.service = service;
     }
-
 
     @GetMapping
     public List<CategoriaResponse> tutte() {
@@ -38,28 +33,25 @@ public class CategoriaController {
     }
 
     @GetMapping("/{id}")
-    public CategoriaResponse una(
-            @PathVariable Long id
-    ) {
+    public CategoriaResponse una(@PathVariable Long id) {
         return service.trova(id);
     }
 
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CategoriaResponse crea(
-            @Valid @RequestBody CreateCategoriaRequest request
-    ) {
+    public CategoriaResponse crea(@Valid @RequestBody CreateCategoriaRequest request) {
         return service.crea(request);
     }
-
 
     @PutMapping("/{id}")
     public CategoriaResponse modifica(
             @PathVariable Long id,
             @Valid @RequestBody UpdateCategoriaRequest request
     ) {
-        return service.modifica(id, request);
+        return service.modifica(
+                id,
+                request
+        );
     }
 
 
@@ -74,6 +66,6 @@ public class CategoriaController {
                 id,
                 azione,
                 nuovaCategoriaPadreId
-                );
+        );
     }
 }

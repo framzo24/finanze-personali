@@ -10,11 +10,11 @@ import java.util.Optional;
 @Repository
 public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
-    List<Categoria> findAllByDeletedFalse();
+    List<Categoria> findAllByDeletedFalseAndUtenteId(Long utenteId);
 
-    Optional<Categoria> findByIdAndDeletedFalse(Long id);
+    List<Categoria> findAllByDeletedFalseAndCategoriaPadreIsNullAndUtenteId(Long utenteId);
 
-    List<Categoria> findAllByDeletedFalseAndCategoriaPadreIsNull();
+    Optional<Categoria> findByIdAndDeletedFalseAndUtenteId(Long id, Long utenteId);
 
-    boolean existsByNomeIgnoreCaseAndDeletedFalse(String nome);
+    boolean existsByNomeIgnoreCaseAndDeletedFalseAndUtenteId(String nome, Long utenteId);
 }
