@@ -3,8 +3,8 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MatDialog } from '@angular/material/dialog';
 import { DashboardService } from '@app/core/services/dashboard.service';
 import { DashboardResponse } from '@app/models/dashboard-response';
-import { MovimentoService } from '../../core/services/movimento.service';
-import { MovimentoResponse } from '../../core/models/movimento-response';
+import { MovimentoService } from '@app/core/services/movimento.service';
+import { MovimentoResponse } from '@app/core/models/movimento-response';
 import { MovimentoDialogComponent } from '../movimenti/movimento-dialog/movimento-dialog.component';
 
 const PALETTE = ['#7C3AED', '#2563EB', '#0891B2', '#16A34A', '#CA8A04', '#EA580C', '#DC2626', '#DB2777'];
