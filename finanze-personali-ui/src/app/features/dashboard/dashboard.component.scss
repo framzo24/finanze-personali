@@ -67,10 +67,10 @@
 .bento {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-auto-rows: minmax(150px, auto);
+  grid-auto-rows: minmax(140px, auto);
   grid-auto-flow: row dense;
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 // piccola = 1×1, media = 2×2, larga = 2×1
@@ -79,7 +79,7 @@
 
 @media (max-width: 1100px) {
   .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .card[data-size='M'] { grid-row: auto; min-height: 200px; }
+  .card[data-size='M'] { grid-row: auto; min-height: 190px; }
 }
 
 @media (max-width: 600px) {
@@ -95,8 +95,8 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 18px;
-  padding: 22px;
+  gap: 16px;
+  padding: 20px;
   border-radius: 22px;
   border: 1px solid var(--app-border);
   background: var(--app-card);
@@ -115,19 +115,79 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 8px;
 }
 
 .label {
   font-size: 14px;
   font-weight: 500;
   opacity: .85;
+  white-space: nowrap;
+}
+
+.tag {
+  opacity: .75;
+}
+
+.head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+
+  mat-icon {
+    flex-shrink: 0;
+  }
+}
+
+// bottone "Mese scorso"
+.toggle {
+  padding: 3px 10px;
+  border: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, currentColor 14%, transparent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: .5;
+    cursor: default;
+  }
+}
+
+.card[data-card='entrate'] .toggle.on {
+  background: var(--app-on-primary);
+  border-color: var(--app-on-primary);
+  color: var(--app-primary);
+}
+
+.card[data-card='uscite'] .toggle.on {
+  background: var(--app-primary);
+  border-color: var(--app-primary);
+  color: var(--app-on-primary);
 }
 
 .card-main {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
+  gap: 8px;
 }
 
 .card[data-size='W'] .card-main {
@@ -362,6 +422,9 @@
 
 // ---------- carosello ----------
 .carousel {
+  // altezza fissa delle card delle statistiche: cambiala qui se vuoi più o meno spazio
+  --panel-h: 300px;
+
   display: flex;
   flex-direction: column;
 }
@@ -391,7 +454,7 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
-  align-items: stretch;
+  align-items: start;
 
   &.singola { grid-template-columns: 1fr; }
 }
@@ -406,7 +469,7 @@
   justify-content: center;
   align-items: center;
   gap: 6px;
-  margin-top: 16px;
+  margin-top: 14px;
 }
 
 .dash {
@@ -440,20 +503,27 @@
   }
 }
 
-// ---------- pannello ----------
+// ---------- pannello (altezza fissa) ----------
 .panel {
   container: panel / inline-size;
+  height: var(--panel-h);
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 22px;
+  gap: 14px;
+  padding: 20px;
   border-radius: 22px;
   background: var(--app-card);
   border: 1px solid var(--app-border);
+
+  // il riepilogo ha un'altezza propria
+  &.fluido {
+    height: auto;
+  }
 }
 
 .panel-head {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -461,7 +531,7 @@
 
   h2 {
     margin: 0;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 500;
     color: var(--app-text);
   }
@@ -505,8 +575,6 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 8px;
-  flex: 1;
-  min-height: 240px;
 }
 
 .mese {
@@ -516,7 +584,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   outline: none;
 }
 
@@ -526,7 +594,7 @@
   justify-content: center;
   gap: 5px;
   width: 100%;
-  height: 200px;
+  height: 176px;
 }
 
 .bar {
@@ -602,28 +670,21 @@
 .mese:last-child:hover .tip,
 .mese:last-child:focus-visible .tip { transform: none; }
 
-// ----- ciambella -----
+// ----- ciambella + legenda scorrevole -----
 .ripartizione {
+  flex: 1;
+  min-height: 0;
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 20px;
   align-items: center;
-}
-
-// la legenda si affianca solo se il pannello è abbastanza largo
-@container panel (min-width: 540px) {
-  .ripartizione {
-    grid-template-columns: 220px minmax(0, 1fr);
-    gap: 32px;
-  }
 }
 
 .donut-wrap {
   position: relative;
-  width: 100%;
-  max-width: 220px;
+  width: 140px;
   aspect-ratio: 1;
-  margin: 0 auto;
 }
 
 .donut {
@@ -660,7 +721,7 @@
   text-align: center;
 
   strong {
-    font-size: 22px;
+    font-size: 17px;
     font-weight: 500;
     letter-spacing: -0.4px;
     color: var(--app-text);
@@ -668,23 +729,32 @@
 }
 
 .donut-label {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--app-text-muted);
 }
 
+@container panel (min-width: 440px) {
+  .donut-wrap { width: 176px; }
+  .donut-center strong { font-size: 22px; }
+  .donut-label { font-size: 12px; }
+}
+
 .voci {
-  list-style: none;
+  align-self: stretch;
+  min-height: 0;
   margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
+  padding: 0 8px 0 0;
+  list-style: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
 
   li {
     display: grid;
     grid-template-columns: 12px 1fr auto auto;
     align-items: center;
     gap: 10px;
-    padding: 10px 4px;
+    padding: 9px 4px;
     border-bottom: 1px solid var(--app-border);
     font-size: 14px;
     color: var(--app-text);
@@ -711,23 +781,28 @@
 }
 
 .voce-val {
-  min-width: 64px;
+  min-width: 56px;
   text-align: right;
   font-variant-numeric: tabular-nums;
   font-weight: 500;
 }
 
-// ----- ultimi movimenti -----
+// ----- ultimi movimenti (scorrevoli) -----
 .recenti {
-  list-style: none;
+  flex: 1;
+  min-height: 0;
   margin: 0;
-  padding: 0;
+  padding: 0 8px 0 0;
+  list-style: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
 
   li {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 12px 4px;
+    gap: 12px;
+    padding: 8px 4px;
     border-bottom: 1px solid var(--app-border);
 
     &:last-child { border-bottom: none; }
@@ -735,17 +810,17 @@
 }
 
 .ico {
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  border-radius: 14px;
+  border-radius: 12px;
 
   mat-icon {
-    width: 22px;
-    height: 22px;
-    font-size: 22px;
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
   }
 
   &.in  { background: color-mix(in srgb, var(--app-income) 18%, transparent);  color: var(--app-income); }
@@ -778,19 +853,24 @@
   white-space: nowrap;
 }
 
-// ----- mese su mese -----
+// ----- mese su mese (compatto) -----
 .confronti {
-  list-style: none;
+  flex: 1;
+  min-height: 0;
   margin: 0;
-  padding: 0;
+  padding: 0 6px 0 0;
+  list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  justify-content: space-between;
+  gap: 12px;
+  overflow-y: auto;
+  scrollbar-width: thin;
 
   li {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
   }
 }
 
@@ -820,17 +900,17 @@
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  padding: 3px 10px 3px 6px;
+  padding: 2px 8px 2px 4px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--app-text-muted);
   background: color-mix(in srgb, var(--app-text) 8%, transparent);
 
   mat-icon {
-    width: 16px;
-    height: 16px;
-    font-size: 16px;
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
   }
 
   &.buono {
@@ -852,7 +932,7 @@
 
 .cmp-track {
   flex: 1;
-  height: 12px;
+  height: 9px;
   border-radius: 999px;
   overflow: hidden;
   background: color-mix(in srgb, var(--app-text) 6%, transparent);
@@ -876,8 +956,9 @@
 .cmp-val {
   min-width: 70px;
   text-align: right;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
   color: var(--app-text);
 
@@ -897,19 +978,19 @@
 .tile-stat {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 18px;
+  gap: 3px;
+  padding: 16px;
   border-radius: 18px;
   background: color-mix(in srgb, var(--app-primary) 8%, transparent);
   border: 1px solid color-mix(in srgb, var(--app-primary) 22%, transparent);
 
   mat-icon {
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     color: var(--app-primary);
   }
 
   strong {
-    font-size: 26px;
+    font-size: 24px;
     font-weight: 500;
     letter-spacing: -0.5px;
     color: var(--app-text);
@@ -934,7 +1015,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 32px 8px;
+  padding: 16px 8px;
   text-align: center;
   font-size: 14px;
   color: var(--app-text-muted);
@@ -949,7 +1030,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .card, .bar, .donut .seg, .cmp-bar { animation: none; }
-  .card, .dash, .plus { transition: none; }
+  .card, .dash, .plus, .toggle { transition: none; }
   .card:hover { transform: none; }
   .track { scroll-behavior: auto; }
 }

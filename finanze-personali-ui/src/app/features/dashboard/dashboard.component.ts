@@ -10,6 +10,10 @@ import { MovimentoDialogComponent } from '../movimenti/movimento-dialog/moviment
 const PALETTE = ['#7C3AED', '#2563EB', '#0891B2', '#16A34A', '#CA8A04', '#EA580C', '#DC2626', '#DB2777'];
 const MAX_FETTE = 5;
 
+function meseBreve(data: Date): string {
+  return data.toLocaleDateString('it-IT', { month: 'short' }).replace('.', '');
+}
+
 // ---------- layout delle card ----------
 type CardId = 'saldo' | 'entrate' | 'uscite' | 'mese' | 'nuovo';
 type CardSize = 'S' | 'M' | 'W';
@@ -94,9 +98,31 @@ export class DashboardComponent implements OnInit {
   ultimi = signal<MovimentoResponse[]>([]);
   readonly today = new Date();
 
+  private readonly meseScorsoData = new Date(this.today.getFullYear(), this.today.getMonth() - 1, 1);
+
   readonly meseCorrenteLabel = this.today.toLocaleDateString('it-IT', { month: 'long' });
-  readonly mesePrecedenteLabel = new Date(this.today.getFullYear(), this.today.getMonth() - 1, 1)
-    .toLocaleDateString('it-IT', { month: 'long' });
+  readonly mesePrecedenteLabel = this.meseScorsoData.toLocaleDateString('it-IT', { month: 'long' });
+  readonly mesePrecedenteBreve = meseBreve(this.meseScorsoData);
+
+  // ---------- entrate e uscite: mese corrente / mese scorso ----------
+  scorsoEntrate = signal(false);
+  scorsoUscite = signal(false);
+
+  /** Entrate e uscite del mese scorso, cercate per chiave "AAAA-MM". */
+  private precedente = computed(() => {
+    const d = this.meseScorsoData;
+    const chiave = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const riga = (this.dashboard()?.andamentoMensile ?? []).find(m => m.mese === chiave);
+    return { entrate: riga?.entrate ?? 0, uscite: riga?.uscite ?? 0 };
+  });
+
+  entrateMostrate = computed(() =>
+    this.scorsoEntrate() ? this.precedente().entrate : (this.dashboard()?.entrateMeseCorrente ?? 0)
+  );
+
+  usciteMostrate = computed(() =>
+    this.scorsoUscite() ? this.precedente().uscite : (this.dashboard()?.usciteMeseCorrente ?? 0)
+  );
 
   // ---------- modifica layout ----------
   layout = signal<CardLayout[]>(caricaLayout());
@@ -230,9 +256,7 @@ export class DashboardComponent implements OnInit {
       const [anno, mese] = d.mese.split('-').map(Number);
       return {
         chiave: d.mese,
-        label: new Date(anno, mese - 1, 1)
-          .toLocaleDateString('it-IT', { month: 'short' })
-          .replace('.', ''),
+        label: meseBreve(new Date(anno, mese - 1, 1)),
         entrate: d.entrate,
         uscite: d.uscite,
         hIn: altezza(d.entrate),
@@ -380,7 +404,7 @@ export class DashboardComponent implements OnInit {
 
   caricaUltimi(): void {
     // la ricerca è già ordinata per data decrescente
-    this.movimentoService.cerca({}, 0, 6).subscribe({
+    this.movimentoService.cerca({}, 0, 10).subscribe({
       next: response => this.ultimi.set(response.contenuto),
       error: error => console.error('Errore caricamento ultimi movimenti', error)
     });

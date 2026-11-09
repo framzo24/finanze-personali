@@ -72,30 +72,48 @@
 
       @case ('entrate') {
       <div class="card-head">
-        <span class="label">Entrate</span>
-        <mat-icon>south_west</mat-icon>
+        <span class="label">Entrate@if (scorsoEntrate()) { <span class="tag">· {{ mesePrecedenteBreve }}</span> }</span>
+        <div class="head-actions">
+          <button type="button" class="toggle"
+                  [class.on]="scorsoEntrate()"
+                  [attr.aria-pressed]="scorsoEntrate()"
+                  [disabled]="modifica()"
+                  (click)="scorsoEntrate.set(!scorsoEntrate())">
+            Mese scorso
+          </button>
+          <mat-icon>south_west</mat-icon>
+        </div>
       </div>
       <div class="card-main">
         <div class="value">
-          {{ dashboard()?.totaleEntrate ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
+          {{ entrateMostrate() | currency:'EUR':'symbol':'1.2-2' }}
         </div>
         <div class="sub">
-          Questo mese {{ dashboard()?.entrateMeseCorrente ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
+          Totale {{ dashboard()?.totaleEntrate ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
         </div>
       </div>
       }
 
       @case ('uscite') {
       <div class="card-head">
-        <span class="label">Uscite</span>
-        <mat-icon>north_east</mat-icon>
+        <span class="label">Uscite@if (scorsoUscite()) { <span class="tag">· {{ mesePrecedenteBreve }}</span> }</span>
+        <div class="head-actions">
+          <button type="button" class="toggle"
+                  [class.on]="scorsoUscite()"
+                  [attr.aria-pressed]="scorsoUscite()"
+                  [disabled]="modifica()"
+                  (click)="scorsoUscite.set(!scorsoUscite())">
+            Mese scorso
+          </button>
+          <mat-icon>north_east</mat-icon>
+        </div>
       </div>
       <div class="card-main">
         <div class="value">
-          {{ dashboard()?.totaleUscite ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
+          {{ usciteMostrate() | currency:'EUR':'symbol':'1.2-2' }}
         </div>
         <div class="sub">
-          Questo mese {{ dashboard()?.usciteMeseCorrente ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
+          Totale {{ dashboard()?.totaleUscite ?? 0 | currency:'EUR':'symbol':'1.2-2' }}
         </div>
       </div>
       }
@@ -326,7 +344,7 @@
           }
 
           @case ('riepilogo') {
-          <section class="panel">
+          <section class="panel fluido">
             <header class="panel-head">
               <div>
                 <h2>Riepilogo del mese</h2>
