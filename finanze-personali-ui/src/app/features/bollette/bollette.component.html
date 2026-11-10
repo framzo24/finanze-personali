@@ -1,0 +1,209 @@
+<header class="page-header">
+  <div>
+    <h1>Bollette</h1>
+    <p>Luce, gas, acqua e Wi-Fi della casa.</p>
+  </div>
+
+  <div class="header-actions">
+    <div class="segment" role="group" aria-label="Cosa vuoi vedere">
+      <button type="button" [class.on]="vista() === 'casa'" [attr.aria-pressed]="vista() === 'casa'"
+              (click)="vista.set('casa')">Totale casa</button>
+      <button type="button" [class.on]="vista() === 'mia'" [attr.aria-pressed]="vista() === 'mia'"
+              (click)="vista.set('mia')">La mia quota</button>
+    </div>
+    <button mat-stroked-button (click)="storico()">
+      <mat-icon>upload_file</mat-icon>
+      Carica storico
+    </button>
+    <button mat-flat-button (click)="nuova()">
+      <mat-icon>add</mat-icon>
+      Nuova bolletta
+    </button>
+  </div>
+</header>
+
+@if (riepilogo(); as r) {
+@if (r.daPagare > 0) {
+<div class="avviso">
+  <mat-icon>pending_actions</mat-icon>
+  <span>
+        <strong>{{ r.daPagare }}</strong>
+        {{ r.daPagare === 1 ? 'bolletta da pagare' : 'bollette da pagare' }} per
+        <strong>{{ valore(r.daPagareImporto, r.daPagareQuota) | currency:'EUR' }}</strong>
+      </span>
+</div>
+}
+
+<div class="cards">
+  @for (t of r.tipi; track t.tipo) {
+  @let m = meta[t.tipo];
+  @let u = t.ultima;
+  @let punti = spark(t);
+
+  <article class="tcard" [style.--t]="m.colore" [style.--i]="$index">
+    <div class="tcard-head">
+      <span class="tile"><mat-icon>{{ m.icona }}</mat-icon></span>
+      <span class="tname">{{ m.label }}</span>
+      @if (t.daPagare > 0) {
+      <span class="pill attesa">{{ t.daPagare }} da pagare</span>
+      }
+    </div>
+
+    @if (u) {
+    <div class="tvalue">{{ valore(u.importo, u.quotaTua) | currency:'EUR' }}</div>
+    <div class="tsub">
+      {{ u.periodoDal | date:'d MMM' }} – {{ u.periodoAl | date:'d MMM y' }} · {{ u.fornitore }}
+    </div>
+
+    @if (punti) {
+    <svg class="spark" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true">
+      <polyline [attr.points]="punti" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+    </svg>
+    }
+
+    <div class="tfoot">
+      <span>Totale {{ annoCorrente }}</span>
+      <strong>{{ totaleAnno(t) | currency:'EUR':'symbol':'1.0-0' }}</strong>
+    </div>
+    } @else {
+    <div class="tvuota">
+      <span>Ancora nessuna bolletta.</span>
+      <button mat-button (click)="nuova(t.tipo)">Aggiungi la prima</button>
+    </div>
+    }
+  </article>
+  }
+</div>
+}
+
+<section class="panel filtri">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Anno</mat-label>
+    <mat-select [ngModel]="filtroAnno" (ngModelChange)="filtroAnno = $event; applicaFiltri()">
+      <mat-option [value]="null">Tutti</mat-option>
+      @for (a of anni; track a) {
+      <mat-option [value]="a">{{ a }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Tipo</mat-label>
+    <mat-select [ngModel]="filtroTipo" (ngModelChange)="filtroTipo = $event; applicaFiltri()">
+      <mat-option value="">Tutti</mat-option>
+      @for (t of tipi; track t.tipo) {
+      <mat-option [value]="t.tipo">{{ t.label }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Stato</mat-label>
+    <mat-select [ngModel]="filtroStato" (ngModelChange)="filtroStato = $event; applicaFiltri()">
+      <mat-option value="">Tutti</mat-option>
+      <mat-option value="DA_PAGARE">Da pagare</mat-option>
+      <mat-option value="PAGATA">Pagate</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <button mat-button (click)="resetFiltri()">Reset</button>
+</section>
+
+<section class="panel table-panel">
+  <div class="table-scroll">
+    <table mat-table [dataSource]="bollette()">
+
+      <ng-container matColumnDef="tipo">
+        <th mat-header-cell *matHeaderCellDef>Bolletta</th>
+        <td mat-cell *matCellDef="let b">
+          <div class="cella-tipo" [style.--t]="getMeta(b.tipo).colore">
+            <span class="mini"><mat-icon>{{ getMeta(b.tipo).icona }}</mat-icon></span>
+            <span class="cella-testo">
+              <strong>{{ getMeta(b.tipo).label }}</strong>
+              <span>
+                {{ b.fornitore }}
+                @if (b.natura !== 'EFFETTIVA') {
+                  <span class="tag">{{ b.natura === 'STIMATA' ? 'Stimata' : 'Conguaglio' }}</span>
+                }
+              </span>
+            </span>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="periodo">
+        <th mat-header-cell *matHeaderCellDef>Periodo</th>
+        <td mat-cell *matCellDef="let b" class="muted">
+          {{ b.periodoDal | date:'d MMM' }} – {{ b.periodoAl | date:'d MMM y' }}
+          @if (b.consumo !== null) {
+          <div class="piccolo">{{ b.consumo }} {{ b.unitaConsumo }}</div>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="scadenza">
+        <th mat-header-cell *matHeaderCellDef>Scadenza</th>
+        <td mat-cell *matCellDef="let b" class="muted">{{ b.dataScadenza | date:'dd/MM/yyyy' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="importo">
+        <th mat-header-cell *matHeaderCellDef class="num">Importo</th>
+        <td mat-cell *matCellDef="let b" class="num">
+          <strong>{{ valore(b.importo, b.quotaTua) | currency:'EUR' }}</strong>
+          <div class="piccolo">
+            {{ vista() === 'casa' ? 'Tua quota ' + (b.quotaTua | currency:'EUR') : 'Totale ' + (b.importo | currency:'EUR') }}
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="pagante">
+        <th mat-header-cell *matHeaderCellDef>Pagante</th>
+        <td mat-cell *matCellDef="let b">{{ b.paganteNome }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="stato">
+        <th mat-header-cell *matHeaderCellDef>Stato</th>
+        <td mat-cell *matCellDef="let b">
+          <span class="pill" [class]="'pill ' + statoClasse(b)">{{ statoLabel(b) }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="azioni">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let b" class="actions">
+          @if (b.stato === 'DA_PAGARE') {
+          <button mat-icon-button matTooltip="Segna come pagata" (click)="paga(b)">
+            <mat-icon>check_circle</mat-icon>
+          </button>
+          }
+          <button mat-icon-button matTooltip="Modifica" (click)="modifica(b)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button class="danger" matTooltip="Elimina" (click)="elimina(b)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="colonne"></tr>
+      <tr mat-row *matRowDef="let row; columns: colonne"></tr>
+    </table>
+  </div>
+
+  @if (!caricamento() && bollette().length === 0) {
+  <div class="empty">
+    <mat-icon>receipt_long</mat-icon>
+    <strong>Nessuna bolletta trovata</strong>
+    <span>Cambia i filtri, aggiungine una nuova o carica lo storico.</span>
+  </div>
+  }
+
+  <mat-paginator
+    [length]="totale()"
+    [pageSize]="dimensione()"
+    [pageIndex]="pagina()"
+    [pageSizeOptions]="[10, 20, 50]"
+    (page)="cambiaPagina($event)">
+  </mat-paginator>
+</section>

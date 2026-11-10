@@ -15,7 +15,8 @@ export class SidebarComponent {
   links = [
     { path: '/dashboard', label: 'Dashboard', icon: 'space_dashboard' },
     { path: '/movimenti', label: 'Movimenti', icon: 'swap_horiz' },
-    { path: '/categorie', label: 'Categorie', icon: 'sell' }
+    { path: '/categorie', label: 'Categorie', icon: 'sell' },
+    { path: '/bollette', label: 'Bollette', icon: 'receipt_long' }
     // In futuro: { path: '/aspetto', label: 'Aspetto', icon: 'palette' }
   ];
 }

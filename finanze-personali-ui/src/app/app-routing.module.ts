@@ -9,6 +9,7 @@ import { CategorieComponent } from './features/categorie/categorie.component';
 import {authGuard, guestGuard} from "@app/core/guard/auth.guard";
 import {LoginComponent} from "@app/features/auth/login/login.component";
 import {RegistrazioneComponent} from "@app/features/auth/registrazione/registrazione.component";
+import {BolletteComponent} from "@app/features/bollette/bollette.component";
 
 
 const routes: Routes = [
@@ -39,7 +40,11 @@ const routes: Routes = [
       {
         path: 'categorie',
         component: CategorieComponent
-      }
+      },
+
+      {
+        path: 'bollette',
+        component: BolletteComponent },
 
     ]
   },

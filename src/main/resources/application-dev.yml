@@ -31,6 +31,8 @@ app:
     accesso-libero: true      # permette l'accesso a francesco.zoni con campi vuoti
   cors:
     origins: http://localhost:4200,http://127.0.0.1:4200
+  bollette:
+    wifi-dal: 2025-01-01
 
 logging:
   level:

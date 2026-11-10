@@ -1,0 +1,16 @@
+.riassunto {
+  margin: 0 0 16px;
+  color: var(--app-text-muted);
+
+  strong {
+    font-weight: 500;
+    color: var(--app-text);
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+mat-form-field { width: 100%; }

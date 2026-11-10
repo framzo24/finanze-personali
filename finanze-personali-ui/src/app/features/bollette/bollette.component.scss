@@ -1,0 +1,348 @@
+:host {
+  display: block;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 4px 0 20px;
+
+  h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.4px;
+    color: var(--app-text);
+  }
+
+  p {
+    margin: 2px 0 0;
+    color: var(--app-text-muted);
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+// interruttore "Totale casa / La mia quota"
+.segment {
+  display: inline-flex;
+  padding: 4px;
+  gap: 4px;
+  border-radius: 999px;
+  background: var(--app-card);
+  border: 1px solid var(--app-border);
+
+  button {
+    height: 36px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--app-text-muted);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+
+    &:hover:not(.on) { background: color-mix(in srgb, var(--app-primary) 10%, transparent); }
+
+    &.on {
+      background: var(--app-primary);
+      color: var(--app-on-primary);
+    }
+  }
+}
+
+.avviso {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  color: var(--app-text);
+  background: color-mix(in srgb, var(--app-primary) 10%, transparent);
+
+  mat-icon { color: var(--app-primary); }
+  strong { font-weight: 500; }
+}
+
+// ---------- una card per tipo ----------
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.tcard {
+  --t: #7C3AED;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 20px;
+  border-radius: 22px;
+  color: var(--app-text);
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--t) 16%, var(--app-card)) 0%,
+    var(--app-card) 70%
+  );
+  border: 1px solid color-mix(in srgb, var(--t) 30%, var(--app-border));
+  animation: rise 420ms cubic-bezier(.2, .7, .2, 1) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+  transition: transform 200ms ease;
+
+  &:hover { transform: translateY(-2px); }
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+}
+
+.tcard-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.tile,
+.mini {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: var(--t);
+  background: color-mix(in srgb, var(--t) 20%, transparent);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--t) 50%, transparent);
+}
+
+.tile {
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
+}
+
+.mini {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+}
+
+.tname {
+  flex: 1;
+  font-weight: 500;
+}
+
+.tvalue {
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.8px;
+  line-height: 1.1;
+}
+
+.tsub {
+  font-size: 13px;
+  color: var(--app-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spark {
+  width: 100%;
+  height: 38px;
+  margin: 10px 0 4px;
+  color: var(--t);
+  overflow: visible;
+}
+
+.tfoot {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 10px;
+  border-top: 1px solid color-mix(in srgb, var(--t) 20%, var(--app-border));
+  font-size: 13px;
+  color: var(--app-text-muted);
+
+  strong {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--app-text);
+  }
+}
+
+.tvuota {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding-top: 8px;
+  font-size: 14px;
+  color: var(--app-text-muted);
+}
+
+// ---------- etichette di stato ----------
+.pill {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--app-text-muted);
+  background: color-mix(in srgb, var(--app-text) 8%, transparent);
+
+  &.ok     { color: var(--app-income);  background: color-mix(in srgb, var(--app-income) 16%, transparent); }
+  &.ko     { color: var(--app-expense); background: color-mix(in srgb, var(--app-expense) 16%, transparent); }
+  &.attesa { color: var(--app-text);    background: color-mix(in srgb, var(--app-primary) 16%, transparent); }
+}
+
+.tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  background: color-mix(in srgb, var(--app-text) 8%, transparent);
+}
+
+// ---------- filtri e tabella ----------
+.panel {
+  background: var(--app-card);
+  border: 1px solid var(--app-border);
+  border-radius: 22px;
+  margin-bottom: 16px;
+}
+
+.filtri {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+
+  mat-form-field {
+    flex: 0 1 180px;
+    min-width: 0;
+  }
+}
+
+.table-panel { overflow: hidden; }
+.table-scroll { overflow-x: auto; }
+
+table {
+  width: 100%;
+  background: transparent;
+}
+
+th.mat-mdc-header-cell {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  color: var(--app-text-muted);
+  border-bottom: 1px solid var(--app-border);
+}
+
+td.mat-mdc-cell {
+  border-bottom: 1px solid var(--app-border);
+}
+
+tr.mat-mdc-row {
+  height: 68px;
+  transition: background-color 150ms ease;
+
+  &:hover { background: color-mix(in srgb, var(--app-primary) 7%, transparent); }
+  &:last-child td { border-bottom: none; }
+}
+
+.cella-tipo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  --t: #7C3AED;
+}
+
+.cella-testo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+
+  strong { font-weight: 500; }
+  span { font-size: 13px; color: var(--app-text-muted); }
+}
+
+.muted { color: var(--app-text-muted); }
+
+.piccolo {
+  font-size: 12px;
+  color: var(--app-text-muted);
+}
+
+.num {
+  text-align: right;
+  padding-right: 24px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+
+  strong { font-weight: 500; }
+}
+
+.actions {
+  width: 150px;
+  text-align: right;
+  white-space: nowrap;
+
+  button { --mat-icon-button-icon-color: var(--app-text-muted); }
+  button:hover { --mat-icon-button-icon-color: var(--app-primary); }
+  .danger:hover { --mat-icon-button-icon-color: var(--app-expense); }
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--app-text-muted);
+
+  mat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 40px;
+    color: var(--app-primary);
+  }
+
+  strong { color: var(--app-text); font-weight: 500; }
+}
+
+mat-paginator { border-top: 1px solid var(--app-border); }
+
+@media (max-width: 800px) {
+  .mat-column-periodo,
+  .mat-column-pagante { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tcard { animation: none; transition: none; }
+  .tcard:hover { transform: none; }
+}

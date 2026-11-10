@@ -1,0 +1,69 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 8px;
+}
+
+mat-form-field { width: 100%; }
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 520px) {
+  .row { grid-template-columns: 1fr; }
+}
+
+.guida {
+  display: flex;
+  gap: 12px;
+  margin: 4px 0 18px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--app-text);
+  background: color-mix(in srgb, var(--app-primary) 10%, transparent);
+
+  mat-icon { flex-shrink: 0; color: var(--app-primary); }
+  p { margin: 0 0 6px; }
+  p:last-child { margin: 0; }
+
+  code {
+    padding: 1px 6px;
+    border-radius: 6px;
+    font-size: 12px;
+    background: color-mix(in srgb, var(--app-text) 10%, transparent);
+  }
+}
+
+textarea {
+  font-family: var(--mat-sys-body-medium-font, monospace);
+  font-size: 13px;
+  white-space: pre;
+}
+
+.esito {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+
+  .ok { color: var(--app-income); }
+  .ko { color: var(--app-expense); }
+}

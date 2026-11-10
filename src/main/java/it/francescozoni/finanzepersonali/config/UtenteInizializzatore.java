@@ -6,12 +6,14 @@ import it.francescozoni.finanzepersonali.service.AuthService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Order(1)
 @Slf4j
 @Component
 public class UtenteInizializzatore implements ApplicationRunner {

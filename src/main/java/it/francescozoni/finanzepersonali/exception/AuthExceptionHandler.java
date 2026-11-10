@@ -29,6 +29,11 @@ public class AuthExceptionHandler {
         return risposta(HttpStatus.BAD_REQUEST, e);
     }
 
+    @ExceptionHandler(BollettaNotFoundException.class)
+    ResponseEntity<Map<String, List<String>>> bollettaNonTrovata(BollettaNotFoundException e) {
+        return risposta(HttpStatus.NOT_FOUND, e);
+    }
+
     private ResponseEntity<Map<String, List<String>>> risposta(HttpStatus stato, RuntimeException e) {
         return ResponseEntity.status(stato).body(Map.of("messages", List.of(e.getMessage())));
     }

@@ -1,0 +1,32 @@
+<h2 mat-dialog-title>Segna come pagata</h2>
+
+<mat-dialog-content>
+  <p class="riassunto">
+    {{ data.bolletta.fornitore }} · <strong>{{ data.bolletta.importo | currency:'EUR' }}</strong>
+  </p>
+
+  <form [formGroup]="form" class="form">
+    <mat-form-field appearance="outline">
+      <mat-label>Data del pagamento</mat-label>
+      <input matInput [matDatepicker]="pag" formControlName="dataPagamento">
+      <mat-datepicker-toggle matIconSuffix [for]="pag"></mat-datepicker-toggle>
+      <mat-datepicker #pag></mat-datepicker>
+      <mat-error>Scegli una data</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Chi l'ha pagata</mat-label>
+      <mat-select formControlName="paganteId">
+        <mat-option [value]="null">Tu</mat-option>
+        @for (c of data.coinquilini; track c.id) {
+        <mat-option [value]="c.id">{{ c.nome }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="annulla()">Annulla</button>
+  <button mat-flat-button type="button" [disabled]="invio()" (click)="conferma()">Conferma</button>
+</mat-dialog-actions>

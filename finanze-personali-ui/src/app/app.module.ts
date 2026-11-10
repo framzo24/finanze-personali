@@ -8,7 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import {MAT_DATE_LOCALE, MatNativeDateModule} from '@angular/material/core';
 import { MatTreeModule } from '@angular/material/tree';
 
 import { MatDialogModule } from '@angular/material/dialog';
@@ -79,7 +79,11 @@ import {AuthInterceptor} from "@app/core/interceptors/auth.interceptor";
     MatRadioModule,
     MatTooltipModule,
   DragDropModule], providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
       provideZoneChangeDetection({
         eventCoalescing: true
       }),
@@ -91,7 +95,11 @@ import {AuthInterceptor} from "@app/core/interceptors/auth.interceptor";
       useClass: ApiInterceptor,
       multi: true
     },
-    provideHttpClient(withXhr(), withInterceptorsFromDi())
+    provideHttpClient(withXhr(), withInterceptorsFromDi()),
+    {
+      provide: MAT_DATE_LOCALE,
+      useValue: 'it-IT'
+    }
   ] })
 export class AppModule { }
 
