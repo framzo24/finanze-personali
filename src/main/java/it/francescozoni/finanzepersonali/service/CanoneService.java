@@ -37,10 +37,12 @@ public class CanoneService {
 
     /**
      * Crea le bollette mancanti, dal primo mese della tariffa fino a quello corrente.
-     * I mesi passati risultano pagati, quello corrente da pagare. È sicuro chiamarla più volte.
+     * I mesi passati risultano pagati; quello corrente da pagare, salvo l'addebito automatico,
+     * che le segna come pagate quando arriva la scadenza. È sicuro chiamarla più volte.
      */
     public void generaScadenze(Long utenteId) {
-        YearMonth corrente = YearMonth.now();
+        LocalDate oggi = LocalDate.now();
+        YearMonth corrente = YearMonth.from(oggi);
 
         for (Canone canone : canoni.findAllByUtenteIdAndAttivoTrueAndDeletedFalse(utenteId)) {
             List<TariffaCanone> storico = tariffe.findAllByCanoneIdOrderByValidaDalAsc(canone.getId());
@@ -48,10 +50,11 @@ public class CanoneService {
                 continue;
             }
 
+            boolean automatico = Boolean.TRUE.equals(canone.getPagamentoAutomatico());
             Set<LocalDate> esistenti = new HashSet<>(bollette.findPeriodiDalByCanoneId(canone.getId()));
             int creati = 0;
 
-            for (YearMonth mese = YearMonth.from(storico.getFirst().getValidaDal());
+            for (YearMonth mese = YearMonth.from(storico.get(0).getValidaDal());
                  !mese.isAfter(corrente);
                  mese = mese.plusMonths(1)) {
 
@@ -60,7 +63,7 @@ public class CanoneService {
                 }
 
                 LocalDate scadenza = mese.atDay(Math.min(canone.getGiornoScadenza(), mese.lengthOfMonth()));
-                boolean passato = mese.isBefore(corrente);
+                boolean pagata = mese.isBefore(corrente) || (automatico && !scadenza.isAfter(oggi));
 
                 bollette.save(Bolletta.builder()
                         .utente(canone.getUtente())
@@ -72,8 +75,8 @@ public class CanoneService {
                         .dataScadenza(scadenza)
                         .importo(tariffaInVigore(storico, scadenza).getImporto())
                         .natura(NaturaBolletta.EFFETTIVA)
-                        .stato(passato ? StatoBolletta.PAGATA : StatoBolletta.DA_PAGARE)
-                        .dataPagamento(passato ? scadenza : null)
+                        .stato(pagata ? StatoBolletta.PAGATA : StatoBolletta.DA_PAGARE)
+                        .dataPagamento(pagata ? scadenza : null)
                         .pagante(canone.getPagante())
                         .origine(OrigineBolletta.CANONE)
                         .canone(canone)
@@ -84,11 +87,21 @@ public class CanoneService {
             if (creati > 0) {
                 log.info("Canone {} {}: generate {} bollette", canone.getTipo(), canone.getFornitore(), creati);
             }
+
+            if (automatico) {
+                for (Bolletta b : bollette.findAllByCanoneIdAndDeletedFalseAndStato(canone.getId(), StatoBolletta.DA_PAGARE)) {
+                    if (!b.getDataScadenza().isAfter(oggi)) {
+                        b.setStato(StatoBolletta.PAGATA);
+                        b.setDataPagamento(b.getDataScadenza());
+                    }
+                }
+            }
         }
     }
 
-    private TariffaCanone tariffaInVigore(List<TariffaCanone> storico, LocalDate data) {
-        TariffaCanone risultato = storico.getFirst();
+    /** La tariffa valida alla data indicata (se la data precede la prima tariffa, vale la prima). */
+    public static TariffaCanone tariffaInVigore(List<TariffaCanone> storico, LocalDate data) {
+        TariffaCanone risultato = storico.get(0);
         for (TariffaCanone t : storico) {
             if (!t.getValidaDal().isAfter(data)) {
                 risultato = t;

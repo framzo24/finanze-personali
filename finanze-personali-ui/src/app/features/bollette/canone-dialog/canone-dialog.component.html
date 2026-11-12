@@ -1,0 +1,114 @@
+<h2 mat-dialog-title>{{ meta[canone().tipo].label }} · {{ canone().fornitore }}</h2>
+
+<mat-dialog-content>
+  <div class="segment" role="group" aria-label="Sezione">
+    <button type="button" [class.on]="sezione() === 'prezzo'" (click)="sezione.set('prezzo')">Prezzo</button>
+    <button type="button" [class.on]="sezione() === 'dettagli'" (click)="sezione.set('dettagli')">Dettagli</button>
+  </div>
+
+  @if (sezione() === 'prezzo') {
+  <div class="attuale">
+    <span class="etichetta">Prezzo attuale</span>
+    <strong>{{ canone().importoAttuale | currency:'EUR' }}</strong>
+    <span class="etichetta">al mese</span>
+  </div>
+
+  <ul class="tariffe">
+    @for (t of tariffe(); track t.id) {
+    <li [class.attuale-riga]="t.inVigore">
+      <span class="t-importo">{{ t.importo | currency:'EUR' }}</span>
+      <span class="t-dal">dal {{ t.validaDal | date:'MMMM y' }}</span>
+      @if (t.inVigore) {
+      <span class="pill">In vigore</span>
+      }
+      <span class="spacer"></span>
+      @if (t.id !== primaId()) {
+      <button mat-icon-button type="button" class="danger" matTooltip="Elimina questo prezzo" (click)="elimina(t)">
+        <mat-icon>delete</mat-icon>
+      </button>
+      }
+    </li>
+    }
+  </ul>
+
+  <h3>Nuovo prezzo</h3>
+  <p class="nota">Vale dal mese scelto in poi. Le bollette già pagate non cambiano.</p>
+
+  <form [formGroup]="tariffaForm" class="nuova" (ngSubmit)="aggiungi()">
+    <mat-form-field appearance="outline" class="f-importo">
+      <mat-label>Importo</mat-label>
+      <input matInput type="number" step="0.01" formControlName="importo">
+      <span matTextSuffix>€</span>
+      <mat-error>Inserisci un importo maggiore di zero</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="f-mese">
+      <mat-label>Dal mese</mat-label>
+      <mat-select formControlName="mese">
+        @for (m of mesi; track m.valore) {
+        <mat-option [value]="m.valore">{{ m.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="f-anno">
+      <mat-label>Anno</mat-label>
+      <mat-select formControlName="anno">
+        @for (a of anni; track a) {
+        <mat-option [value]="a">{{ a }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-flat-button type="submit" [disabled]="invio()">Aggiungi</button>
+  </form>
+
+  @if (esito()) {
+  <div class="esito"><mat-icon>check_circle</mat-icon>{{ esito() }}</div>
+  }
+  } @else {
+  <form [formGroup]="dettagli" class="dettagli">
+    <mat-form-field appearance="outline">
+      <mat-label>Fornitore</mat-label>
+      <input matInput formControlName="fornitore">
+      <mat-error>Il fornitore è obbligatorio</mat-error>
+    </mat-form-field>
+
+    <div class="riga">
+      <mat-form-field appearance="outline">
+        <mat-label>Giorno del mese</mat-label>
+        <input matInput type="number" min="1" max="28" formControlName="giornoScadenza">
+        <mat-hint>Da 1 a 28</mat-hint>
+        <mat-error>Scegli un giorno da 1 a 28</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Chi lo paga</mat-label>
+        <mat-select formControlName="paganteId">
+          <mat-option [value]="null">Tu</mat-option>
+          @for (c of data.coinquilini; track c.id) {
+          <mat-option [value]="c.id">{{ c.nome }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="toggle">
+      <mat-slide-toggle formControlName="pagamentoAutomatico">Addebito automatico</mat-slide-toggle>
+      <span>Alla scadenza la bolletta risulta pagata da sola.</span>
+    </div>
+
+    <div class="toggle">
+      <mat-slide-toggle formControlName="attivo">Canone attivo</mat-slide-toggle>
+      <span>Se lo disattivi, smette di generare le bollette dei mesi nuovi.</span>
+    </div>
+  </form>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="chiudi()">Chiudi</button>
+  @if (sezione() === 'dettagli') {
+  <button mat-flat-button type="button" [disabled]="invio()" (click)="salvaDettagli()">Salva dettagli</button>
+  }
+</mat-dialog-actions>

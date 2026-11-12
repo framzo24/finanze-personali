@@ -10,10 +10,22 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Bolletta, Coinquilino, RiepilogoBollette, RiepilogoTipo, TipoBolletta } from '@app/core/models/bolletta';
-import { BolletteService } from '@app/core/services/bollette.service';
-import { TIPI, TIPO_META } from '@app/core/utils/bollette';
+import {
+  Bolletta,
+  Canone,
+  Coinquilino,
+  RiepilogoBollette,
+  RiepilogoTipo,
+  Scadenza,
+  Tariffa,
+  TipoBolletta
+} from '../../core/models/bolletta';
+import { BolletteService } from '../../core/services/bollette.service';
+import { NotificheService } from '../../core/services/notifiche.service';
+import { TIPI, TIPO_META, quotaDi } from '../../core/utils/bollette';
 import { BollettaDialogComponent } from './bolletta-dialog/bolletta-dialog.component';
+import { CanoneDialogComponent } from './canone-dialog/canone-dialog.component';
+import { ImpostazioniDialogComponent } from './impostazioni-dialog/impostazioni-dialog.component';
 import { PagaDialogComponent } from './paga-dialog/paga-dialog.component';
 import { StoricoDialogComponent } from './storico-dialog/storico-dialog.component';
 
@@ -29,6 +41,7 @@ import { StoricoDialogComponent } from './storico-dialog/storico-dialog.componen
 })
 export class BolletteComponent implements OnInit {
   private readonly service = inject(BolletteService);
+  private readonly notifiche = inject(NotificheService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -40,6 +53,8 @@ export class BolletteComponent implements OnInit {
 
   vista = signal<'casa' | 'mia'>('casa');
   riepilogo = signal<RiepilogoBollette | null>(null);
+  scadenze = signal<Scadenza[]>([]);
+  canoni = signal<Canone[]>([]);
   coinquilini = signal<Coinquilino[]>([]);
   bollette = signal<Bolletta[]>([]);
   totale = signal(0);
@@ -67,7 +82,10 @@ export class BolletteComponent implements OnInit {
 
   ricarica(): void {
     this.service.riepilogo().subscribe(r => this.riepilogo.set(r));
+    this.service.scadenze().subscribe(s => this.scadenze.set(s));
+    this.service.canoni().subscribe(c => this.canoni.set(c));
     this.caricaLista();
+    this.notifiche.aggiorna();
   }
 
   caricaLista(): void {
@@ -125,6 +143,64 @@ export class BolletteComponent implements OnInit {
 
   statoClasse(b: Bolletta): string {
     return b.stato === 'PAGATA' ? 'ok' : b.scaduta ? 'ko' : 'attesa';
+  }
+
+  // ---------- scadenze ----------
+  importoScadenza(s: Scadenza): number | null {
+    return s.importo === null ? null : this.valore(s.importo, s.quotaTua ?? 0);
+  }
+
+  quando(s: Scadenza): string {
+    const g = s.giorni;
+    if (s.prevista) {
+      if (g < 0) return g === -1 ? 'Attesa da ieri' : `Attesa da ${-g} giorni`;
+      if (g === 0) return 'Prevista oggi';
+      return g === 1 ? 'Prevista domani' : `Prevista tra ${g} giorni`;
+    }
+    if (g < -1) return `Scaduta da ${-g} giorni`;
+    if (g === -1) return 'Scaduta ieri';
+    if (g === 0) return 'Scade oggi';
+    return g === 1 ? 'Scade domani' : `Scade tra ${g} giorni`;
+  }
+
+  pagaScadenza(s: Scadenza): void {
+    if (s.bollettaId === null) return;
+    this.service.trova(s.bollettaId).subscribe(b => this.paga(b));
+  }
+
+  // ---------- canoni ----------
+  quotaCanone(c: Canone): number {
+    return quotaDi(c.importoAttuale, c.paganteId);
+  }
+
+  ultimeTariffe(c: Canone): Tariffa[] {
+    return [...c.tariffe].reverse().slice(0, 3);
+  }
+
+  apriCanone(canone: Canone): void {
+    this.dialog
+      .open(CanoneDialogComponent, {
+        width: '580px',
+        maxWidth: '95vw',
+        autoFocus: false,
+        data: { canone, coinquilini: this.coinquilini() }
+      })
+      .afterClosed()
+      .subscribe(modificato => {
+        if (modificato) this.ricarica();
+      });
+  }
+
+  impostazioni(): void {
+    this.dialog
+      .open(ImpostazioniDialogComponent, { width: '600px', maxWidth: '95vw', autoFocus: false })
+      .afterClosed()
+      .subscribe(salvato => {
+        if (salvato) {
+          this.snackBar.open('Impostazioni salvate', 'OK', { duration: 3000 });
+          this.ricarica();
+        }
+      });
   }
 
   // ---------- azioni ----------

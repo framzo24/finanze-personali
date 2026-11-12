@@ -1,0 +1,50 @@
+.intro {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--app-text-muted);
+}
+
+.riga {
+  --t: #7C3AED;
+  display: grid;
+  grid-template-columns: 110px 1fr 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 560px) {
+  .riga { grid-template-columns: 1fr 1fr; }
+  .nome { grid-column: 1 / -1; }
+}
+
+.nome {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  color: var(--app-text);
+}
+
+.mini {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  color: var(--t);
+  background: color-mix(in srgb, var(--t) 20%, transparent);
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+}
+
+.errore {
+  margin: 0;
+  font-size: 13px;
+  color: var(--app-expense);
+}

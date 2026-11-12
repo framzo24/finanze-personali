@@ -11,6 +11,10 @@
       <button type="button" [class.on]="vista() === 'mia'" [attr.aria-pressed]="vista() === 'mia'"
               (click)="vista.set('mia')">La mia quota</button>
     </div>
+    <button mat-icon-button class="tondo" matTooltip="Impostazioni scadenze" aria-label="Impostazioni scadenze"
+            (click)="impostazioni()">
+      <mat-icon>tune</mat-icon>
+    </button>
     <button mat-stroked-button (click)="storico()">
       <mat-icon>upload_file</mat-icon>
       Carica storico
@@ -76,6 +80,99 @@
   }
 </div>
 }
+
+<div class="sezioni" [class.solo]="canoni().length === 0">
+
+  <!-- ===== prossime scadenze ===== -->
+  <section class="box scadenze">
+    <header class="box-head">
+      <div>
+        <h2>Prossime scadenze</h2>
+        <p>Cosa devi pagare e cosa sta per arrivare</p>
+      </div>
+    </header>
+
+    @if (scadenze().length === 0) {
+    <div class="vuoto">
+      <mat-icon>event_available</mat-icon>
+      <span>Nessuna scadenza in vista. Con le prime bollette qui vedrai anche quella prevista.</span>
+    </div>
+    } @else {
+    <ul class="timeline">
+      @for (s of scadenze(); track $index) {
+      @let imp = importoScadenza(s);
+      <li class="scad" [class.prevista]="s.prevista" [attr.data-livello]="s.livello" [style.--t]="meta[s.tipo].colore">
+        <span class="mini"><mat-icon>{{ meta[s.tipo].icona }}</mat-icon></span>
+
+        <span class="scad-testo">
+              <strong>
+                {{ meta[s.tipo].label }}
+                @if (s.prevista) { <span class="tag">{{ s.livello === 'MANCANTE' ? 'Non registrata' : 'Prevista' }}</span> }
+              </strong>
+              <span>{{ s.data | date:'EEE d MMM' }} · {{ quando(s) }}</span>
+            </span>
+
+        <span class="scad-importo">
+              @if (imp !== null) {
+                {{ s.prevista ? '~' : '' }}{{ imp | currency:'EUR':'symbol':'1.0-0' }}
+              }
+            </span>
+
+        @if (!s.prevista) {
+        <button mat-icon-button matTooltip="Segna come pagata" aria-label="Segna come pagata"
+                (click)="pagaScadenza(s)">
+          <mat-icon>check_circle</mat-icon>
+        </button>
+        } @else {
+        <button mat-button (click)="nuova(s.tipo)">Registra</button>
+        }
+      </li>
+      }
+    </ul>
+    }
+  </section>
+
+  <!-- ===== canoni (Wi-Fi) ===== -->
+  @for (c of canoni(); track c.id) {
+  <section class="box canone" [style.--t]="meta[c.tipo].colore">
+    <header class="box-head">
+      <div class="titolo-canone">
+        <span class="tile"><mat-icon>{{ meta[c.tipo].icona }}</mat-icon></span>
+        <div>
+          <h2>{{ meta[c.tipo].label }} · {{ c.fornitore }}</h2>
+          <p>Canone fisso</p>
+        </div>
+      </div>
+      <button mat-stroked-button (click)="apriCanone(c)">Gestisci</button>
+    </header>
+
+    <div class="prezzo">
+      {{ valore(c.importoAttuale, quotaCanone(c)) | currency:'EUR' }}
+      <span>al mese</span>
+    </div>
+
+    <div class="chips">
+      <span class="chip"><mat-icon>event</mat-icon>Il {{ c.giornoScadenza }} di ogni mese</span>
+      <span class="chip"><mat-icon>person</mat-icon>Paga {{ c.paganteNome }}</span>
+      @if (c.pagamentoAutomatico) {
+      <span class="chip"><mat-icon>autorenew</mat-icon>Addebito automatico</span>
+      }
+      @if (!c.attivo) {
+      <span class="chip spento"><mat-icon>pause_circle</mat-icon>Sospeso</span>
+      }
+    </div>
+
+    <ul class="storia">
+      @for (t of ultimeTariffe(c); track t.id) {
+      <li>
+        <span>dal {{ t.validaDal | date:'MMM y' }}</span>
+        <strong>{{ t.importo | currency:'EUR' }}</strong>
+      </li>
+      }
+    </ul>
+  </section>
+  }
+</div>
 
 <section class="panel filtri">
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -165,7 +262,7 @@
       <ng-container matColumnDef="stato">
         <th mat-header-cell *matHeaderCellDef>Stato</th>
         <td mat-cell *matCellDef="let b">
-          <span class="pill" [class]="'pill ' + statoClasse(b)">{{ statoLabel(b) }}</span>
+          <span [class]="'pill ' + statoClasse(b)">{{ statoLabel(b) }}</span>
         </td>
       </ng-container>
 

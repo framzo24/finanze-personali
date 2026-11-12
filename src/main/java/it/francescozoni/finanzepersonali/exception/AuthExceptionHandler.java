@@ -37,4 +37,9 @@ public class AuthExceptionHandler {
     private ResponseEntity<Map<String, List<String>>> risposta(HttpStatus stato, RuntimeException e) {
         return ResponseEntity.status(stato).body(Map.of("messages", List.of(e.getMessage())));
     }
+
+    @ExceptionHandler(CanoneNotFoundException.class)
+    ResponseEntity<Map<String, List<String>>> canoneNonTrovato(CanoneNotFoundException e) {
+        return risposta(HttpStatus.NOT_FOUND, e);
+    }
 }

@@ -12,6 +12,9 @@
        (click)="navigated.emit()">
       <mat-icon>{{ link.icon }}</mat-icon>
       <span>{{ link.label }}</span>
+      @if (link.path === '/bollette' && notifiche.numero() > 0) {
+      <span class="contatore" [attr.aria-label]="notifiche.numero() + ' notifiche'">{{ notifiche.numero() }}</span>
+      }
     </a>
     }
   </nav>

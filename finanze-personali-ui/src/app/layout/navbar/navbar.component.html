@@ -9,7 +9,18 @@
 
   <button
     mat-icon-button
-    class="theme-toggle"
+    class="round bell"
+    [matMenuTriggerFor]="menuNotifiche"
+    [matBadge]="notifiche.numero()"
+    [matBadgeHidden]="notifiche.numero() === 0"
+    matBadgeSize="small"
+    [attr.aria-label]="notifiche.numero() ? 'Notifiche: ' + notifiche.numero() + ' da vedere' : 'Notifiche'">
+    <mat-icon>{{ notifiche.numero() ? 'notifications_active' : 'notifications' }}</mat-icon>
+  </button>
+
+  <button
+    mat-icon-button
+    class="round"
     [attr.aria-label]="theme.isDark() ? 'Passa al tema chiaro' : 'Passa al tema scuro'"
     (click)="theme.toggle()">
     <mat-icon>{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
@@ -29,5 +40,30 @@
       <mat-icon>logout</mat-icon>
       <span>Esci</span>
     </button>
+  </mat-menu>
+
+  <mat-menu #menuNotifiche="matMenu" xPosition="before" class="menu-notifiche">
+    <div class="notifiche">
+      <div class="n-head">Notifiche</div>
+
+      @if (notifiche.elenco().length === 0) {
+      <div class="n-vuoto">
+        <mat-icon>check_circle</mat-icon>
+        <span>Tutto in ordine, niente da segnalare.</span>
+      </div>
+      } @else {
+      @for (n of notifiche.elenco(); track n.id) {
+      <a class="n-item" routerLink="/bollette" [style.--t]="meta[n.tipo].colore" [attr.data-livello]="n.livello">
+        <span class="n-tile"><mat-icon>{{ meta[n.tipo].icona }}</mat-icon></span>
+        <span class="n-testo">
+              <strong>{{ n.titolo }}</strong>
+              <span>{{ n.messaggio }}</span>
+            </span>
+        <span class="n-dot"></span>
+      </a>
+      }
+      <a class="n-footer" routerLink="/bollette">Vai alle bollette</a>
+      }
+    </div>
   </mat-menu>
 </header>

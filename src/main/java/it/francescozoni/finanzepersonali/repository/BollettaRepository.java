@@ -3,6 +3,7 @@ package it.francescozoni.finanzepersonali.repository;
 
 import it.francescozoni.finanzepersonali.model.Bolletta;
 import it.francescozoni.finanzepersonali.model.enums.NaturaBolletta;
+import it.francescozoni.finanzepersonali.model.enums.StatoBolletta;
 import it.francescozoni.finanzepersonali.model.enums.TipoBolletta;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -58,4 +59,8 @@ public interface BollettaRepository extends JpaRepository<Bolletta, Long>, JpaSp
                                  @Param("fornitore") String fornitore,
                                  @Param("numero") String numero,
                                  @Param("escludiId") Long escludiId);
+
+    List<Bolletta> findAllByCanoneIdAndDeletedFalseAndPeriodoDalGreaterThanEqual(Long canoneId, LocalDate dal);
+
+    List<Bolletta> findAllByCanoneIdAndDeletedFalseAndStato(Long canoneId, StatoBolletta stato);
 }

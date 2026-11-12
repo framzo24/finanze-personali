@@ -36,4 +36,7 @@ public class Canone extends BaseEntity {
 
     @Column(nullable = false)
     private boolean attivo;
+
+    /** Addebito automatico: alla scadenza la bolletta risulta pagata. Null = no. */
+    private Boolean pagamentoAutomatico;
 }

@@ -60,3 +60,18 @@
     color: var(--app-on-primary);
   }
 }
+
+.contatore {
+  margin-left: auto;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  background: var(--app-expense);
+}

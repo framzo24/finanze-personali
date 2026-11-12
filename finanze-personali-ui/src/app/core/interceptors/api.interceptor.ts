@@ -5,6 +5,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { MatSnackBar } from '@angular/material/snack-bar';
+import {SILENZIOSO} from "@app/core/utils/http-context";
 
 
 @Injectable()
@@ -25,6 +26,10 @@ export class ApiInterceptor implements HttpInterceptor {
     return next.handle(req).pipe(
 
       catchError((error: HttpErrorResponse) => {
+
+        if (req.context.get(SILENZIOSO)) {
+          return throwError(() => error);
+        }
 
 
         console.error('Errore HTTP', error);

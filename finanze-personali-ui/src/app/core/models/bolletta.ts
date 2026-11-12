@@ -100,3 +100,71 @@ export interface BatchStoricoResponse {
   creati: number;
   saltati: number;
 }
+
+export type LivelloScadenza = 'SCADUTA' | 'IN_SCADENZA' | 'PROSSIMA' | 'MANCANTE';
+
+export interface Scadenza {
+  bollettaId: number | null;
+  tipo: TipoBolletta;
+  fornitore: string;
+  data: string;
+  importo: number | null;
+  quotaTua: number | null;
+  prevista: boolean;
+  giorni: number;
+  livello: LivelloScadenza;
+  paganteId: number | null;
+  paganteNome: string;
+  periodoDal: string;
+  periodoAl: string;
+}
+
+export interface Notifica {
+  id: string;
+  livello: LivelloScadenza;
+  tipo: TipoBolletta;
+  titolo: string;
+  messaggio: string;
+  bollettaId: number | null;
+  data: string;
+}
+
+export interface Impostazione {
+  tipo: TipoBolletta;
+  periodicitaMesi: number;
+  preavvisoGiorni: number;
+}
+
+export interface Tariffa {
+  id: number;
+  importo: number;
+  validaDal: string;
+  inVigore: boolean;
+}
+
+export interface Canone {
+  id: number;
+  tipo: TipoBolletta;
+  fornitore: string;
+  giornoScadenza: number;
+  paganteId: number | null;
+  paganteNome: string;
+  pagamentoAutomatico: boolean;
+  attivo: boolean;
+  importoAttuale: number;
+  tariffe: Tariffa[];
+}
+
+export interface CanoneRequest {
+  fornitore: string;
+  giornoScadenza: number;
+  paganteId: number | null;
+  pagamentoAutomatico: boolean;
+  attivo: boolean;
+}
+
+export interface TariffaEsito {
+  canone: Canone;
+  aggiornate: number;
+  nonModificate: number;
+}

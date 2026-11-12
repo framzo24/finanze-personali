@@ -346,3 +346,210 @@ mat-paginator { border-top: 1px solid var(--app-border); }
   .tcard { animation: none; transition: none; }
   .tcard:hover { transform: none; }
 }
+
+// ---------- scadenze e canone ----------
+.header-actions .tondo {
+  border: 1px solid var(--app-border);
+  background: var(--app-card);
+  --mat-icon-button-icon-color: var(--app-text);
+}
+
+.sezioni {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+  align-items: start;
+
+  &.solo { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 1000px) {
+  .sezioni { grid-template-columns: 1fr; }
+}
+
+.box {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding: 20px;
+  border-radius: 22px;
+  background: var(--app-card);
+  border: 1px solid var(--app-border);
+}
+
+.box-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+
+  h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--app-text);
+  }
+
+  p {
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: var(--app-text-muted);
+  }
+}
+
+// ----- timeline delle scadenze -----
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 6px 0 0;
+  max-height: 340px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.scad {
+  --t: #7C3AED;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--app-border);
+
+  &:last-child { border-bottom: none; }
+
+  &[data-livello='SCADUTA'] .scad-testo span { color: var(--app-expense); }
+  &[data-livello='IN_SCADENZA'] .scad-testo span { color: var(--app-text); font-weight: 500; }
+
+  &.prevista {
+    opacity: .85;
+
+    .mini {
+      background: transparent;
+      box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--t) 55%, transparent);
+    }
+  }
+
+  button { flex-shrink: 0; }
+}
+
+.scad-testo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong {
+    font-weight: 500;
+    color: var(--app-text);
+  }
+
+  span {
+    font-size: 13px;
+    color: var(--app-text-muted);
+  }
+}
+
+.scad-importo {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--app-text);
+}
+
+.vuoto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 4px;
+  font-size: 14px;
+  color: var(--app-text-muted);
+
+  mat-icon { flex-shrink: 0; color: var(--app-primary); }
+}
+
+// ----- scheda del canone -----
+.canone {
+  --t: #7C3AED;
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--t) 14%, var(--app-card)) 0%,
+    var(--app-card) 70%
+  );
+  border-color: color-mix(in srgb, var(--t) 28%, var(--app-border));
+}
+
+.titolo-canone {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.prezzo {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.8px;
+  color: var(--app-text);
+
+  span {
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--app-text-muted);
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px 5px 8px;
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--app-text);
+  background: color-mix(in srgb, var(--t) 14%, transparent);
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    color: var(--t);
+  }
+
+  &.spento {
+    color: var(--app-text-muted);
+    background: color-mix(in srgb, var(--app-text) 8%, transparent);
+  }
+}
+
+.storia {
+  list-style: none;
+  margin: 0;
+  padding: 10px 0 0;
+  border-top: 1px solid color-mix(in srgb, var(--t) 20%, var(--app-border));
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 13px;
+    color: var(--app-text-muted);
+
+    strong {
+      font-weight: 500;
+      color: var(--app-text);
+    }
+  }
+}

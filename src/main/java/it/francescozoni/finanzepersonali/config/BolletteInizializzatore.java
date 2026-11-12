@@ -78,6 +78,7 @@ public class BolletteInizializzatore implements ApplicationRunner {
                     .giornoScadenza(1)
                     .pagante(giovanni)
                     .attivo(true)
+                    .pagamentoAutomatico(true)
                     .build());
 
             tariffe.save(TariffaCanone.builder()
@@ -87,6 +88,13 @@ public class BolletteInizializzatore implements ApplicationRunner {
                     .build());
 
             log.info("Creato il canone Wi-Fi Fastweb (30,90 euro dal {})", wifiDal);
+        }
+
+        for (Canone c : canoni.findAllByUtenteIdAndDeletedFalseOrderByIdAsc(utenteId)) {
+            if (c.getPagamentoAutomatico() == null) {
+                c.setPagamentoAutomatico(true);
+                canoni.save(c);
+            }
         }
 
         canoneService.generaScadenze(utenteId);

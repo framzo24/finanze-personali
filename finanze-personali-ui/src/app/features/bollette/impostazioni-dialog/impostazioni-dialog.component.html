@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>Impostazioni scadenze</h2>
+
+<mat-dialog-content>
+  <p class="intro">
+    La periodicità serve a prevedere quando arriverà la prossima bolletta. Il preavviso indica quanti giorni prima
+    della scadenza vuoi essere avvisato.
+  </p>
+
+  @for (r of righe(); track r.tipo) {
+  <div class="riga" [style.--t]="meta[r.tipo].colore">
+      <span class="nome">
+        <span class="mini"><mat-icon>{{ meta[r.tipo].icona }}</mat-icon></span>
+        {{ meta[r.tipo].label }}
+      </span>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Arriva ogni</mat-label>
+      <mat-select [value]="r.periodicitaMesi" [disabled]="r.tipo === 'WIFI'"
+                  (selectionChange)="imposta(r.tipo, 'periodicitaMesi', $event.value)">
+        <mat-option [value]="1">mese</mat-option>
+        <mat-option [value]="2">2 mesi</mat-option>
+        <mat-option [value]="3">3 mesi</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Preavviso</mat-label>
+      <input matInput type="number" min="0" max="30" [value]="r.preavvisoGiorni"
+             (input)="imposta(r.tipo, 'preavvisoGiorni', $any($event.target).valueAsNumber)">
+      <span matTextSuffix>giorni</span>
+    </mat-form-field>
+  </div>
+  }
+
+  @if (!valido()) {
+  <p class="errore">Il preavviso deve essere un numero intero da 0 a 30.</p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="annulla()">Annulla</button>
+  <button mat-flat-button type="button" [disabled]="!valido() || invio() || caricamento()" (click)="salva()">Salva</button>
+</mat-dialog-actions>

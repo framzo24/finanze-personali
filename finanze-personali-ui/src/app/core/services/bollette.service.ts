@@ -8,8 +8,13 @@ import {
   Bolletta,
   BollettaRequest,
   BollettePage,
+  Canone,
+  CanoneRequest,
   Coinquilino,
-  RiepilogoBollette
+  Impostazione,
+  RiepilogoBollette,
+  Scadenza,
+  TariffaEsito
 } from '../models/bolletta';
 
 export interface FiltriBollette {
@@ -22,6 +27,7 @@ export interface FiltriBollette {
 export class BolletteService {
   private readonly http = inject(HttpClient);
   private readonly api = `${environment.apiUrl}/bollette`;
+  private readonly apiCanoni = `${environment.apiUrl}/canoni`;
 
   cerca(filtri: FiltriBollette, pagina: number, dimensione: number): Observable<BollettePage> {
     let params = new HttpParams().set('pagina', pagina).set('dimensione', dimensione);
@@ -31,8 +37,16 @@ export class BolletteService {
     return this.http.get<BollettePage>(this.api, { params });
   }
 
+  trova(id: number): Observable<Bolletta> {
+    return this.http.get<Bolletta>(`${this.api}/${id}`);
+  }
+
   riepilogo(): Observable<RiepilogoBollette> {
     return this.http.get<RiepilogoBollette>(`${this.api}/riepilogo`);
+  }
+
+  scadenze(): Observable<Scadenza[]> {
+    return this.http.get<Scadenza[]>(`${this.api}/scadenze`);
   }
 
   coinquilini(): Observable<Coinquilino[]> {
@@ -57,5 +71,31 @@ export class BolletteService {
 
   caricaStorico(richiesta: BatchStoricoRequest): Observable<BatchStoricoResponse> {
     return this.http.post<BatchStoricoResponse>(`${this.api}/storico`, richiesta);
+  }
+
+  // ---------- impostazioni ----------
+  impostazioni(): Observable<Impostazione[]> {
+    return this.http.get<Impostazione[]>(`${this.api}/impostazioni`);
+  }
+
+  salvaImpostazioni(impostazioni: Impostazione[]): Observable<Impostazione[]> {
+    return this.http.put<Impostazione[]>(`${this.api}/impostazioni`, { impostazioni });
+  }
+
+  // ---------- canoni (Wi-Fi) ----------
+  canoni(): Observable<Canone[]> {
+    return this.http.get<Canone[]>(this.apiCanoni);
+  }
+
+  modificaCanone(id: number, richiesta: CanoneRequest): Observable<Canone> {
+    return this.http.put<Canone>(`${this.apiCanoni}/${id}`, richiesta);
+  }
+
+  aggiungiTariffa(id: number, richiesta: { importo: number; validaDal: string }): Observable<TariffaEsito> {
+    return this.http.post<TariffaEsito>(`${this.apiCanoni}/${id}/tariffe`, richiesta);
+  }
+
+  eliminaTariffa(id: number, tariffaId: number): Observable<TariffaEsito> {
+    return this.http.delete<TariffaEsito>(`${this.apiCanoni}/${id}/tariffe/${tariffaId}`);
   }
 }

@@ -272,3 +272,15 @@ html {
 @media (prefers-reduced-motion: reduce) {
   .auth-card, .auth-card.scossa { animation: none; }
 }
+
+// ---------- menu delle notifiche ----------
+.menu-notifiche.mat-mdc-menu-panel {
+  width: 380px;
+  max-width: calc(100vw - 24px);
+}
+
+html {
+  --mat-menu-container-color: var(--app-card);
+  --mat-menu-container-shape: 18px;
+  --mat-menu-item-label-text-color: var(--app-text);
+}
