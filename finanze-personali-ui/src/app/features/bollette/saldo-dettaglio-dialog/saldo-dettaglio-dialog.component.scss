@@ -1,0 +1,125 @@
+.sommario {
+  --c: var(--app-text-muted);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 4px 0 16px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--c) 10%, transparent);
+
+  &[data-stato='ti-deve'] { --c: var(--app-income); }
+  &[data-stato='gli-devi'] { --c: var(--app-expense); }
+
+  .frase {
+    font-weight: 500;
+    color: var(--app-text);
+  }
+
+  strong {
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: -0.6px;
+    color: var(--c);
+  }
+
+  mat-icon { color: var(--c); }
+}
+
+.vuoto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 4px;
+  font-size: 14px;
+  color: var(--app-text-muted);
+
+  mat-icon { color: var(--app-primary); }
+}
+
+.voci {
+  list-style: none;
+  margin: 0;
+  padding: 0 6px 0 0;
+  max-height: 380px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+
+  li {
+    --t: #7C3AED;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 2px;
+    border-bottom: 1px solid var(--app-border);
+
+    &:last-child { border-bottom: none; }
+  }
+}
+
+.ico {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  color: var(--t);
+  background: color-mix(in srgb, var(--t) 20%, transparent);
+
+  &.rimborso {
+    color: var(--app-primary);
+    background: color-mix(in srgb, var(--app-primary) 16%, transparent);
+  }
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+}
+
+.testo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+    color: var(--app-text);
+  }
+
+  span {
+    font-size: 13px;
+    color: var(--app-text-muted);
+  }
+}
+
+.valori {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+
+  small {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--app-text-muted);
+  }
+}
+
+.danger {
+  --mat-icon-button-icon-color: var(--app-text-muted);
+
+  &:hover { --mat-icon-button-icon-color: var(--app-expense); }
+}

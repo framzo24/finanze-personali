@@ -81,6 +81,69 @@
 </div>
 }
 
+@if (saldi(); as s) {
+@if (s.coinquilini.length > 0) {
+<section class="box saldi">
+  <header class="box-head">
+    <div>
+      <h2>Con i coinquilini</h2>
+      <p>
+        @if (s.saldiDal) {
+        Conteggio dal {{ s.saldiDal | date:'d MMMM y' }}
+        } @else {
+        Conteggio su tutto lo storico
+        }
+      </p>
+    </div>
+    <button mat-button (click)="configuraSaldi()">
+      <mat-icon>event</mat-icon>
+      Da quando contare
+    </button>
+  </header>
+
+  @if (!s.configurato) {
+  <div class="nota-saldi">
+    <mat-icon>info</mat-icon>
+    <span>
+            Le bollette dello storico erano già state sistemate tra voi? Scegli da quando far partire i saldi,
+            altrimenti vengono contate tutte.
+          </span>
+    <button mat-stroked-button (click)="configuraSaldi()">Scegli</button>
+  </div>
+  }
+
+  <div class="persone">
+    @for (p of s.coinquilini; track p.coinquilinoId) {
+    <article class="persona" [attr.data-stato]="statoSaldo(p)">
+      <span class="avatar-persona">{{ p.nome.charAt(0).toUpperCase() }}</span>
+
+      <div class="persona-info">
+        <strong>{{ p.nome }}</strong>
+        <span class="frase">{{ fraseSaldo(p) }}</span>
+      </div>
+
+      <div class="persona-importo">
+        @if (statoSaldo(p) === 'pari') {
+        <mat-icon>check_circle</mat-icon>
+        } @else {
+        {{ assoluto(p.saldo) | currency:'EUR' }}
+        }
+      </div>
+
+      <div class="persona-azioni">
+        <button mat-button (click)="dettaglio(p)">Dettaglio</button>
+        <button mat-flat-button (click)="rimborso(p)">
+          <mat-icon>swap_horiz</mat-icon>
+          Registra rimborso
+        </button>
+      </div>
+    </article>
+    }
+  </div>
+</section>
+}
+}
+
 <div class="sezioni" [class.solo]="canoni().length === 0">
 
   <!-- ===== prossime scadenze ===== -->
@@ -263,6 +326,9 @@
         <th mat-header-cell *matHeaderCellDef>Stato</th>
         <td mat-cell *matCellDef="let b">
           <span [class]="'pill ' + statoClasse(b)">{{ statoLabel(b) }}</span>
+          @if (b.movimentoId) {
+          <mat-icon class="collegato" matTooltip="La tua quota è registrata nei movimenti">link</mat-icon>
+          }
         </td>
       </ng-container>
 

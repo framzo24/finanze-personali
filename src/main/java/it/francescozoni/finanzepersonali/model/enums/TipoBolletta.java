@@ -1,15 +1,21 @@
 package it.francescozoni.finanzepersonali.model.enums;
 
 public enum TipoBolletta {
-    LUCE("kWh"), GAS("Smc"), ACQUA("m³"), WIFI(null);
+    LUCE("kWh", "Luce"), GAS("Smc", "Gas"), ACQUA("m³", "Acqua"), WIFI(null, "Wi-Fi");
 
     private final String unita;
+    private final String etichetta;
 
-    TipoBolletta(String unita) {
+    TipoBolletta(String unita, String etichetta) {
         this.unita = unita;
+        this.etichetta = etichetta;
     }
 
     public String getUnita() {
         return unita;
+    }
+
+    public String getEtichetta() {
+        return etichetta;
     }
 }

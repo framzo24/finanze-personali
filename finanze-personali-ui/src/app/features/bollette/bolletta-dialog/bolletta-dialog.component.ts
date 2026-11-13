@@ -14,10 +14,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { Bolletta, Coinquilino, NaturaBolletta, StatoBolletta, TipoBolletta } from '../../../core/models/bolletta';
+import { Bolletta, Coinquilino, NaturaBolletta, StatoBolletta, TipoBolletta } from '@app/core/models/bolletta';
 import { BolletteService } from '@app/core/services/bollette.service';
-import { NATURE, TIPI, TIPO_META, daIso, isoData, quotaDi } from '../../../core/utils/bollette';
+import { NATURE, TIPI, TIPO_META, daIso, isoData, quotaDi } from '@app/core/utils/bollette';
 import {CurrencyPipe} from "@angular/common";
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 
 export interface BollettaDialogData {
   bolletta?: Bolletta;
@@ -44,7 +45,7 @@ function fineDopoInizio(controllo: AbstractControl): ValidationErrors | null {
   selector: 'app-bolletta-dialog',
   imports: [
     ReactiveFormsModule, CurrencyPipe, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule,
-    MatDatepickerModule, MatButtonModule, MatIconModule
+    MatDatepickerModule, MatButtonModule, MatIconModule, MatSlideToggleModule
   ],
   templateUrl: './bolletta-dialog.component.html',
   styleUrl: './bolletta-dialog.component.scss'
@@ -76,7 +77,8 @@ export class BollettaDialogComponent {
     paganteId: [this.bolletta?.paganteId ?? (null as number | null)],
     stato: [(this.bolletta?.stato ?? 'DA_PAGARE') as StatoBolletta],
     dataPagamento: [this.bolletta?.dataPagamento ? daIso(this.bolletta.dataPagamento) : (null as Date | null)],
-    note: [this.bolletta?.note ?? '', Validators.maxLength(1000)]
+    note: [this.bolletta?.note ?? '', Validators.maxLength(1000)],
+    registraMovimento: [!this.bolletta || this.bolletta.stato === 'DA_PAGARE'],
   });
 
   private readonly valori = toSignal(this.form.valueChanges, { initialValue: this.form.value });
@@ -93,6 +95,15 @@ export class BollettaDialogComponent {
   readonly paganteNome = computed(() => {
     const id = this.valori().paganteId ?? null;
     return id === null ? 'Tu' : this.data.coinquilini.find(c => c.id === id)?.nome ?? '';
+  });
+
+  /** Cosa succede alla spesa nei movimenti: solo se la bolletta è pagata da te. */
+  readonly movimento = computed<'crea' | 'aggiorna' | 'elimina' | null>(() => {
+    const v = this.valori();
+    const dovuta = v.stato === 'PAGATA' && (v.paganteId ?? null) === null;
+    const esiste = !!this.bolletta?.movimentoId;
+    if (esiste) return dovuta ? 'aggiorna' : 'elimina';
+    return dovuta ? 'crea' : null;
   });
 
   constructor() {
@@ -155,7 +166,8 @@ export class BollettaDialogComponent {
       stato: v.stato as StatoBolletta,
       dataPagamento: pagata ? isoData((v.dataPagamento as Date | null) ?? new Date()) : null,
       paganteId: v.paganteId ?? null,
-      note: v.note?.trim() || null
+      note: v.note?.trim() || null,
+      registraMovimento: this.movimento() === 'crea' ? !!v.registraMovimento : null
     };
 
     this.invio.set(true);

@@ -94,3 +94,28 @@ mat-form-field { width: 100%; }
     }
   }
 }
+
+.movimento {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--app-primary) 10%, transparent);
+
+  span {
+    padding-left: 52px;
+    font-size: 13px;
+    color: var(--app-text-muted);
+  }
+
+  &.info {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+
+    mat-icon { flex-shrink: 0; color: var(--app-primary); }
+    span { padding-left: 0; color: var(--app-text); }
+  }
+}

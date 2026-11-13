@@ -1,0 +1,91 @@
+<h2 mat-dialog-title>Registra un rimborso</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="form" (ngSubmit)="salva()">
+
+    <mat-form-field appearance="outline">
+      <mat-label>Coinquilino</mat-label>
+      <mat-select formControlName="coinquilinoId">
+        @for (p of data.saldi; track p.coinquilinoId) {
+        <mat-option [value]="p.coinquilinoId">{{ p.nome }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <div class="segment" role="group" aria-label="Direzione del rimborso">
+      <button type="button" [class.on]="valori().direzione === 'RICEVUTO'" (click)="scegliDirezione('RICEVUTO')">
+        <mat-icon>south_west</mat-icon>Mi ha restituito
+      </button>
+      <button type="button" [class.on]="valori().direzione === 'DATO'" (click)="scegliDirezione('DATO')">
+        <mat-icon>north_east</mat-icon>Gli ho restituito
+      </button>
+    </div>
+
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>Importo</mat-label>
+        <input matInput type="number" step="0.01" formControlName="importo">
+        <span matTextSuffix>€</span>
+        <mat-error>Inserisci un importo maggiore di zero</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Data</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="data">
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        <mat-error>Scegli una data</mat-error>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Nota (facoltativa)</mat-label>
+      <input matInput formControlName="nota">
+    </mat-form-field>
+
+    @if (esito(); as e) {
+    <div class="esito" [attr.data-stato]="e.stato">
+      <mat-icon>{{ e.stato === 'pari' ? 'check_circle' : 'info' }}</mat-icon>
+      <span>
+          @switch (e.stato) {
+            @case ('pari') { Dopo questo rimborso <strong>sarete in pari</strong>. }
+            @case ('ti-deve') {
+              Dopo questo rimborso {{ persona().nome }} ti deve ancora <strong>{{ e.importo | currency:'EUR' }}</strong>.
+            }
+            @case ('gli-devi') {
+              Dopo questo rimborso gli devi ancora <strong>{{ e.importo | currency:'EUR' }}</strong>.
+            }
+          }
+        </span>
+    </div>
+    }
+
+    @if (valori().direzione === 'DATO') {
+    <div class="movimento">
+      <mat-slide-toggle formControlName="registraMovimento">Registra come spesa nei movimenti</mat-slide-toggle>
+      <span>I soldi sono usciti dal tuo conto, quindi compaiono tra le tue uscite.</span>
+    </div>
+
+    @if (valori().registraMovimento) {
+    <mat-form-field appearance="outline">
+      <mat-label>A cosa si riferisce</mat-label>
+      <mat-select formControlName="tipo">
+        <mat-option [value]="null">Varie (categoria Bollette)</mat-option>
+        @for (t of tipi; track t.tipo) {
+        <mat-option [value]="t.tipo">{{ t.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    }
+    } @else {
+    <p class="nota">I rimborsi che ricevi non diventano un'entrata: servono solo ad aggiornare il saldo.</p>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="annulla()">Annulla</button>
+  <button mat-flat-button type="button" [disabled]="invio()" (click)="salva()">
+    {{ invio() ? 'Salvataggio…' : 'Registra' }}
+  </button>
+</mat-dialog-actions>

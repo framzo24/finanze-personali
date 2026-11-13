@@ -1,4 +1,3 @@
-// service/BollettaServiceImpl.java
 package it.francescozoni.finanzepersonali.service;
 
 import it.francescozoni.finanzepersonali.dto.*;
@@ -7,6 +6,7 @@ import it.francescozoni.finanzepersonali.exception.DatiNonValidiException;
 import it.francescozoni.finanzepersonali.mapper.BollettaMapper;
 import it.francescozoni.finanzepersonali.model.Bolletta;
 import it.francescozoni.finanzepersonali.model.Coinquilino;
+import it.francescozoni.finanzepersonali.model.Movimento;
 import it.francescozoni.finanzepersonali.model.enums.NaturaBolletta;
 import it.francescozoni.finanzepersonali.model.enums.OrigineBolletta;
 import it.francescozoni.finanzepersonali.model.enums.StatoBolletta;
@@ -44,17 +44,20 @@ public class BollettaServiceImpl implements BollettaService {
     private final UtenteRepository utenteRepository;
     private final UtenteCorrente utenteCorrente;
     private final BollettaMapper mapper;
+    private final BolletteMovimentiService movimentiBollette;
 
     public BollettaServiceImpl(BollettaRepository repository,
                                CoinquilinoRepository coinquiliniRepository,
                                UtenteRepository utenteRepository,
                                UtenteCorrente utenteCorrente,
-                               BollettaMapper mapper) {
+                               BollettaMapper mapper,
+                               BolletteMovimentiService movimentiBollette) {
         this.repository = repository;
         this.coinquiliniRepository = coinquiliniRepository;
         this.utenteRepository = utenteRepository;
         this.utenteCorrente = utenteCorrente;
         this.mapper = mapper;
+        this.movimentiBollette = movimentiBollette;
     }
 
     @Override
@@ -79,7 +82,7 @@ public class BollettaServiceImpl implements BollettaService {
 
         Page<Bolletta> page = repository.findAll(specification, PageRequest.of(
                 Math.max(pagina, 0),
-                Math.clamp(dimensione, 1, 100),
+                Math.min(Math.max(dimensione, 1), 100),
                 Sort.by(Sort.Order.desc("dataScadenza"), Sort.Order.desc("id"))));
 
         return new BollettePageResponse(
@@ -110,6 +113,7 @@ public class BollettaServiceImpl implements BollettaService {
                 .origine(OrigineBolletta.MANUALE)
                 .build();
         applica(bolletta, request, pagante);
+        sincronizzaMovimento(bolletta, request.registraMovimento());
 
         log.info("Nuova bolletta {} {}", request.tipo(), request.periodoDal());
         return mapper.toResponse(repository.save(bolletta));
@@ -126,6 +130,8 @@ public class BollettaServiceImpl implements BollettaService {
         });
 
         applica(bolletta, request, pagante);
+        sincronizzaMovimento(bolletta, request.registraMovimento());
+
         log.info("Bolletta modificata id={}", id);
         return mapper.toResponse(repository.save(bolletta));
     }
@@ -133,8 +139,15 @@ public class BollettaServiceImpl implements BollettaService {
     @Override
     public void elimina(Long id) {
         Bolletta bolletta = trovaMia(id);
+
+        Movimento collegato = bolletta.getMovimento();
+        bolletta.setMovimento(null);
         bolletta.setDeleted(true);
         repository.save(bolletta);
+
+        if (collegato != null) {
+            movimentiBollette.elimina(collegato);
+        }
         log.info("Bolletta eliminata id={}", id);
     }
 
@@ -149,6 +162,7 @@ public class BollettaServiceImpl implements BollettaService {
         bolletta.setPagante(cercaPagante(request.paganteId(), utenteCorrente.id()));
         bolletta.setStato(StatoBolletta.PAGATA);
         bolletta.setDataPagamento(request.dataPagamento() != null ? request.dataPagamento() : LocalDate.now());
+        sincronizzaMovimento(bolletta, request.registraMovimento());
 
         log.info("Bolletta pagata id={}", id);
         return mapper.toResponse(repository.save(bolletta));
@@ -161,7 +175,8 @@ public class BollettaServiceImpl implements BollettaService {
         int saltati = 0;
         int numero = 0;
 
-        // un errore su una riga annulla tutto il caricamento: o entra tutto o niente
+        // un errore su una riga annulla tutto il caricamento: o entra tutto o niente.
+        // Lo storico non crea movimenti: sono bollette già pagate e sistemate da tempo.
         for (RigaStorico riga : request.righe()) {
             numero++;
             BollettaRequest r = new BollettaRequest(
@@ -169,7 +184,7 @@ public class BollettaServiceImpl implements BollettaService {
                     riga.periodoDal(), riga.periodoAl(), null, riga.dataScadenza(),
                     riga.importo(), riga.consumo(), null,
                     NaturaBolletta.EFFETTIVA, StatoBolletta.PAGATA, riga.dataScadenza(),
-                    riga.paganteId(), null);
+                    riga.paganteId(), null, null);
 
             try {
                 Coinquilino pagante = valida(r, utenteId);
@@ -239,6 +254,26 @@ public class BollettaServiceImpl implements BollettaService {
                 .orElseThrow(() -> new DatiNonValidiException("Il pagante scelto non esiste"));
     }
 
+    /**
+     * Tiene allineata la spesa nei movimenti. Una spesa esiste solo se la bolletta è pagata da te:
+     * se già c'è la aggiorna (o la elimina quando non serve più), se non c'è la crea solo su richiesta.
+     */
+    private void sincronizzaMovimento(Bolletta b, Boolean registra) {
+        boolean dovuta = b.getStato() == StatoBolletta.PAGATA && b.getPagante() == null;
+        Movimento esistente = b.getMovimento();
+
+        if (esistente != null) {
+            if (dovuta) {
+                movimentiBollette.aggiorna(esistente, b);
+            } else {
+                b.setMovimento(null);
+                movimentiBollette.elimina(esistente);
+            }
+        } else if (dovuta && Boolean.TRUE.equals(registra)) {
+            b.setMovimento(movimentiBollette.creaPerBolletta(b));
+        }
+    }
+
     /** Controlla i dati e restituisce il pagante (null = tu). */
     private Coinquilino valida(BollettaRequest r, Long utenteId) {
         if (r.periodoAl().isBefore(r.periodoDal())) {
@@ -300,7 +335,7 @@ public class BollettaServiceImpl implements BollettaService {
     private RiepilogoTipo riepilogoTipo(TipoBolletta tipo, List<Bolletta> tutte, int anno) {
         List<Bolletta> lista = tutte.stream().filter(b -> b.getTipo() == tipo).toList();
 
-        Bolletta ultima = lista.isEmpty() ? null : lista.getLast();
+        Bolletta ultima = lista.isEmpty() ? null : lista.get(lista.size() - 1);
 
         List<Bolletta> dellAnno = lista.stream().filter(b -> b.getDataScadenza().getYear() == anno).toList();
         List<Bolletta> recenti = lista.subList(Math.max(0, lista.size() - 6), lista.size());

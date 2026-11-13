@@ -553,3 +553,102 @@ mat-paginator { border-top: 1px solid var(--app-border); }
     }
   }
 }
+
+// ---------- saldi con i coinquilini ----------
+.saldi { margin-bottom: 16px; }
+
+.nota-saldi {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  color: var(--app-text);
+  background: color-mix(in srgb, var(--app-primary) 10%, transparent);
+
+  mat-icon { flex-shrink: 0; color: var(--app-primary); }
+  span { flex: 1 1 260px; }
+}
+
+.persone {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+}
+
+.persona {
+  --c: var(--app-text-muted);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 14px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--c) 30%, var(--app-border));
+  background: color-mix(in srgb, var(--c) 8%, transparent);
+
+  &[data-stato='ti-deve'] { --c: var(--app-income); }
+  &[data-stato='gli-devi'] { --c: var(--app-expense); }
+}
+
+.avatar-persona {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--app-on-primary);
+  background: var(--app-primary);
+}
+
+.persona-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong {
+    font-weight: 500;
+    color: var(--app-text);
+  }
+
+  .frase {
+    font-size: 13px;
+    color: var(--c);
+  }
+}
+
+.persona-importo {
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--c);
+
+  mat-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 28px;
+  }
+}
+
+.persona-azioni {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.collegato {
+  width: 18px;
+  height: 18px;
+  margin-left: 6px;
+  vertical-align: middle;
+  font-size: 18px;
+  color: var(--app-text-muted);
+}

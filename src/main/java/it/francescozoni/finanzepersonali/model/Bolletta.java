@@ -4,6 +4,8 @@ package it.francescozoni.finanzepersonali.model;
 import it.francescozoni.finanzepersonali.model.enums.*;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -74,4 +76,10 @@ public class Bolletta extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "canone_id")
     private Canone canone;
+
+    /** La spesa registrata nei movimenti per la tua quota (solo se hai pagato tu). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "movimento_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    private Movimento movimento;
 }

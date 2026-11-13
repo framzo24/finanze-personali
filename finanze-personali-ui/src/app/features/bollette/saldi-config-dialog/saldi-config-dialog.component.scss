@@ -1,0 +1,45 @@
+.intro {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--app-text-muted);
+}
+
+.scelte {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.scelta {
+  display: block;
+  padding: 6px 12px 6px 4px;
+  border-radius: 16px;
+  border: 1px solid var(--app-border);
+  transition: background-color 150ms ease, border-color 150ms ease;
+
+  &.sel {
+    border-color: var(--app-primary);
+    background: color-mix(in srgb, var(--app-primary) 10%, transparent);
+  }
+}
+
+.opzione {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 0;
+
+  strong { font-weight: 500; }
+  span { font-size: 13px; color: var(--app-text-muted); }
+}
+
+.data-riga {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  mat-form-field { flex: 1 1 180px; }
+}

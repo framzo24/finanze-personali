@@ -1,0 +1,52 @@
+<h2 mat-dialog-title>Saldo con {{ data.persona.nome }}</h2>
+
+<mat-dialog-content>
+  <div class="sommario" [attr.data-stato]="stato()">
+    <span class="frase">{{ frase() }}</span>
+    @if (stato() !== 'pari') {
+    <strong>{{ assoluto(saldo()) | currency:'EUR' }}</strong>
+    } @else {
+    <mat-icon>check_circle</mat-icon>
+    }
+  </div>
+
+  @if (!caricamento() && voci().length === 0) {
+  <div class="vuoto">
+    <mat-icon>receipt_long</mat-icon>
+    <span>Ancora nessuna voce nel periodo conteggiato.</span>
+  </div>
+  } @else {
+  <ul class="voci">
+    @for (v of voci(); track v.tipo + v.id) {
+    <li [style.--t]="v.tipoBolletta ? meta[v.tipoBolletta].colore : null">
+          <span class="ico" [class.rimborso]="v.tipo === 'RIMBORSO'">
+            <mat-icon>{{ v.tipoBolletta ? meta[v.tipoBolletta].icona : 'payments' }}</mat-icon>
+          </span>
+
+      <span class="testo">
+            <strong>{{ v.titolo }}</strong>
+            <span>{{ v.data | date:'d MMM y' }} · {{ v.dettaglio }}</span>
+          </span>
+
+      <span class="valori">
+            <span [class.amount-in]="v.effetto > 0" [class.amount-out]="v.effetto < 0">
+              {{ v.effetto > 0 ? '+' : '−' }}{{ assoluto(v.effetto) | currency:'EUR' }}
+            </span>
+            <small>Saldo {{ v.progressivo | currency:'EUR' }}</small>
+          </span>
+
+      @if (v.tipo === 'RIMBORSO') {
+      <button mat-icon-button class="danger" matTooltip="Elimina il rimborso" aria-label="Elimina il rimborso"
+              (click)="eliminaRimborso(v)">
+        <mat-icon>delete</mat-icon>
+      </button>
+      }
+    </li>
+    }
+  </ul>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-flat-button type="button" (click)="chiudi()">Chiudi</button>
+</mat-dialog-actions>

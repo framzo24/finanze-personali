@@ -10,11 +10,11 @@ import {
   BollettePage,
   Canone,
   CanoneRequest,
-  Coinquilino,
+  Coinquilino, ConfigurazioneSaldi,
   Impostazione,
-  RiepilogoBollette,
+  RiepilogoBollette, Rimborso, RimborsoRequest, Saldi,
   Scadenza,
-  TariffaEsito
+  TariffaEsito, VoceSaldo
 } from '../models/bolletta';
 
 export interface FiltriBollette {
@@ -28,6 +28,8 @@ export class BolletteService {
   private readonly http = inject(HttpClient);
   private readonly api = `${environment.apiUrl}/bollette`;
   private readonly apiCanoni = `${environment.apiUrl}/canoni`;
+  private readonly apiSaldi = `${environment.apiUrl}/saldi`;
+  private readonly apiRimborsi = `${environment.apiUrl}/rimborsi`;
 
   cerca(filtri: FiltriBollette, pagina: number, dimensione: number): Observable<BollettePage> {
     let params = new HttpParams().set('pagina', pagina).set('dimensione', dimensione);
@@ -65,8 +67,8 @@ export class BolletteService {
     return this.http.delete<void>(`${this.api}/${id}`);
   }
 
-  paga(id: number, dataPagamento: string, paganteId: number | null): Observable<Bolletta> {
-    return this.http.post<Bolletta>(`${this.api}/${id}/paga`, { dataPagamento, paganteId });
+  paga(id: number, dataPagamento: string, paganteId: number | null, registraMovimento: boolean): Observable<Bolletta> {
+    return this.http.post<Bolletta>(`${this.api}/${id}/paga`, { dataPagamento, paganteId, registraMovimento });
   }
 
   caricaStorico(richiesta: BatchStoricoRequest): Observable<BatchStoricoResponse> {
@@ -97,5 +99,26 @@ export class BolletteService {
 
   eliminaTariffa(id: number, tariffaId: number): Observable<TariffaEsito> {
     return this.http.delete<TariffaEsito>(`${this.apiCanoni}/${id}/tariffe/${tariffaId}`);
+  }
+
+  // ---------- saldi e rimborsi ----------
+  saldi(): Observable<Saldi> {
+    return this.http.get<Saldi>(this.apiSaldi);
+  }
+
+  vociSaldo(coinquilinoId: number): Observable<VoceSaldo[]> {
+    return this.http.get<VoceSaldo[]>(`${this.apiSaldi}/${coinquilinoId}/voci`);
+  }
+
+  salvaConfigurazione(saldiDal: string | null): Observable<ConfigurazioneSaldi> {
+    return this.http.put<ConfigurazioneSaldi>(`${this.apiSaldi}/configurazione`, { saldiDal });
+  }
+
+  creaRimborso(richiesta: RimborsoRequest): Observable<Rimborso> {
+    return this.http.post<Rimborso>(this.apiRimborsi, richiesta);
+  }
+
+  eliminaRimborso(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiRimborsi}/${id}`);
   }
 }

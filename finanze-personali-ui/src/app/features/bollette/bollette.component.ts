@@ -15,7 +15,7 @@ import {
   Canone,
   Coinquilino,
   RiepilogoBollette,
-  RiepilogoTipo,
+  RiepilogoTipo, Saldi, SaldoCoinquilino,
   Scadenza,
   Tariffa,
   TipoBolletta
@@ -28,6 +28,11 @@ import { CanoneDialogComponent } from './canone-dialog/canone-dialog.component';
 import { ImpostazioniDialogComponent } from './impostazioni-dialog/impostazioni-dialog.component';
 import { PagaDialogComponent } from './paga-dialog/paga-dialog.component';
 import { StoricoDialogComponent } from './storico-dialog/storico-dialog.component';
+import {
+  SaldoDettaglioDialogComponent
+} from "@app/features/bollette/saldo-dettaglio-dialog/saldo-dettaglio-dialog.component";
+import {SaldiConfigDialogComponent} from "@app/features/bollette/saldi-config-dialog/saldi-config-dialog.component";
+import {RimborsoDialogComponent} from "@app/features/bollette/rimborso-dialog/rimborso-dialog.component";
 
 @Component({
   selector: 'app-bollette',
@@ -55,6 +60,7 @@ export class BolletteComponent implements OnInit {
   riepilogo = signal<RiepilogoBollette | null>(null);
   scadenze = signal<Scadenza[]>([]);
   canoni = signal<Canone[]>([]);
+  saldi = signal<Saldi | null>(null);
   coinquilini = signal<Coinquilino[]>([]);
   bollette = signal<Bolletta[]>([]);
   totale = signal(0);
@@ -84,6 +90,7 @@ export class BolletteComponent implements OnInit {
     this.service.riepilogo().subscribe(r => this.riepilogo.set(r));
     this.service.scadenze().subscribe(s => this.scadenze.set(s));
     this.service.canoni().subscribe(c => this.canoni.set(c));
+    this.service.saldi().subscribe(s => this.saldi.set(s));
     this.caricaLista();
     this.notifiche.aggiorna();
   }
@@ -198,6 +205,73 @@ export class BolletteComponent implements OnInit {
       .subscribe(salvato => {
         if (salvato) {
           this.snackBar.open('Impostazioni salvate', 'OK', { duration: 3000 });
+          this.ricarica();
+        }
+      });
+  }
+
+  // ---------- saldi con i coinquilini ----------
+  statoSaldo(p: SaldoCoinquilino): 'ti-deve' | 'gli-devi' | 'pari' {
+    if (Math.abs(p.saldo) < 0.005) return 'pari';
+    return p.saldo > 0 ? 'ti-deve' : 'gli-devi';
+  }
+
+  fraseSaldo(p: SaldoCoinquilino): string {
+    const stato = this.statoSaldo(p);
+    return stato === 'pari' ? 'Siete in pari' : stato === 'ti-deve' ? 'Ti deve' : 'Gli devi';
+  }
+
+  assoluto(n: number): number {
+    return Math.abs(n);
+  }
+
+  rimborso(persona?: SaldoCoinquilino): void {
+    const lista = this.saldi()?.coinquilini ?? [];
+    if (lista.length === 0) return;
+
+    this.dialog
+      .open(RimborsoDialogComponent, {
+        width: '540px',
+        maxWidth: '95vw',
+        autoFocus: false,
+        data: { saldi: lista, coinquilinoId: persona?.coinquilinoId }
+      })
+      .afterClosed()
+      .subscribe(registrato => {
+        if (registrato) {
+          this.snackBar.open('Rimborso registrato', 'OK', { duration: 3000 });
+          this.ricarica();
+        }
+      });
+  }
+
+  dettaglio(persona: SaldoCoinquilino): void {
+    this.dialog
+      .open(SaldoDettaglioDialogComponent, {
+        width: '620px',
+        maxWidth: '95vw',
+        autoFocus: false,
+        data: { persona }
+      })
+      .afterClosed()
+      .subscribe(modificato => {
+        if (modificato) this.ricarica();
+      });
+  }
+
+  configuraSaldi(): void {
+    const s = this.saldi();
+    this.dialog
+      .open(SaldiConfigDialogComponent, {
+        width: '520px',
+        maxWidth: '95vw',
+        autoFocus: false,
+        data: { saldiDal: s?.saldiDal ?? null, configurato: s?.configurato ?? false }
+      })
+      .afterClosed()
+      .subscribe(salvato => {
+        if (salvato) {
+          this.snackBar.open('Conteggio dei saldi aggiornato', 'OK', { duration: 3000 });
           this.ricarica();
         }
       });

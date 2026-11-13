@@ -26,6 +26,7 @@ public record BollettaRequest(
         StatoBolletta stato,
         LocalDate dataPagamento,
         Long paganteId,
-        @Size(max = 1000, message = "Le note possono avere al massimo 1000 caratteri") String note
+        @Size(max = 1000, message = "Le note possono avere al massimo 1000 caratteri") String note,
+        Boolean registraMovimento
 ) {
 }

@@ -41,7 +41,8 @@ public class BollettaMapper {
                 pagante != null ? pagante.getNome() : "Tu",
                 quotaTua(b),
                 b.getNote(),
-                b.getOrigine()
+                b.getOrigine(),
+                b.getMovimento() != null ? b.getMovimento().getId() : null
         );
     }
 

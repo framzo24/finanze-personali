@@ -1,0 +1,101 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 8px;
+}
+
+mat-form-field { width: 100%; }
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 520px) {
+  .row { grid-template-columns: 1fr; }
+}
+
+.segment {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 16px;
+  border-radius: 999px;
+  background: var(--app-canvas);
+  border: 1px solid var(--app-border);
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 40px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--app-text-muted);
+    font: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+
+    mat-icon {
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+    }
+
+    &.on {
+      background: var(--app-primary);
+      color: var(--app-on-primary);
+    }
+  }
+}
+
+.esito {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: -2px 0 16px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  color: var(--app-text);
+  background: color-mix(in srgb, var(--app-text) 7%, transparent);
+
+  mat-icon { flex-shrink: 0; color: var(--app-text-muted); }
+  strong { font-weight: 500; }
+
+  &[data-stato='pari'] {
+    background: color-mix(in srgb, var(--app-income) 14%, transparent);
+    mat-icon { color: var(--app-income); }
+  }
+
+  &[data-stato='ti-deve'] mat-icon { color: var(--app-income); }
+  &[data-stato='gli-devi'] mat-icon { color: var(--app-expense); }
+}
+
+.movimento {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--app-primary) 10%, transparent);
+
+  span {
+    padding-left: 52px;
+    font-size: 13px;
+    color: var(--app-text-muted);
+  }
+}
+
+.nota {
+  margin: 0;
+  font-size: 13px;
+  color: var(--app-text-muted);
+}

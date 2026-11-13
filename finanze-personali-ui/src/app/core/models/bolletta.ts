@@ -4,6 +4,7 @@ export type StatoBolletta = 'DA_PAGARE' | 'PAGATA';
 export type OrigineBolletta = 'MANUALE' | 'CANONE' | 'FILE';
 
 export interface Bolletta {
+  movimentoId: boolean;
   id: number;
   tipo: TipoBolletta;
   fornitore: string;
@@ -167,4 +168,59 @@ export interface TariffaEsito {
   canone: Canone;
   aggiornate: number;
   nonModificate: number;
+}
+
+export type DirezioneRimborso = 'RICEVUTO' | 'DATO';
+
+export interface SaldoCoinquilino {
+  coinquilinoId: number;
+  nome: string;
+  saldo: number;
+  daBollette: number;
+  daRimborsi: number;
+}
+
+export interface Saldi {
+  configurato: boolean;
+  saldiDal: string | null;
+  coinquilini: SaldoCoinquilino[];
+  totale: number;
+}
+
+export interface VoceSaldo {
+  tipo: 'BOLLETTA' | 'RIMBORSO';
+  id: number;
+  data: string;
+  titolo: string;
+  dettaglio: string;
+  effetto: number;
+  progressivo: number;
+  tipoBolletta: TipoBolletta | null;
+  movimentoId: number | null;
+}
+
+export interface ConfigurazioneSaldi {
+  configurato: boolean;
+  saldiDal: string | null;
+}
+
+export interface RimborsoRequest {
+  coinquilinoId: number;
+  direzione: DirezioneRimborso;
+  importo: number;
+  data: string;
+  nota: string | null;
+  registraMovimento: boolean;
+  tipo: TipoBolletta | null;
+}
+
+export interface Rimborso {
+  id: number;
+  coinquilinoId: number;
+  coinquilinoNome: string;
+  direzione: DirezioneRimborso;
+  importo: number;
+  data: string;
+  nota: string | null;
+  movimentoId: number | null;
 }

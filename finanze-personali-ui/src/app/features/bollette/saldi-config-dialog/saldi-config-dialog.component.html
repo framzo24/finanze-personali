@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>Da quando contare i saldi</h2>
+
+<mat-dialog-content>
+  <p class="intro">
+    Le bollette pagate prima della data scelta, e i rimborsi di allora, non entrano nei saldi. Serve se lo storico
+    che hai caricato era già stato sistemato tra voi.
+  </p>
+
+  <mat-radio-group class="scelte" [value]="modo()" (change)="modo.set($event.value)">
+    <mat-radio-button value="data" class="scelta" [class.sel]="modo() === 'data'">
+      <div class="opzione">
+        <strong>Da una data</strong>
+        <span>Contano solo le bollette pagate e i rimborsi da quel giorno in poi.</span>
+      </div>
+    </mat-radio-button>
+
+    <mat-radio-button value="tutto" class="scelta" [class.sel]="modo() === 'tutto'">
+      <div class="opzione">
+        <strong>Tutto lo storico</strong>
+        <span>Contano tutte le bollette caricate.</span>
+      </div>
+    </mat-radio-button>
+  </mat-radio-group>
+
+  @if (modo() === 'data') {
+  <div class="data-riga">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Dal giorno</mat-label>
+      <input matInput [matDatepicker]="dal" [formControl]="dataCtrl">
+      <mat-datepicker-toggle matIconSuffix [for]="dal"></mat-datepicker-toggle>
+      <mat-datepicker #dal></mat-datepicker>
+    </mat-form-field>
+
+    <button mat-stroked-button type="button" (click)="imposta('oggi')">Oggi</button>
+    <button mat-stroked-button type="button" (click)="imposta('mese')">1° del mese</button>
+  </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="annulla()">Annulla</button>
+  <button mat-flat-button type="button" [disabled]="!valido() || invio()" (click)="salva()">Salva</button>
+</mat-dialog-actions>

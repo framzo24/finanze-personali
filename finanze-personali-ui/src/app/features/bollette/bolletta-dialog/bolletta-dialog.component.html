@@ -131,6 +131,29 @@
     </mat-form-field>
     }
 
+    @switch (movimento()) {
+    @case ('crea') {
+    <div class="movimento">
+      <mat-slide-toggle formControlName="registraMovimento">Registra la mia quota come spesa</mat-slide-toggle>
+      <span>
+        {{ quota() | currency:'EUR' }} nei movimenti, categoria Bollette. Il resto è un credito verso i coinquilini.
+      </span>
+    </div>
+    }
+    @case ('aggiorna') {
+    <div class="movimento info">
+      <mat-icon>link</mat-icon>
+      <span>La tua quota è già registrata nei movimenti e verrà aggiornata.</span>
+    </div>
+    }
+    @case ('elimina') {
+    <div class="movimento info">
+      <mat-icon>link_off</mat-icon>
+      <span>La spesa collegata nei movimenti verrà eliminata, perché la bolletta non è più pagata da te.</span>
+    </div>
+    }
+    }
+
     <mat-form-field appearance="outline">
       <mat-label>Note</mat-label>
       <textarea matInput rows="2" formControlName="note"></textarea>

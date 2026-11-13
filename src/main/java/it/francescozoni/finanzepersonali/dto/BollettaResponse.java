@@ -30,6 +30,7 @@ public record BollettaResponse(
         String paganteNome,
         BigDecimal quotaTua,
         String note,
-        OrigineBolletta origine
+        OrigineBolletta origine,
+        Long movimentoId
 ) {
 }

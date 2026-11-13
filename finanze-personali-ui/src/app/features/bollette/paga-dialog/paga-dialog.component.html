@@ -23,6 +23,15 @@
         }
       </mat-select>
     </mat-form-field>
+
+    @if (pagoIo()) {
+    <div class="movimento">
+      <mat-slide-toggle formControlName="registraMovimento">Registra la mia quota come spesa</mat-slide-toggle>
+      <span>
+          {{ quota() | currency:'EUR' }} nei movimenti, categoria Bollette. Il resto è un credito verso i coinquilini.
+        </span>
+    </div>
+    }
   </form>
 </mat-dialog-content>
 

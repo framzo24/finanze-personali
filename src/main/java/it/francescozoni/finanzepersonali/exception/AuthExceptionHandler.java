@@ -42,4 +42,9 @@ public class AuthExceptionHandler {
     ResponseEntity<Map<String, List<String>>> canoneNonTrovato(CanoneNotFoundException e) {
         return risposta(HttpStatus.NOT_FOUND, e);
     }
+
+    @ExceptionHandler(RimborsoNotFoundException.class)
+    ResponseEntity<Map<String, List<String>>> rimborsoNonTrovato(RimborsoNotFoundException e) {
+        return risposta(HttpStatus.NOT_FOUND, e);
+    }
 }
