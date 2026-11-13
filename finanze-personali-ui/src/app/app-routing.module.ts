@@ -10,6 +10,8 @@ import {authGuard, guestGuard} from "@app/core/guard/auth.guard";
 import {LoginComponent} from "@app/features/auth/login/login.component";
 import {RegistrazioneComponent} from "@app/features/auth/registrazione/registrazione.component";
 import {BolletteComponent} from "@app/features/bollette/bollette.component";
+import {diarioUscitaGuard} from "@app/features/diario/diario.guard";
+import {DiarioComponent} from "@app/features/diario/diario.component";
 
 
 const routes: Routes = [
@@ -41,10 +43,15 @@ const routes: Routes = [
         path: 'categorie',
         component: CategorieComponent
       },
-
       {
         path: 'bollette',
-        component: BolletteComponent },
+        component: BolletteComponent
+      },
+      {
+        path: 'diario',
+        component: DiarioComponent,
+        canDeactivate: [diarioUscitaGuard]
+      },
 
     ]
   },

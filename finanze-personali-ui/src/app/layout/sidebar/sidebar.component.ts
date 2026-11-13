@@ -18,6 +18,7 @@ export class SidebarComponent {
     { path: '/dashboard', label: 'Dashboard', icon: 'space_dashboard' },
     { path: '/movimenti', label: 'Movimenti', icon: 'swap_horiz' },
     { path: '/categorie', label: 'Categorie', icon: 'sell' },
-    { path: '/bollette', label: 'Bollette', icon: 'receipt_long' }
+    { path: '/bollette', label: 'Bollette', icon: 'receipt_long' },
+    { path: '/diario', label: 'Diario', icon: 'edit_note' }
   ];
 }

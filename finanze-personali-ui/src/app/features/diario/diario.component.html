@@ -1,0 +1,172 @@
+<header class="page-header">
+  <div>
+    <h1>Diario</h1>
+    <p>Un pensiero al giorno, solo per te.</p>
+  </div>
+</header>
+
+<div class="alto">
+
+  <!-- ===== calendario ===== -->
+  <section class="box calendario">
+    <header class="cal-head">
+      <h2>{{ titoloMese() }}</h2>
+      <div class="cal-nav">
+        <button mat-button type="button" (click)="tornaAOggi()">Oggi</button>
+        <button mat-icon-button type="button" aria-label="Mese precedente" (click)="cambiaMese(-1)">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <button mat-icon-button type="button" aria-label="Mese successivo" [disabled]="!puoAvanzare()"
+                (click)="cambiaMese(1)">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </header>
+
+    <div class="settimana" aria-hidden="true">
+      @for (g of giorniSettimana; track $index) {
+      <span>{{ g }}</span>
+      }
+    </div>
+
+    <div class="giorni" role="group" [attr.aria-label]="titoloMese()">
+      @for (c of celle(); track $index) {
+      @if (c) {
+      <button type="button" class="cella"
+              [class.oggi]="c.oggi"
+              [class.scritto]="c.conTesto"
+              [class.sel]="c.selezionato"
+              [disabled]="c.futuro"
+              [attr.aria-pressed]="c.selezionato"
+              [attr.aria-label]="c.numero + ' ' + titoloMese() + (c.conTesto ? ', con un pensiero' : '')"
+              (click)="apri(c.iso)">
+        <span class="num">{{ c.numero }}</span>
+      </button>
+      } @else {
+      <span></span>
+      }
+      }
+    </div>
+
+    <footer class="legenda">
+      <span><span class="campione scritto"></span>Hai scritto qualcosa</span>
+      <span><span class="campione oggi"></span>Oggi</span>
+    </footer>
+  </section>
+
+  <!-- ===== ultimi giorni ===== -->
+  <section class="box elenco">
+    <header class="box-head">
+      <div>
+        <h2>Ultimi giorni</h2>
+        <p>
+          {{ tutti() ? 'Gli ultimi ' + 14 + ' giorni, anche senza testo' : 'I tuoi ultimi pensieri' }}
+        </p>
+      </div>
+      <button mat-stroked-button type="button" class="alterna" [class.on]="tutti()"
+              [attr.aria-pressed]="tutti()" (click)="alternaElenco()">
+        <mat-icon>{{ tutti() ? 'filter_list' : 'calendar_view_day' }}</mat-icon>
+        {{ tutti() ? 'Solo con testo' : 'Tutti i giorni' }}
+      </button>
+    </header>
+
+    @if (elencoCaricato() && elenco().length === 0) {
+    <div class="vuoto">
+      <mat-icon>edit_note</mat-icon>
+      <span>Quando scriverai il primo pensiero comparirà qui.</span>
+    </div>
+    } @else {
+    <ul class="lista">
+      @for (v of elenco(); track v.giorno) {
+      <li>
+        <button type="button" class="voce" [class.vuota]="!v.testo" [class.sel]="v.giorno === giorno()"
+                (click)="apri(v.giorno)">
+              <span class="data">
+                <strong>{{ v.data | date:'d' }}</strong>
+                <span>{{ v.data | date:'MMM' }}</span>
+              </span>
+          <span class="corpo">
+                <span class="quando">{{ etichetta(v) }}</span>
+                @if (v.testo) {
+                  <span class="testo">{{ v.testo }}</span>
+                } @else {
+                  <span class="testo nessuno">Nessun pensiero in questo giorno</span>
+                }
+              </span>
+        </button>
+      </li>
+      }
+    </ul>
+    }
+  </section>
+</div>
+
+<!-- ===== editor ===== -->
+<section class="box editor" #editor [class.caricando]="caricamento()">
+  <header class="box-head">
+    <div class="titolo-giorno">
+      <h2>{{ giornoData() | date:'EEEE d MMMM y' }}</h2>
+      @if (giorno() === oggiIso) {
+      <span class="pill">Oggi</span>
+      }
+    </div>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="campo-data">
+      <mat-label>Giorno</mat-label>
+      <input matInput [matDatepicker]="picker" [formControl]="dataCtrl" [max]="oggi"
+             (dateChange)="cambiaData($event.value)">
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+  </header>
+
+  @if (inModifica()) {
+  <textarea #area class="area" [cdkTextareaAutosize]="true" [cdkAutosizeMinRows]="8"
+            [attr.maxlength]="maxCaratteri" [disabled]="caricamento()"
+            placeholder="Cosa ti va di ricordare di questo giorno?"
+            [value]="bozza()"
+            (input)="bozza.set($any($event.target).value)"
+            (keydown.control.enter)="salvaClick()"
+            (keydown.meta.enter)="salvaClick()"></textarea>
+
+  <footer class="piede">
+      <span class="info">
+        @if (sporco()) {
+          <span class="modificato"><mat-icon>edit</mat-icon>Modifiche non salvate</span>
+        } @else if (aggiornatoIl()) {
+          Ultima modifica: {{ aggiornatoIl() | date:'d MMM y, HH:mm' }}
+        }
+        @if (svuotera()) {
+          <span class="attenzione">Salvando un testo vuoto, questo giorno resterà senza pensieri.</span>
+        }
+      </span>
+
+    <span class="conteggio">{{ bozza().length }} / {{ maxCaratteri }}</span>
+
+    <span class="azioni">
+        @if (testoSalvato()) {
+          <button mat-button type="button" (click)="annulla()">Annulla</button>
+        }
+        <button mat-flat-button type="button" [disabled]="!sporco() || salvataggio()" (click)="salvaClick()">
+          {{ salvataggio() ? 'Salvataggio…' : 'Salva' }}
+        </button>
+      </span>
+  </footer>
+  } @else {
+  <div class="lettura">{{ testoSalvato() }}</div>
+
+  <footer class="piede">
+      <span class="info">
+        @if (aggiornatoIl()) {
+          Ultima modifica: {{ aggiornatoIl() | date:'d MMM y, HH:mm' }}
+        }
+      </span>
+    <span class="azioni">
+        <button mat-stroked-button type="button" [disabled]="caricamento()" (click)="modifica()">
+          <mat-icon>edit</mat-icon>
+          Modifica
+        </button>
+      </span>
+  </footer>
+  }
+</section>
