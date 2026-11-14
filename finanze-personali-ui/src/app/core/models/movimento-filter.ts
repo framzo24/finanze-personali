@@ -14,4 +14,6 @@ export interface MovimentoFilter {
 
   importoMax?: number;
 
+  sottocategoriaId?: number;
+
 }

@@ -27,8 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -203,15 +202,10 @@ public class MovimentoServiceImpl implements MovimentoService {
             );
         }
 
-
-        if (filter.getCategoriaId() != null) {
-            specification = specification.and(
-                    MovimentoSpecification.categoria(
-                            filter.getCategoriaId()
-                    )
-            );
+        Optional<Set<Long>> categorieFiltro = categorieDaFiltrare(filter);
+        if (categorieFiltro.isPresent()) {
+            specification = specification.and(MovimentoSpecification.categorie(categorieFiltro.get()));
         }
-
 
         if (filter.getTipo() != null) {
             specification = specification.and(
@@ -322,5 +316,46 @@ public class MovimentoServiceImpl implements MovimentoService {
         return categoriaRepository
                 .findByIdAndDeletedFalseAndUtenteId(input.getCategoriaId(), utenteCorrente.id())
                 .orElseThrow(() -> new CategoriaNotFoundException(input.getCategoriaId()));
+    }
+
+    /** Le categorie da cercare, oppure vuoto se non c'è nessun filtro sulle categorie. */
+    private Optional<Set<Long>> categorieDaFiltrare(MovimentoFilter filter) {
+        Long categoria = filter.getCategoriaId();
+        Long sotto = filter.getSottocategoriaId();
+        if (categoria == null && sotto == null) {
+            return Optional.empty();
+        }
+
+        Map<Long, List<Long>> figli = new HashMap<>();
+        for (Categoria c : categoriaRepository.findAllByDeletedFalseAndUtenteId(utenteCorrente.id())) {
+            if (c.getCategoriaPadre() != null) {
+                figli.computeIfAbsent(c.getCategoriaPadre().getId(), k -> new ArrayList<>()).add(c.getId());
+            }
+        }
+
+        Set<Long> dallaCategoria = categoria != null ? conDiscendenti(categoria, figli) : null;
+        Set<Long> dallaSotto = sotto != null ? conDiscendenti(sotto, figli) : null;
+
+        if (dallaCategoria == null) {
+            return Optional.of(dallaSotto);
+        }
+        if (dallaSotto == null) {
+            return Optional.of(dallaCategoria);
+        }
+        // entrambi: conta la sottocategoria, ma solo se sta dentro la categoria scelta
+        return Optional.of(dallaCategoria.contains(sotto) ? dallaSotto : Set.of());
+    }
+
+    private Set<Long> conDiscendenti(Long id, Map<Long, List<Long>> figli) {
+        Set<Long> risultato = new HashSet<>();
+        Deque<Long> coda = new ArrayDeque<>();
+        coda.add(id);
+        while (!coda.isEmpty()) {
+            Long corrente = coda.poll();
+            if (risultato.add(corrente)) {
+                coda.addAll(figli.getOrDefault(corrente, List.of()));
+            }
+        }
+        return risultato;
     }
 }

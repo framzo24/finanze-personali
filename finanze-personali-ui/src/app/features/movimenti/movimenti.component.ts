@@ -1,13 +1,22 @@
-import { Component, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
-import { MovimentoService } from '../../core/services/movimento.service';
-import { MovimentoResponse } from '../../core/models/movimento-response';
+import { Component, OnInit, ChangeDetectionStrategy, computed, signal } from '@angular/core';
+import { MovimentoService } from '@app/core/services/movimento.service';
+import { MovimentoResponse } from '@app/core/models/movimento-response';
 import { MatDialog } from '@angular/material/dialog';
 import { MovimentoDialogComponent } from './movimento-dialog/movimento-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MovimentoFilter } from '../../core/models/movimento-filter';
-import { CategoriaService } from '../../core/services/categoria.service';
-import { CategoriaResponse } from '../../core/models/categoria-response';
+import { MovimentoFilter } from '@app/core/models/movimento-filter';
+import { CategoriaService } from '@app/core/services/categoria.service';
+import { CategoriaResponse } from '@app/core/models/categoria-response';
 import { PageEvent } from '@angular/material/paginator';
+
+interface VoceSotto {
+  id: number;
+  nome: string;
+  icona: string;
+  livello: number;
+  percorso: string;
+  radiceId: number;
+}
 
 @Component({
   selector: 'app-movimenti',
@@ -25,12 +34,36 @@ export class MovimentiComponent implements OnInit {
   movimenti = signal<MovimentoResponse[]>([]);
   categorie = signal<CategoriaResponse[]>([]);
 
-  // modello dei filtri (legato a ngModel, resta un oggetto normale)
+  // filtri
   filtro: MovimentoFilter = {};
+  categoriaId = signal<number | null>(null);
+  sottocategoriaId = signal<number | null>(null);
   dataDa?: Date;
   dataA?: Date;
 
   displayedColumns: string[] = ['descrizione', 'categoria', 'tipo', 'importo', 'data', 'azioni'];
+
+  /** Tutte le sottocategorie, a ogni livello, con il loro percorso. */
+  private readonly tutteSotto = computed<VoceSotto[]>(() => {
+    const risultato: VoceSotto[] = [];
+    const visita = (lista: CategoriaResponse[], livello: number, percorso: string[], radiceId: number) => {
+      for (const c of lista) {
+        const p = [...percorso, c.nome];
+        risultato.push({ id: c.id, nome: c.nome, icona: c.icona ?? '', livello, percorso: p.join(' › '), radiceId });
+        visita(c.sottoCategorie ?? [], livello + 1, p, radiceId);
+      }
+    };
+    for (const radice of this.categorie()) {
+      visita(radice.sottoCategorie ?? [], 1, [radice.nome], radice.id);
+    }
+    return risultato;
+  });
+
+  /** Le sottocategorie della categoria scelta, oppure tutte se non ne hai scelta una. */
+  readonly sottocategorie = computed(() => {
+    const categoria = this.categoriaId();
+    return categoria === null ? this.tutteSotto() : this.tutteSotto().filter(s => s.radiceId === categoria);
+  });
 
   constructor(
     private movimentoService: MovimentoService,
@@ -65,7 +98,33 @@ export class MovimentiComponent implements OnInit {
     this.caricaMovimenti();
   }
 
+  // ---------- filtri ----------
+  scegliCategoria(id: number | null): void {
+    this.categoriaId.set(id);
+
+    // una sottocategoria che non appartiene alla nuova categoria si azzera
+    const sotto = this.sottocategoriaId();
+    if (id !== null && sotto !== null) {
+      const voce = this.tutteSotto().find(s => s.id === sotto);
+      if (!voce || voce.radiceId !== id) {
+        this.sottocategoriaId.set(null);
+      }
+    }
+  }
+
+  scegliSottocategoria(id: number | null): void {
+    this.sottocategoriaId.set(id);
+
+    // scegliendo una sottocategoria senza categoria, la categoria diventa la sua madre principale
+    if (id !== null && this.categoriaId() === null) {
+      const voce = this.tutteSotto().find(s => s.id === id);
+      if (voce) this.categoriaId.set(voce.radiceId);
+    }
+  }
+
   cerca(): void {
+    this.filtro.categoriaId = this.categoriaId() ?? undefined;
+    this.filtro.sottocategoriaId = this.sottocategoriaId() ?? undefined;
     this.filtro.dataDa = this.formattaData(this.dataDa, false);
     this.filtro.dataA = this.formattaData(this.dataA, true);
     this.pagina.set(0);
@@ -74,12 +133,15 @@ export class MovimentiComponent implements OnInit {
 
   resetFiltri(): void {
     this.filtro = {};
+    this.categoriaId.set(null);
+    this.sottocategoriaId.set(null);
     this.dataDa = undefined;
     this.dataA = undefined;
     this.pagina.set(0);
     this.caricaMovimenti();
   }
 
+  // ---------- azioni ----------
   nuovoMovimento(): void {
     const dialogRef = this.dialog.open(MovimentoDialogComponent, {
       width: '520px',

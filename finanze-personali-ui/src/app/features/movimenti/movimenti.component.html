@@ -13,15 +13,31 @@
   <mat-form-field appearance="outline" subscriptSizing="dynamic" class="f-wide">
     <mat-label>Descrizione</mat-label>
     <mat-icon matPrefix>search</mat-icon>
-    <input matInput [(ngModel)]="filtro.descrizione" (keyup.enter)="cerca()">
+    <label>
+      <input matInput [(ngModel)]="filtro.descrizione" (keyup.enter)="cerca()">
+    </label>
   </mat-form-field>
 
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>Categoria</mat-label>
-    <mat-select [(ngModel)]="filtro.categoriaId">
-      <mat-option [value]="undefined">Tutte</mat-option>
+    <mat-select [ngModel]="categoriaId()" (ngModelChange)="scegliCategoria($event)">
+      <mat-option [value]="null">Tutte</mat-option>
       @for (categoria of categorie(); track categoria.id) {
-      <mat-option [value]="categoria.id">{{ categoria.nome }}</mat-option>
+      <mat-option [value]="categoria.id">{{ categoria.icona || '📁' }} {{ categoria.nome }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Sottocategoria</mat-label>
+    <mat-select [ngModel]="sottocategoriaId()" (ngModelChange)="scegliSottocategoria($event)"
+                [disabled]="sottocategorie().length === 0">
+      <mat-option [value]="null">Tutte</mat-option>
+      @for (s of sottocategorie(); track s.id) {
+      <mat-option [value]="s.id"
+                  [style.padding-left.px]="categoriaId() === null ? null : 16 + (s.livello - 1) * 16">
+        {{ s.icona || '📁' }} {{ categoriaId() === null ? s.percorso : s.nome }}
+      </mat-option>
       }
     </mat-select>
   </mat-form-field>
@@ -37,26 +53,34 @@
 
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>Data da</mat-label>
-    <input matInput [matDatepicker]="pickerDa" [(ngModel)]="dataDa">
+    <label>
+      <input matInput [matDatepicker]="pickerDa" [(ngModel)]="dataDa">
+    </label>
     <mat-datepicker-toggle matIconSuffix [for]="pickerDa"></mat-datepicker-toggle>
     <mat-datepicker #pickerDa></mat-datepicker>
   </mat-form-field>
 
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>Data a</mat-label>
-    <input matInput [matDatepicker]="pickerA" [(ngModel)]="dataA">
+    <label>
+      <input matInput [matDatepicker]="pickerA" [(ngModel)]="dataA">
+    </label>
     <mat-datepicker-toggle matIconSuffix [for]="pickerA"></mat-datepicker-toggle>
     <mat-datepicker #pickerA></mat-datepicker>
   </mat-form-field>
 
   <mat-form-field appearance="outline" subscriptSizing="dynamic" class="f-small">
     <mat-label>Importo min</mat-label>
-    <input matInput type="number" [(ngModel)]="filtro.importoMin" (keyup.enter)="cerca()">
+    <label>
+      <input matInput type="number" [(ngModel)]="filtro.importoMin" (keyup.enter)="cerca()">
+    </label>
   </mat-form-field>
 
   <mat-form-field appearance="outline" subscriptSizing="dynamic" class="f-small">
     <mat-label>Importo max</mat-label>
-    <input matInput type="number" [(ngModel)]="filtro.importoMax" (keyup.enter)="cerca()">
+    <label>
+      <input matInput type="number" [(ngModel)]="filtro.importoMax" (keyup.enter)="cerca()">
+    </label>
   </mat-form-field>
 
   <div class="filtri-actions">

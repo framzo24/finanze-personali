@@ -1034,3 +1034,308 @@
   .card:hover { transform: none; }
   .track { scroll-behavior: auto; }
 }
+
+// ---------- spese per categoria: selettore del periodo ----------
+.panel-head { flex-wrap: wrap; }
+
+.periodo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.split {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  overflow: hidden;
+  transition: border-color 150ms ease, background-color 150ms ease;
+
+  &.on {
+    border-color: var(--app-primary);
+    background: color-mix(in srgb, var(--app-primary) 14%, transparent);
+  }
+}
+
+.split-main,
+.split-arrow,
+.solo {
+  border: none;
+  background: transparent;
+  color: var(--app-text-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+
+  &:hover { background: color-mix(in srgb, var(--app-primary) 10%, transparent); }
+  &:focus-visible { outline: 2px solid var(--app-primary); outline-offset: -2px; }
+}
+
+.split-main { padding: 5px 4px 5px 12px; }
+
+.split-arrow {
+  display: grid;
+  place-items: center;
+  padding: 0 8px 0 4px;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+.split.on .split-main,
+.split.on .split-arrow { color: var(--app-text); }
+
+.solo {
+  padding: 5px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+
+  &.on {
+    color: var(--app-text);
+    border-color: var(--app-primary);
+    background: color-mix(in srgb, var(--app-primary) 14%, transparent);
+  }
+}
+
+// ---------- interruttori piccoli ----------
+.mini-toggle {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid var(--app-border);
+
+  button {
+    padding: 4px 12px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--app-text-muted);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+
+    &:hover:not(.on) { background: color-mix(in srgb, var(--app-primary) 10%, transparent); }
+    &:focus-visible { outline: 2px solid var(--app-primary); outline-offset: 1px; }
+
+    &.on {
+      background: var(--app-primary);
+      color: var(--app-on-primary);
+    }
+  }
+}
+
+// ---------- bollette dell'anno ----------
+.t-ico {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 20%, transparent);
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+}
+
+.bol-righe {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0 6px 0 0;
+  list-style: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--app-border);
+
+    &:last-child { border-bottom: none; }
+  }
+}
+
+.bol-centro {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bol-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 14px;
+
+  .bol-nome {
+    font-weight: 500;
+    color: var(--app-text);
+  }
+
+  .bol-val {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--app-text);
+
+    small {
+      margin-left: 4px;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--app-text-muted);
+    }
+  }
+}
+
+.cmp-track.sottile { height: 5px; }
+
+.bol-totale {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--app-border);
+  font-size: 14px;
+  color: var(--app-text-muted);
+
+  strong {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--app-text);
+  }
+
+  .prima { flex: 1; }
+}
+
+// ---------- costo unitario ----------
+.costo-top {
+  flex-shrink: 0;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+
+  strong {
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.6px;
+    color: var(--app-text);
+  }
+
+  .unita {
+    font-size: 14px;
+    color: var(--app-text-muted);
+  }
+
+  .rispetto {
+    font-size: 12px;
+    color: var(--app-text-muted);
+  }
+}
+
+.grafico {
+  --c: #7C3AED;
+  position: relative;
+  flex: 1;
+  min-height: 80px;
+  margin: 6px 14px 0;
+
+  svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    color: var(--c);
+  }
+
+  polyline {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+}
+
+.punto {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--c);
+  border: 2px solid var(--app-card);
+  box-shadow: 0 0 0 1px var(--c);
+  transform: translate(-50%, -50%);
+  outline: none;
+
+  &.stimata {
+    background: var(--app-card);
+    border-color: var(--c);
+    box-shadow: none;
+  }
+
+  &::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    z-index: 3;
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    white-space: nowrap;
+    color: var(--app-sidebar-text);
+    background: var(--app-sidebar-bg);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%);
+    transition: opacity 120ms ease;
+  }
+
+  &:hover::after,
+  &:focus-visible::after { opacity: 1; }
+
+  // il primo e l'ultimo punto non devono far uscire il suggerimento dalla scheda
+  &:first-of-type::after { left: 0; transform: none; }
+  &:last-of-type::after { left: auto; right: 0; transform: none; }
+}
+
+.assi {
+  position: relative;
+  flex-shrink: 0;
+  height: 16px;
+  margin: 6px 14px 0;
+
+  span {
+    position: absolute;
+    transform: translateX(-50%);
+    font-size: 11px;
+    text-transform: capitalize;
+    color: var(--app-text-muted);
+  }
+}

@@ -215,14 +215,51 @@
             <header class="panel-head">
               <div>
                 <h2>Spese per categoria</h2>
-                <p>Dove vanno i tuoi soldi</p>
+                <p class="cap">
+                  @if (periodoSpese() === 'sempre') {
+                  Tutte le spese registrate
+                  } @else {
+                  {{ meseSpese() | date:'MMMM y' }}
+                  }
+                </p>
+              </div>
+
+              <div class="periodo" role="group" aria-label="Periodo">
+                <div class="split" [class.on]="periodoSpese() === 'mese'">
+                  <button type="button" class="split-main" [attr.aria-pressed]="periodoSpese() === 'mese'"
+                          (click)="scegliMeseCorrenteDelPulsante()">
+                    {{ etichettaMese() }}
+                  </button>
+                  <button type="button" class="split-arrow" [matMenuTriggerFor]="menuMesi" aria-label="Scegli il mese">
+                    <mat-icon>expand_more</mat-icon>
+                  </button>
+                </div>
+
+                <button type="button" class="solo" [class.on]="periodoSpese() === 'sempre'"
+                        [attr.aria-pressed]="periodoSpese() === 'sempre'" (click)="scegliSempre()">
+                  Di sempre
+                </button>
+
+                <mat-menu #menuMesi="matMenu" xPosition="before" class="menu-mesi">
+                  @for (d of mesiScelta; track d.getTime()) {
+                  <button mat-menu-item [class.selezionato]="isMeseSelezionato(d)" (click)="scegliMese(d)">
+                    {{ d | date:'MMMM y' }}
+                    @if ($index === 0) { <small>questo mese</small> }
+                    @else if ($index === 1) { <small>mese scorso</small> }
+                  </button>
+                  }
+                </mat-menu>
               </div>
             </header>
 
-            @if (spese().voci.length === 0) {
+            @if (caricamentoSpese()) {
+            <div class="empty">
+              <span>Un attimo…</span>
+            </div>
+            } @else if (spese().voci.length === 0) {
             <div class="empty">
               <mat-icon>donut_large</mat-icon>
-              <span>Nessuna spesa registrata.</span>
+              <span>{{ periodoSpese() === 'mese' ? 'Nessuna spesa in questo mese.' : 'Nessuna spesa registrata.' }}</span>
             </div>
             } @else {
             <div class="ripartizione">
@@ -339,6 +376,134 @@
               <mat-icon>compare_arrows</mat-icon>
               <span>Servono almeno due mesi di dati per il confronto.</span>
             </div>
+            }
+          </section>
+          }
+
+          @case ('bollette') {
+          <section class="panel">
+            <header class="panel-head">
+              <div>
+                <h2>Bollette dell'anno</h2>
+                <p>
+                  @if (statBollette(); as sb) {
+                  Dal 1° gennaio al {{ sb.fino | date:'d MMMM' }}, contro il {{ sb.anno - 1 }}
+                  } @else {
+                  Caricamento…
+                  }
+                </p>
+              </div>
+
+              <div class="mini-toggle" role="group" aria-label="Importi">
+                <button type="button" [class.on]="bolletteQuota()" [attr.aria-pressed]="bolletteQuota()"
+                        (click)="bolletteQuota.set(true)">Mia quota</button>
+                <button type="button" [class.on]="!bolletteQuota()" [attr.aria-pressed]="!bolletteQuota()"
+                        (click)="bolletteQuota.set(false)">Casa</button>
+              </div>
+            </header>
+
+            @if (righeBollette(); as r) {
+            @if (r.righe.length === 0) {
+            <div class="empty">
+              <mat-icon>receipt_long</mat-icon>
+              <span>Nessuna bolletta in questo periodo. Le trovi nella pagina Bollette.</span>
+            </div>
+            } @else {
+            <ul class="bol-righe">
+              @for (x of r.righe; track x.tipo) {
+              <li [style.--c]="meta[x.tipo].colore">
+                <span class="t-ico"><mat-icon>{{ meta[x.tipo].icona }}</mat-icon></span>
+
+                <div class="bol-centro">
+                  <div class="bol-top">
+                    <span class="bol-nome">{{ meta[x.tipo].label }}</span>
+                    <span class="bol-val">
+                    {{ x.attuale | currency:'EUR':'symbol':'1.0-0' }}
+                    <small>contro {{ x.precedente | currency:'EUR':'symbol':'1.0-0' }}</small>
+                  </span>
+                  </div>
+                  <div class="cmp-track"><span class="cmp-bar cur" [style.width.%]="x.wAtt"></span></div>
+                  <div class="cmp-track sottile"><span class="cmp-bar prev" [style.width.%]="x.wPrec"></span></div>
+                </div>
+
+                <span class="delta" [class.buono]="x.variazione.stato === 'buono'"
+                      [class.cattivo]="x.variazione.stato === 'cattivo'">
+                <mat-icon>{{ x.variazione.direzione === 'su' ? 'arrow_upward' : x.variazione.direzione === 'giu' ? 'arrow_downward' : 'remove' }}</mat-icon>
+                {{ x.variazione.testo }}
+              </span>
+              </li>
+              }
+            </ul>
+
+            <footer class="bol-totale">
+              <span>Totale</span>
+              <strong>{{ r.totale.attuale | currency:'EUR':'symbol':'1.0-0' }}</strong>
+              <span class="prima">contro {{ r.totale.precedente | currency:'EUR':'symbol':'1.0-0' }}</span>
+              <span class="delta" [class.buono]="r.totale.variazione.stato === 'buono'"
+                    [class.cattivo]="r.totale.variazione.stato === 'cattivo'">
+            <mat-icon>{{ r.totale.variazione.direzione === 'su' ? 'arrow_upward' : r.totale.variazione.direzione === 'giu' ? 'arrow_downward' : 'remove' }}</mat-icon>
+            {{ r.totale.variazione.testo }}
+          </span>
+            </footer>
+            }
+            }
+          </section>
+          }
+
+          @case ('costo') {
+          <section class="panel">
+            <header class="panel-head">
+              <div>
+                <h2>Costo unitario</h2>
+                <p>Importo diviso consumo · punto vuoto = stimata</p>
+              </div>
+
+              <div class="mini-toggle" role="group" aria-label="Utenza">
+                @for (t of tipiConsumo; track t) {
+                <button type="button" [class.on]="costoTipo() === t" [attr.aria-pressed]="costoTipo() === t"
+                        (click)="costoTipo.set(t)">{{ meta[t].label }}</button>
+                }
+              </div>
+            </header>
+
+            @if (costo(); as c) {
+            @if (c.ultimo; as u) {
+            <div class="costo-top">
+              <strong>{{ u.costo | number:'1.2-4' }}</strong>
+              <span class="unita">€/{{ c.unita }}</span>
+              @if (c.variazione; as v) {
+              <span class="delta" [class.buono]="v.stato === 'buono'" [class.cattivo]="v.stato === 'cattivo'">
+              <mat-icon>{{ v.direzione === 'su' ? 'arrow_upward' : v.direzione === 'giu' ? 'arrow_downward' : 'remove' }}</mat-icon>
+              {{ v.testo }}
+            </span>
+              <span class="rispetto">rispetto alla bolletta precedente</span>
+              }
+            </div>
+
+            <div class="grafico" [style.--c]="meta[costoTipo()].colore">
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                <polyline [attr.points]="c.linea" />
+              </svg>
+              @for (p of c.punti; track $index) {
+              <span class="punto" tabindex="0" [class.stimata]="p.stimata"
+                    [style.left.%]="p.x" [style.top.%]="p.y"
+                    [attr.data-tip]="p.lungo + ' · ' + (p.costo | number:'1.2-4') + ' €/' + c.unita"></span>
+              }
+            </div>
+
+            <div class="assi" aria-hidden="true">
+              @for (p of c.punti; track $index) {
+              @if (p.etichetta) {
+              <span [style.left.%]="p.x">{{ p.label }}</span>
+              }
+              }
+            </div>
+            } @else {
+            <div class="empty">
+              <mat-icon>show_chart</mat-icon>
+              <span>Servono bollette con il consumo indicato per vedere l'andamento.</span>
+            </div>
+            }
             }
           </section>
           }

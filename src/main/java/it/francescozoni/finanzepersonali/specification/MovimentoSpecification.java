@@ -62,4 +62,10 @@ public class MovimentoSpecification {
     public static Specification<Movimento> utente(Long utenteId) {
         return (root, query, cb) -> cb.equal(root.get("utente").get("id"), utenteId);
     }
+
+    public static Specification<Movimento> categorie(java.util.Set<Long> ids) {
+        return (root, query, cb) -> ids.isEmpty()
+                ? cb.disjunction()
+                : root.get("categoria").get("id").in(ids);
+    }
 }

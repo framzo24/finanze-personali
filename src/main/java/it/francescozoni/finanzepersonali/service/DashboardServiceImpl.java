@@ -3,6 +3,7 @@ package it.francescozoni.finanzepersonali.service;
 import it.francescozoni.finanzepersonali.dto.AndamentoMensileResponse;
 import it.francescozoni.finanzepersonali.dto.CategoriaTotaleResponse;
 import it.francescozoni.finanzepersonali.dto.DashboardResponse;
+import it.francescozoni.finanzepersonali.exception.DatiNonValidiException;
 import it.francescozoni.finanzepersonali.model.Categoria;
 import it.francescozoni.finanzepersonali.model.Movimento;
 import it.francescozoni.finanzepersonali.model.enums.TipoMovimento;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.DateTimeException;
 import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
@@ -55,6 +57,22 @@ public class DashboardServiceImpl implements DashboardService {
                 .build();
     }
 
+    @Override
+    public List<CategoriaTotaleResponse> spesePerMese(int anno, int mese) {
+        YearMonth periodo;
+        try {
+            periodo = YearMonth.of(anno, mese);
+        } catch (DateTimeException e) {
+            throw new DatiNonValidiException("Mese non valido");
+        }
+
+        List<Movimento> delMese = movimentoRepository.findAllByDeletedFalseAndUtenteId(utenteCorrente.id()).stream()
+                .filter(m -> YearMonth.from(m.getDataMovimento()).equals(periodo))
+                .toList();
+
+        return calcolaCategorie(delMese);
+    }
+
     private BigDecimal totale(List<Movimento> movimenti, TipoMovimento tipo) {
         return movimenti.stream()
                 .filter(m -> m.getTipo() == tipo)
@@ -69,7 +87,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .values()
                 .stream()
                 .map(lista -> {
-                    Categoria categoria = lista.get(0).getCategoria();
+                    Categoria categoria = lista.getFirst().getCategoria();
                     return CategoriaTotaleResponse.builder()
                             .categoriaId(categoria.getId())
                             .categoria(categoria.getNome())

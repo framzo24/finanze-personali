@@ -26,4 +26,6 @@ public class MovimentoFilter {
     private BigDecimal importoMax;
 
     private String descrizione;
+
+    private Long sottocategoriaId;
 }
