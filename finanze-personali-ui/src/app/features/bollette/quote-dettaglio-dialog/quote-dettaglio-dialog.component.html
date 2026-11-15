@@ -1,0 +1,69 @@
+
+@if (bolletta(); as b) {
+<h2 mat-dialog-title>{{ meta[b.tipo].label }} · {{ b.fornitore }}</h2>
+
+<mat-dialog-content>
+  <p class="sommario">
+    Periodo {{ b.periodoDal | date:'d MMM' }} – {{ b.periodoAl | date:'d MMM y' }}
+    · scadenza {{ b.dataScadenza | date:'d MMM y' }}
+    · <strong>{{ b.importo | currency:'EUR' }}</strong>
+  </p>
+
+  @if (b.storica) {
+  <div class="info">
+    <mat-icon>history</mat-icon>
+    <span>Questa bolletta è dello storico: era già stata sistemata prima di usare l'app.</span>
+  </div>
+  }
+
+  <div class="persone">
+    @for (p of b.persone; track p.nome) {
+    <div class="persona" [attr.data-stato]="p.stato">
+      <span class="iniziale">{{ p.nome.charAt(0) }}</span>
+      <span class="chi">
+            <strong>{{ p.nome }}@if (p.tu) { <small>tu</small> }</strong>
+            <small>Quota {{ p.quota | currency:'EUR' }} · inviato {{ p.inviato | currency:'EUR' }}</small>
+          </span>
+      <span class="pill">
+            <mat-icon>{{ stati[p.stato].icona }}</mat-icon>{{ stati[p.stato].label }}
+          </span>
+    </div>
+    }
+  </div>
+
+  <h3>Invii registrati</h3>
+  @if (b.versamenti.length === 0) {
+  <p class="nessuno">Nessun invio registrato per questa bolletta.</p>
+  } @else {
+  <ul class="invii">
+    @for (v of b.versamenti; track v.id) {
+    <li>
+      <span class="iniziale">{{ v.personaNome.charAt(0) }}</span>
+      <span class="testo">
+              <strong>{{ v.personaNome }}@if (v.dichiarato) { <small>dichiarato</small> }</strong>
+              <small>{{ v.data | date:'d MMM y' }}@if (v.nota) { · {{ v.nota }} }</small>
+            </span>
+      <span class="importo">{{ v.importo | currency:'EUR' }}</span>
+      <button mat-icon-button class="danger" matTooltip="Elimina l'invio" aria-label="Elimina l'invio"
+              (click)="elimina(v)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </li>
+    }
+  </ul>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="chiudi()">Chiudi</button>
+  @if (b.stato === 'DA_PAGARE') {
+  <button mat-flat-button type="button" (click)="registra()">
+    <mat-icon>send</mat-icon>
+    Registra invio
+  </button>
+  }
+</mat-dialog-actions>
+} @else {
+<h2 mat-dialog-title>Quote della bolletta</h2>
+<mat-dialog-content><p class="nessuno">Un attimo…</p></mat-dialog-content>
+}

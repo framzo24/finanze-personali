@@ -111,7 +111,7 @@ public class AuthService {
     }
 
     private UtenteResponse converti(Utente u) {
-        return new UtenteResponse(u.getId(), u.getNome(), u.getCognome(), u.getUsername());
+        return new UtenteResponse(u.getId(), u.getNome(), u.getCognome(), u.getUsername(), u.getModalitaBollette());
     }
 
     private String pulisci(String valore) {

@@ -16,6 +16,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,4 +64,6 @@ public interface BollettaRepository extends JpaRepository<Bolletta, Long>, JpaSp
     List<Bolletta> findAllByCanoneIdAndDeletedFalseAndPeriodoDalGreaterThanEqual(Long canoneId, LocalDate dal);
 
     List<Bolletta> findAllByCanoneIdAndDeletedFalseAndStato(Long canoneId, StatoBolletta stato);
+
+    List<Bolletta> findAllByUtenteIdAndDeletedFalseAndIdIn(Long utenteId, Collection<Long> ids);
 }

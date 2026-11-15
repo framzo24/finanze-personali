@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import {AuthResponse, Utente} from "@app/models/auth";
+import {AuthResponse, Utente} from "@app/core/models/auth";
 
 const CHIAVE = 'finanze-sessione-v1';
 
@@ -45,6 +45,20 @@ export class SessioneService {
     }
     this.stato.set(null);
     this.router.navigate(['/login']);
+  }
+
+  /** Aggiorna i dati dell'utente nella sessione, per esempio dopo la scelta della modalità. */
+  aggiornaUtente(utente: Utente): void {
+    const attuale = this.stato();
+    if (!attuale) return;
+
+    const nuova: Sessione = { ...attuale, utente };
+    try {
+      localStorage.setItem(CHIAVE, JSON.stringify(nuova));
+    } catch {
+      // storage non disponibile: la sessione vale solo finché la pagina resta aperta
+    }
+    this.stato.set(nuova);
   }
 
   private leggi(): Sessione | null {

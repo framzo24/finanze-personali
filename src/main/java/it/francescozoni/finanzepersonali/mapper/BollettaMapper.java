@@ -3,7 +3,9 @@ package it.francescozoni.finanzepersonali.mapper;
 import it.francescozoni.finanzepersonali.dto.BollettaResponse;
 import it.francescozoni.finanzepersonali.model.Bolletta;
 import it.francescozoni.finanzepersonali.model.Coinquilino;
+import it.francescozoni.finanzepersonali.model.enums.ModalitaBollette;
 import it.francescozoni.finanzepersonali.model.enums.StatoBolletta;
+import it.francescozoni.finanzepersonali.util.QuoteIrene;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -46,11 +48,10 @@ public class BollettaMapper {
         );
     }
 
-    /**
-     * La quota è un terzo dell'importo. Il centesimo che avanza resta al pagante:
-     * se hai pagato tu la tua quota è "importo meno due terzi", altrimenti è un terzo.
-     */
     public static BigDecimal quotaTua(Bolletta b) {
+        if (b.getUtente().getModalitaBollette() == ModalitaBollette.IRENE) {
+            return QuoteIrene.quota(b.getImporto(), QuoteIrene.INDICE_TU);
+        }
         BigDecimal terzo = b.getImporto().divide(BigDecimal.valueOf(3), 2, RoundingMode.DOWN);
         return b.getPagante() == null
                 ? b.getImporto().subtract(terzo.multiply(BigDecimal.valueOf(2)))

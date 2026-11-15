@@ -34,10 +34,6 @@ public class AuthExceptionHandler {
         return risposta(HttpStatus.NOT_FOUND, e);
     }
 
-    private ResponseEntity<Map<String, List<String>>> risposta(HttpStatus stato, RuntimeException e) {
-        return ResponseEntity.status(stato).body(Map.of("messages", List.of(e.getMessage())));
-    }
-
     @ExceptionHandler(CanoneNotFoundException.class)
     ResponseEntity<Map<String, List<String>>> canoneNonTrovato(CanoneNotFoundException e) {
         return risposta(HttpStatus.NOT_FOUND, e);
@@ -46,5 +42,19 @@ public class AuthExceptionHandler {
     @ExceptionHandler(RimborsoNotFoundException.class)
     ResponseEntity<Map<String, List<String>>> rimborsoNonTrovato(RimborsoNotFoundException e) {
         return risposta(HttpStatus.NOT_FOUND, e);
+    }
+
+    @ExceptionHandler(ModalitaNonConsentitaException.class)
+    ResponseEntity<Map<String, List<String>>> modalitaNonConsentita(ModalitaNonConsentitaException e) {
+        return risposta(HttpStatus.FORBIDDEN, e);
+    }
+
+    @ExceptionHandler(VersamentoNotFoundException.class)
+    ResponseEntity<Map<String, List<String>>> versamentoNonTrovato(VersamentoNotFoundException e) {
+        return risposta(HttpStatus.NOT_FOUND, e);
+    }
+
+    private ResponseEntity<Map<String, List<String>>> risposta(HttpStatus stato, RuntimeException e) {
+        return ResponseEntity.status(stato).body(Map.of("messages", List.of(e.getMessage())));
     }
 }

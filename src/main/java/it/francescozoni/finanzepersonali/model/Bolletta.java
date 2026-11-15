@@ -82,4 +82,7 @@ public class Bolletta extends BaseEntity {
     @JoinColumn(name = "movimento_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private Movimento movimento;
+
+    /** Bolletta già sistemata prima di usare l'app (caricata dallo storico). Null = no. */
+    private Boolean storica;
 }

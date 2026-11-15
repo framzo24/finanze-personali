@@ -1,9 +1,7 @@
 package it.francescozoni.finanzepersonali.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import it.francescozoni.finanzepersonali.model.enums.ModalitaBollette;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,4 +29,8 @@ public class Utente extends BaseEntity {
     /** Hash BCrypt. Null = account ad accesso libero (solo il proprietario). */
     @Column(length = 100)
     private String passwordHash;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private ModalitaBollette modalitaBollette;
 }

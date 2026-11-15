@@ -202,6 +202,7 @@ export interface VoceSaldo {
 export interface ConfigurazioneSaldi {
   configurato: boolean;
   saldiDal: string | null;
+  proprietario?: string | null;
 }
 
 export interface RimborsoRequest {

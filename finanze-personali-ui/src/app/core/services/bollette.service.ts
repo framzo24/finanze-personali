@@ -110,8 +110,8 @@ export class BolletteService {
     return this.http.get<VoceSaldo[]>(`${this.apiSaldi}/${coinquilinoId}/voci`);
   }
 
-  salvaConfigurazione(saldiDal: string | null): Observable<ConfigurazioneSaldi> {
-    return this.http.put<ConfigurazioneSaldi>(`${this.apiSaldi}/configurazione`, { saldiDal });
+  salvaConfigurazione(saldiDal: string | null, proprietario: string | null = null): Observable<ConfigurazioneSaldi> {
+    return this.http.put<ConfigurazioneSaldi>(`${this.apiSaldi}/configurazione`, { saldiDal, proprietario });
   }
 
   creaRimborso(richiesta: RimborsoRequest): Observable<Rimborso> {

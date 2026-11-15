@@ -652,3 +652,31 @@ mat-paginator { border-top: 1px solid var(--app-border); }
   font-size: 18px;
   color: var(--app-text-muted);
 }
+
+// ---------- quote nella tabella (modalità Irene) ----------
+.quote-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.qd {
+  --c: var(--app-text-muted);
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 16%, transparent);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--c) 55%, transparent);
+
+  &[data-stato='DA_INVIARE'] { --c: var(--app-expense); }
+  &[data-stato='PARZIALE'] { --c: var(--app-primary); }
+  &[data-stato='INVIATA'],
+  &[data-stato='DICHIARATA'],
+  &[data-stato='A_POSTO'] { --c: var(--app-income); }
+}
+
+.actions { width: 200px; }

@@ -21,3 +21,14 @@ export interface RegistrazioneRequest {
   cognome: string;
   password: string;
 }
+
+export type ModalitaBollette = 'CLASSICA' | 'IRENE';
+
+export interface Utente {
+  id: number;
+  nome: string;
+  cognome: string;
+  username: string;
+  /** null = non ancora scelta. undefined = sessione salvata prima di questa funzione. */
+  modalitaBollette?: ModalitaBollette | null;
+}

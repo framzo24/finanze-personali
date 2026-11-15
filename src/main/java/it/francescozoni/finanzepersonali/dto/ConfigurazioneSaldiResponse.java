@@ -3,5 +3,5 @@ package it.francescozoni.finanzepersonali.dto;
 
 import java.time.LocalDate;
 
-public record ConfigurazioneSaldiResponse(boolean configurato, LocalDate saldiDal) {
+public record ConfigurazioneSaldiResponse(boolean configurato, LocalDate saldiDal, String proprietario) {
 }

@@ -1,38 +1,45 @@
 <h2 mat-dialog-title>{{ bolletta ? 'Modifica bolletta' : 'Nuova bolletta' }}</h2>
 
 <mat-dialog-content>
-  <form [formGroup]="form" class="form" (ngSubmit)="salva()">
+  <form (ngSubmit)="salva()" [formGroup]="form" class="form">
 
-    <div class="tipi" role="group" aria-label="Tipo di bolletta">
+    <div aria-label="Tipo di bolletta" class="tipi" role="group">
       @for (t of tipi; track t.tipo) {
-      <button type="button" class="tipo" [style.--t]="t.colore"
-              [class.on]="tipoScelto === t.tipo"
-              [attr.aria-pressed]="tipoScelto === t.tipo"
-              (click)="scegliTipo(t.tipo)">
-        <mat-icon>{{ t.icona }}</mat-icon>{{ t.label }}
+      <button (click)="scegliTipo(t.tipo)" [attr.aria-pressed]="tipoScelto === t.tipo" [class.on]="tipoScelto === t.tipo"
+              [style.--t]="t.colore"
+              class="tipo"
+              type="button">
+        <mat-icon>{{ t.icona }}</mat-icon>
+        {{ t.label }}
       </button>
       }
     </div>
 
     <mat-form-field appearance="outline">
       <mat-label>Fornitore</mat-label>
-      <input matInput formControlName="fornitore">
+      <label>
+        <input formControlName="fornitore" matInput>
+      </label>
       <mat-error>Il fornitore è obbligatorio</mat-error>
     </mat-form-field>
 
     <div class="row">
       <mat-form-field appearance="outline">
         <mat-label>Periodo dal</mat-label>
-        <input matInput [matDatepicker]="dal" formControlName="periodoDal">
-        <mat-datepicker-toggle matIconSuffix [for]="dal"></mat-datepicker-toggle>
+        <label>
+          <input [matDatepicker]="dal" formControlName="periodoDal" matInput>
+        </label>
+        <mat-datepicker-toggle [for]="dal" matIconSuffix></mat-datepicker-toggle>
         <mat-datepicker #dal></mat-datepicker>
         <mat-error>Scegli una data</mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Periodo al</mat-label>
-        <input matInput [matDatepicker]="al" formControlName="periodoAl">
-        <mat-datepicker-toggle matIconSuffix [for]="al"></mat-datepicker-toggle>
+        <label>
+          <input [matDatepicker]="al" formControlName="periodoAl" matInput>
+        </label>
+        <mat-datepicker-toggle [for]="al" matIconSuffix></mat-datepicker-toggle>
         <mat-datepicker #al></mat-datepicker>
         <mat-error>
           @if (form.controls.periodoAl.hasError('ordine')) { Non può precedere l'inizio } @else { Scegli una data }
@@ -43,16 +50,20 @@
     <div class="row">
       <mat-form-field appearance="outline">
         <mat-label>Scadenza</mat-label>
-        <input matInput [matDatepicker]="sca" formControlName="dataScadenza">
-        <mat-datepicker-toggle matIconSuffix [for]="sca"></mat-datepicker-toggle>
+        <label>
+          <input [matDatepicker]="sca" formControlName="dataScadenza" matInput>
+        </label>
+        <mat-datepicker-toggle [for]="sca" matIconSuffix></mat-datepicker-toggle>
         <mat-datepicker #sca></mat-datepicker>
         <mat-error>Scegli una data</mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Emissione (facoltativa)</mat-label>
-        <input matInput [matDatepicker]="emi" formControlName="dataEmissione">
-        <mat-datepicker-toggle matIconSuffix [for]="emi"></mat-datepicker-toggle>
+        <label>
+          <input [matDatepicker]="emi" formControlName="dataEmissione" matInput>
+        </label>
+        <mat-datepicker-toggle [for]="emi" matIconSuffix></mat-datepicker-toggle>
         <mat-datepicker #emi></mat-datepicker>
       </mat-form-field>
     </div>
@@ -60,7 +71,9 @@
     <div class="row">
       <mat-form-field appearance="outline">
         <mat-label>Importo</mat-label>
-        <input matInput type="number" step="0.01" formControlName="importo">
+        <label>
+          <input formControlName="importo" matInput step="0.01" type="number">
+        </label>
         <span matTextSuffix>€</span>
         <mat-error>
           @if (form.controls.importo.hasError('required')) { L'importo è obbligatorio }
@@ -72,7 +85,9 @@
       @if (tipoScelto !== 'WIFI') {
       <mat-form-field appearance="outline">
         <mat-label>Consumo</mat-label>
-        <input matInput type="number" step="0.001" formControlName="consumo">
+        <label>
+          <input formControlName="consumo" matInput step="0.001" type="number">
+        </label>
         <span matTextSuffix>{{ unita() }}</span>
         <mat-error>Il consumo non può essere negativo</mat-error>
       </mat-form-field>
@@ -91,10 +106,13 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Numero documento</mat-label>
-        <input matInput formControlName="numeroDocumento">
+        <label>
+          <input formControlName="numeroDocumento" matInput>
+        </label>
       </mat-form-field>
     </div>
 
+    @if (!irene) {
     <mat-form-field appearance="outline">
       <mat-label>Chi la paga</mat-label>
       <mat-select formControlName="paganteId">
@@ -104,29 +122,39 @@
         }
       </mat-select>
     </mat-form-field>
+    }
 
     @if (quota() !== null) {
     <div class="quota">
       <mat-icon>pie_chart</mat-icon>
       <span>
           La tua quota è <strong>{{ quota() | currency:'EUR' }}</strong>
-          (un terzo{{ paganteNome() !== 'Tu' ? ', anticipato da ' + paganteNome() : '' }})
+          @if (irene) {
+            (un terzo)
+          } @else {
+            (un terzo{{ paganteNome() !== 'Tu' ? ', anticipato da ' + paganteNome() : '' }})
+          }
         </span>
     </div>
     }
 
-    <div class="segment" role="group" aria-label="Stato del pagamento">
-      <button type="button" [class.on]="form.controls.stato.value === 'DA_PAGARE'"
-              (click)="scegliStato('DA_PAGARE')">Da pagare</button>
-      <button type="button" [class.on]="form.controls.stato.value === 'PAGATA'"
-              (click)="scegliStato('PAGATA')">Pagata</button>
+    @if (!irene) {
+    <div aria-label="Stato del pagamento" class="segment" role="group">
+      <button (click)="scegliStato('DA_PAGARE')" [class.on]="form.controls.stato.value === 'DA_PAGARE'"
+              type="button">Da pagare
+      </button>
+      <button (click)="scegliStato('PAGATA')" [class.on]="form.controls.stato.value === 'PAGATA'"
+              type="button">Pagata
+      </button>
     </div>
 
     @if (form.controls.stato.value === 'PAGATA') {
     <mat-form-field appearance="outline">
       <mat-label>Data del pagamento</mat-label>
-      <input matInput [matDatepicker]="pag" formControlName="dataPagamento">
-      <mat-datepicker-toggle matIconSuffix [for]="pag"></mat-datepicker-toggle>
+      <label>
+        <input [matDatepicker]="pag" formControlName="dataPagamento" matInput>
+      </label>
+      <mat-datepicker-toggle [for]="pag" matIconSuffix></mat-datepicker-toggle>
       <mat-datepicker #pag></mat-datepicker>
     </mat-form-field>
     }
@@ -136,8 +164,8 @@
     <div class="movimento">
       <mat-slide-toggle formControlName="registraMovimento">Registra la mia quota come spesa</mat-slide-toggle>
       <span>
-        {{ quota() | currency:'EUR' }} nei movimenti, categoria Bollette. Il resto è un credito verso i coinquilini.
-      </span>
+              {{ quota() | currency:'EUR' }} nei movimenti, categoria Bollette. Il resto è un credito verso i coinquilini.
+            </span>
     </div>
     }
     @case ('aggiorna') {
@@ -153,17 +181,24 @@
     </div>
     }
     }
+    } @else {
+    <p class="nota-irene">
+      Lo stato lo ricava l'app dagli invii: la bolletta risulta saldata quando nessuno ha più niente da inviare.
+    </p>
+    }
 
     <mat-form-field appearance="outline">
       <mat-label>Note</mat-label>
-      <textarea matInput rows="2" formControlName="note"></textarea>
+      <label>
+        <textarea formControlName="note" matInput rows="2"></textarea>
+      </label>
     </mat-form-field>
   </form>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button type="button" (click)="annulla()">Annulla</button>
-  <button mat-flat-button type="button" [disabled]="invio()" (click)="salva()">
+  <button (click)="annulla()" mat-button type="button">Annulla</button>
+  <button (click)="salva()" [disabled]="invio()" mat-flat-button type="button">
     {{ invio() ? 'Salvataggio…' : 'Salva' }}
   </button>
 </mat-dialog-actions>

@@ -1,26 +1,31 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
 
-import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
+import {MainLayoutComponent} from './layout/main-layout/main-layout.component';
 
-import { DashboardComponent } from './features/dashboard/dashboard.component';
-import { MovimentiComponent } from './features/movimenti/movimenti.component';
-import { CategorieComponent } from './features/categorie/categorie.component';
+import {DashboardComponent} from './features/dashboard/dashboard.component';
+import {MovimentiComponent} from './features/movimenti/movimenti.component';
+import {CategorieComponent} from './features/categorie/categorie.component';
 import {authGuard, guestGuard} from "@app/core/guard/auth.guard";
 import {LoginComponent} from "@app/features/auth/login/login.component";
 import {RegistrazioneComponent} from "@app/features/auth/registrazione/registrazione.component";
 import {BolletteComponent} from "@app/features/bollette/bollette.component";
 import {diarioUscitaGuard} from "@app/features/diario/diario.guard";
 import {DiarioComponent} from "@app/features/diario/diario.component";
+import {sceltaGuard} from "@app/core/guard/modalita.guard";
+import {SceltaModalitaComponent} from "@app/features/auth/scelta-modalita/scelta-modalita.component";
 
 
 const routes: Routes = [
-  { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
-  { path: 'registrazione', component: RegistrazioneComponent, canActivate: [guestGuard] },
+  {path: 'login', component: LoginComponent, canActivate: [guestGuard]},
+  {path: 'registrazione', component: RegistrazioneComponent, canActivate: [guestGuard]},
+  {path: 'scelta-modalita', component: SceltaModalitaComponent, canActivate: [authGuard, sceltaGuard]},
   {
     path: '',
     component: MainLayoutComponent,
-    canActivate: [authGuard],
+    canActivate: [
+      authGuard,
+      guestGuard],
     children: [
 
       {
@@ -72,4 +77,5 @@ const routes: Routes = [
     RouterModule
   ]
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {
+}

@@ -5,8 +5,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { AuthService } from '../../../core/services/auth.service';
-import { ThemeService } from '../../../core/services/theme.service';
+import { AuthService } from '@app/core/services/auth.service';
+import { ThemeService } from '@app/core/services/theme.service';
 
 @Component({
   selector: 'app-login',
@@ -44,7 +44,17 @@ export class LoginComponent {
 
     const { username, password } = this.form.getRawValue();
     this.auth.login(username, password).subscribe({
-      next: () => this.router.navigateByUrl('/dashboard'),
+      next: () => {
+        this.router.navigateByUrl('/dashboard').then(
+          riuscita => {
+            if (!riuscita) this.invio.set(false);
+          },
+          errore => {
+            console.error('Navigazione dopo il login non riuscita', errore);
+            this.invio.set(false);
+          }
+        );
+      },
       error: () => {
         this.invio.set(false);
         this.scossa.set(true);

@@ -5,9 +5,11 @@ import it.francescozoni.finanzepersonali.exception.DatiNonValidiException;
 import it.francescozoni.finanzepersonali.exception.RimborsoNotFoundException;
 import it.francescozoni.finanzepersonali.model.*;
 import it.francescozoni.finanzepersonali.model.enums.DirezioneRimborso;
+import it.francescozoni.finanzepersonali.model.enums.ModalitaBollette;
 import it.francescozoni.finanzepersonali.model.enums.StatoBolletta;
 import it.francescozoni.finanzepersonali.model.enums.TipoBolletta;
 import it.francescozoni.finanzepersonali.repository.*;
+import it.francescozoni.finanzepersonali.security.ModalitaCorrente;
 import it.francescozoni.finanzepersonali.security.UtenteCorrente;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -44,6 +46,7 @@ public class SaldiService {
     private final UtenteRepository utenti;
     private final UtenteCorrente utenteCorrente;
     private final BolletteMovimentiService movimentiBollette;
+    private final ModalitaCorrente modalita;
 
     public SaldiService(BollettaRepository bollette,
                         RimborsoRepository rimborsi,
@@ -51,7 +54,7 @@ public class SaldiService {
                         ConfigurazioneSaldiRepository configurazioni,
                         UtenteRepository utenti,
                         UtenteCorrente utenteCorrente,
-                        BolletteMovimentiService movimentiBollette) {
+                        BolletteMovimentiService movimentiBollette, ModalitaCorrente modalita) {
         this.bollette = bollette;
         this.rimborsi = rimborsi;
         this.coinquilini = coinquilini;
@@ -59,12 +62,14 @@ public class SaldiService {
         this.utenti = utenti;
         this.utenteCorrente = utenteCorrente;
         this.movimentiBollette = movimentiBollette;
+        this.modalita = modalita;
     }
 
     // ---------- saldi ----------
 
     @Transactional(readOnly = true)
     public SaldiResponse saldi() {
+        modalita.richiedi(ModalitaBollette.CLASSICA);
         Long utenteId = utenteCorrente.id();
         Optional<ConfigurazioneSaldi> cfg = configurazioni.findByUtenteId(utenteId);
         LocalDate dal = cfg.map(ConfigurazioneSaldi::getSaldiDal).orElse(null);
@@ -96,6 +101,7 @@ public class SaldiService {
     /** Il dettaglio di un coinquilino, dalla voce più recente alla più vecchia, con il saldo progressivo. */
     @Transactional(readOnly = true)
     public List<VoceSaldo> voci(Long coinquilinoId) {
+        modalita.richiedi(ModalitaBollette.CLASSICA);
         Long utenteId = utenteCorrente.id();
         Coinquilino persona = trovaCoinquilino(coinquilinoId, utenteId);
         LocalDate dal = configurazioni.findByUtenteId(utenteId).map(ConfigurazioneSaldi::getSaldiDal).orElse(null);
@@ -153,15 +159,20 @@ public class SaldiService {
 
         cfg.setSaldiDal(richiesta.saldiDal());
         cfg.setConfigurato(true);
+        if (richiesta.proprietario() != null && !richiesta.proprietario().isBlank()) {
+            String nome = richiesta.proprietario().trim();
+            cfg.setProprietario(nome.substring(0, Math.min(nome.length(), 80)));
+        }
         configurazioni.save(cfg);
 
         log.info("Saldi conteggiati dal {}", richiesta.saldiDal() != null ? richiesta.saldiDal() : "primo giorno");
-        return new ConfigurazioneSaldiResponse(true, cfg.getSaldiDal());
+        return new ConfigurazioneSaldiResponse(true, cfg.getSaldiDal(), cfg.getProprietario());
     }
 
     // ---------- rimborsi ----------
 
     public RimborsoResponse creaRimborso(RimborsoRequest richiesta) {
+        modalita.richiedi(ModalitaBollette.CLASSICA);
         Long utenteId = utenteCorrente.id();
         Coinquilino persona = trovaCoinquilino(richiesta.coinquilinoId(), utenteId);
 
@@ -185,6 +196,7 @@ public class SaldiService {
     }
 
     public void eliminaRimborso(Long id) {
+        modalita.richiedi(ModalitaBollette.CLASSICA);
         Rimborso rimborso = rimborsi.findByIdAndUtenteIdAndDeletedFalse(id, utenteCorrente.id())
                 .orElseThrow(() -> new RimborsoNotFoundException(id));
 

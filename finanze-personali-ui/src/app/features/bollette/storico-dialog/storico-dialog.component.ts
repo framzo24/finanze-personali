@@ -7,14 +7,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { Coinquilino, TipoBolletta } from '../../../core/models/bolletta';
-import { BolletteService } from '../../../core/services/bollette.service';
-import { TIPI } from '../../../core/utils/bollette';
-import { parseStorico } from '../../../core/utils/storico';
+import { Coinquilino, TipoBolletta } from '@app/core/models/bolletta';
+import { BolletteService } from '@app/core/services/bollette.service';
+import { TIPI } from '@app/core/utils/bollette';
+import { parseStorico } from '@app/core/utils/storico';
 
 export interface StoricoDialogData {
   coinquilini: Coinquilino[];
   fornitori: Partial<Record<TipoBolletta, string>>;
+  irene?: boolean;
 }
 
 @Component({

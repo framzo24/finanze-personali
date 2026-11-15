@@ -7,12 +7,15 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
-import { BolletteService } from '../../../core/services/bollette.service';
-import { daIso, isoData } from '../../../core/utils/bollette';
+import { ModalitaBollette } from '@app/core/models/auth';
+import { BolletteService } from '@app/core/services/bollette.service';
+import { daIso, isoData } from '@app/core/utils/bollette';
 
 export interface SaldiConfigData {
   saldiDal: string | null;
   configurato: boolean;
+  modalita?: ModalitaBollette;
+  proprietario?: string | null;
 }
 
 @Component({
@@ -29,8 +32,10 @@ export class SaldiConfigDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<SaldiConfigDialogComponent, boolean>);
   readonly data = inject<SaldiConfigData>(MAT_DIALOG_DATA);
 
+  readonly irene = this.data.modalita === 'IRENE';
   readonly modo = signal<'data' | 'tutto'>(this.data.configurato && !this.data.saldiDal ? 'tutto' : 'data');
   readonly dataCtrl = new FormControl<Date | null>(this.data.saldiDal ? daIso(this.data.saldiDal) : new Date());
+  readonly proprietario = new FormControl(this.data.proprietario ?? '', { nonNullable: true });
   readonly invio = signal(false);
 
   private readonly valore = toSignal(this.dataCtrl.valueChanges, { initialValue: this.dataCtrl.value });
@@ -47,7 +52,7 @@ export class SaldiConfigDialogComponent {
     const dal = this.modo() === 'tutto' ? null : isoData(this.dataCtrl.value as Date);
     this.invio.set(true);
 
-    this.service.salvaConfigurazione(dal).subscribe({
+    this.service.salvaConfigurazione(dal, this.irene ? this.proprietario.value.trim() : null).subscribe({
       next: () => this.dialogRef.close(true),
       error: () => this.invio.set(false)
     });

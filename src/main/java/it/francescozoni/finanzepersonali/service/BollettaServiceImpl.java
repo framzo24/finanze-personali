@@ -7,13 +7,11 @@ import it.francescozoni.finanzepersonali.mapper.BollettaMapper;
 import it.francescozoni.finanzepersonali.model.Bolletta;
 import it.francescozoni.finanzepersonali.model.Coinquilino;
 import it.francescozoni.finanzepersonali.model.Movimento;
-import it.francescozoni.finanzepersonali.model.enums.NaturaBolletta;
-import it.francescozoni.finanzepersonali.model.enums.OrigineBolletta;
-import it.francescozoni.finanzepersonali.model.enums.StatoBolletta;
-import it.francescozoni.finanzepersonali.model.enums.TipoBolletta;
+import it.francescozoni.finanzepersonali.model.enums.*;
 import it.francescozoni.finanzepersonali.repository.BollettaRepository;
 import it.francescozoni.finanzepersonali.repository.CoinquilinoRepository;
 import it.francescozoni.finanzepersonali.repository.UtenteRepository;
+import it.francescozoni.finanzepersonali.security.ModalitaCorrente;
 import it.francescozoni.finanzepersonali.security.UtenteCorrente;
 import it.francescozoni.finanzepersonali.specification.BollettaSpecification;
 import lombok.extern.slf4j.Slf4j;
@@ -45,19 +43,23 @@ public class BollettaServiceImpl implements BollettaService {
     private final UtenteCorrente utenteCorrente;
     private final BollettaMapper mapper;
     private final BolletteMovimentiService movimentiBollette;
+    private final ModalitaCorrente modalita;
+    private final QuoteService quoteService;
 
     public BollettaServiceImpl(BollettaRepository repository,
                                CoinquilinoRepository coinquiliniRepository,
                                UtenteRepository utenteRepository,
                                UtenteCorrente utenteCorrente,
                                BollettaMapper mapper,
-                               BolletteMovimentiService movimentiBollette) {
+                               BolletteMovimentiService movimentiBollette, ModalitaCorrente modalita, QuoteService quoteService) {
         this.repository = repository;
         this.coinquiliniRepository = coinquiliniRepository;
         this.utenteRepository = utenteRepository;
         this.utenteCorrente = utenteCorrente;
         this.mapper = mapper;
         this.movimentiBollette = movimentiBollette;
+        this.modalita = modalita;
+        this.quoteService = quoteService;
     }
 
     @Override
@@ -82,7 +84,7 @@ public class BollettaServiceImpl implements BollettaService {
 
         Page<Bolletta> page = repository.findAll(specification, PageRequest.of(
                 Math.max(pagina, 0),
-                Math.min(Math.max(dimensione, 1), 100),
+                Math.clamp(dimensione, 1, 100),
                 Sort.by(Sort.Order.desc("dataScadenza"), Sort.Order.desc("id"))));
 
         return new BollettePageResponse(
@@ -100,7 +102,10 @@ public class BollettaServiceImpl implements BollettaService {
     }
 
     @Override
-    public BollettaResponse crea(BollettaRequest request) {
+    public BollettaResponse crea(BollettaRequest richiesta) {
+        boolean irene = modalita.get() == ModalitaBollette.IRENE;
+        BollettaRequest request = irene ? perIrene(richiesta) : richiesta;
+
         Long utenteId = utenteCorrente.id();
         Coinquilino pagante = valida(request, utenteId);
 
@@ -114,13 +119,19 @@ public class BollettaServiceImpl implements BollettaService {
                 .build();
         applica(bolletta, request, pagante);
         sincronizzaMovimento(bolletta, request.registraMovimento());
+        if (irene) {
+            quoteService.riallinea(bolletta);
+        }
 
         log.info("Nuova bolletta {} {}", request.tipo(), request.periodoDal());
         return mapper.toResponse(repository.save(bolletta));
     }
 
     @Override
-    public BollettaResponse modifica(Long id, BollettaRequest request) {
+    public BollettaResponse modifica(Long id, BollettaRequest richiesta) {
+        boolean irene = modalita.get() == ModalitaBollette.IRENE;
+        BollettaRequest request = irene ? perIrene(richiesta) : richiesta;
+
         Long utenteId = utenteCorrente.id();
         Bolletta bolletta = trovaMia(id);
         Coinquilino pagante = valida(request, utenteId);
@@ -131,6 +142,9 @@ public class BollettaServiceImpl implements BollettaService {
 
         applica(bolletta, request, pagante);
         sincronizzaMovimento(bolletta, request.registraMovimento());
+        if (irene) {
+            quoteService.riallinea(bolletta);
+        }
 
         log.info("Bolletta modificata id={}", id);
         return mapper.toResponse(repository.save(bolletta));
@@ -139,6 +153,10 @@ public class BollettaServiceImpl implements BollettaService {
     @Override
     public void elimina(Long id) {
         Bolletta bolletta = trovaMia(id);
+
+        if (modalita.get() == ModalitaBollette.IRENE) {
+            quoteService.eliminaVersamenti(bolletta);
+        }
 
         Movimento collegato = bolletta.getMovimento();
         bolletta.setMovimento(null);
@@ -153,6 +171,7 @@ public class BollettaServiceImpl implements BollettaService {
 
     @Override
     public BollettaResponse paga(Long id, PagamentoRequest request) {
+        modalita.richiedi(ModalitaBollette.CLASSICA);
         Bolletta bolletta = trovaMia(id);
 
         if (bolletta.getStato() == StatoBolletta.PAGATA) {
@@ -170,6 +189,7 @@ public class BollettaServiceImpl implements BollettaService {
 
     @Override
     public BatchStoricoResponse caricaStorico(BatchStoricoRequest request) {
+        boolean irene =  modalita.get() == ModalitaBollette.IRENE;
         Long utenteId = utenteCorrente.id();
         int creati = 0;
         int saltati = 0;
@@ -184,7 +204,7 @@ public class BollettaServiceImpl implements BollettaService {
                     riga.periodoDal(), riga.periodoAl(), null, riga.dataScadenza(),
                     riga.importo(), riga.consumo(), null,
                     NaturaBolletta.EFFETTIVA, StatoBolletta.PAGATA, riga.dataScadenza(),
-                    riga.paganteId(), null, null);
+                    irene ? null : riga.paganteId(), null, null);
 
             try {
                 Coinquilino pagante = valida(r, utenteId);
@@ -197,6 +217,7 @@ public class BollettaServiceImpl implements BollettaService {
                 Bolletta bolletta = Bolletta.builder()
                         .utente(utenteRepository.getReferenceById(utenteId))
                         .origine(OrigineBolletta.MANUALE)
+                        .storica(irene ? Boolean.TRUE : null)
                         .build();
                 applica(bolletta, r, pagante);
                 repository.save(bolletta);
@@ -239,8 +260,8 @@ public class BollettaServiceImpl implements BollettaService {
                 .toList();
     }
 
-    // ---------- appoggio ----------
 
+    // ---------- appoggio ----------
     private Bolletta trovaMia(Long id) {
         return repository.findByIdAndUtenteIdAndDeletedFalse(id, utenteCorrente.id())
                 .orElseThrow(() -> new BollettaNotFoundException(id));
@@ -335,7 +356,7 @@ public class BollettaServiceImpl implements BollettaService {
     private RiepilogoTipo riepilogoTipo(TipoBolletta tipo, List<Bolletta> tutte, int anno) {
         List<Bolletta> lista = tutte.stream().filter(b -> b.getTipo() == tipo).toList();
 
-        Bolletta ultima = lista.isEmpty() ? null : lista.get(lista.size() - 1);
+        Bolletta ultima = lista.isEmpty() ? null : lista.getLast();
 
         List<Bolletta> dellAnno = lista.stream().filter(b -> b.getDataScadenza().getYear() == anno).toList();
         List<Bolletta> recenti = lista.subList(Math.max(0, lista.size() - 6), lista.size());
@@ -365,5 +386,12 @@ public class BollettaServiceImpl implements BollettaService {
         return valori.isEmpty()
                 ? BigDecimal.ZERO
                 : somma(valori).divide(BigDecimal.valueOf(valori.size()), 2, RoundingMode.HALF_UP);
+    }
+
+    /** In modalità Irene stato, pagante e spesa non si impostano: li ricava l'app dagli invii. */
+    private BollettaRequest perIrene(BollettaRequest r) {
+        return new BollettaRequest(r.tipo(), r.fornitore(), r.periodoDal(), r.periodoAl(), r.dataEmissione(),
+                r.dataScadenza(), r.importo(), r.consumo(), r.numeroDocumento(), r.natura(),
+                StatoBolletta.DA_PAGARE, null, null, r.note(), null);
     }
 }

@@ -25,4 +25,7 @@ public class ConfigurazioneSaldi extends BaseEntity {
     /** Falso finché non hai scelto: serve a mostrare l'avviso. */
     @Column(nullable = false)
     private boolean configurato;
+
+    @Column(length = 80)
+    private String proprietario;
 }

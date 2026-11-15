@@ -19,10 +19,10 @@ import {
   Scadenza,
   Tariffa,
   TipoBolletta
-} from '../../core/models/bolletta';
-import { BolletteService } from '../../core/services/bollette.service';
-import { NotificheService } from '../../core/services/notifiche.service';
-import { TIPI, TIPO_META, quotaDi } from '../../core/utils/bollette';
+} from '@app/core/models/bolletta';
+import { BolletteService } from '@app/core/services/bollette.service';
+import { NotificheService } from '@app/core/services/notifiche.service';
+import { TIPI, TIPO_META, quotaDi } from '@app/core/utils/bollette';
 import { BollettaDialogComponent } from './bolletta-dialog/bolletta-dialog.component';
 import { CanoneDialogComponent } from './canone-dialog/canone-dialog.component';
 import { ImpostazioniDialogComponent } from './impostazioni-dialog/impostazioni-dialog.component';
@@ -33,13 +33,22 @@ import {
 } from "@app/features/bollette/saldo-dettaglio-dialog/saldo-dettaglio-dialog.component";
 import {SaldiConfigDialogComponent} from "@app/features/bollette/saldi-config-dialog/saldi-config-dialog.component";
 import {RimborsoDialogComponent} from "@app/features/bollette/rimborso-dialog/rimborso-dialog.component";
+import {QuoteSezioneComponent} from "@app/features/bollette/quote-sezione/quote-sezione.component";
+import {SessioneService} from "@app/core/services/sessione.service";
+import {QuoteService} from "@app/core/services/quote.service";
+import {QuotaPersona} from "@app/core/models/quote";
+import {
+  QuoteDettaglioDialogComponent
+} from "@app/features/bollette/quote-dettaglio-dialog/quote-dettaglio-dialog.component";
+import {VersamentoDialogComponent} from "@app/features/bollette/versamento-dialog/versamento-dialog.component";
+import {euro, STATO_QUOTA} from "@app/core/utils/quote";
 
 @Component({
   selector: 'app-bollette',
   imports: [
     CurrencyPipe, DatePipe, FormsModule,
     MatButtonModule, MatFormFieldModule, MatIconModule, MatPaginatorModule,
-    MatSelectModule, MatTableModule, MatTooltipModule
+    MatSelectModule, MatTableModule, MatTooltipModule, QuoteSezioneComponent
   ],
   templateUrl: './bollette.component.html',
   styleUrl: './bollette.component.scss'
@@ -48,14 +57,25 @@ export class BolletteComponent implements OnInit {
   private readonly service = inject(BolletteService);
   private readonly notifiche = inject(NotificheService);
   private readonly dialog = inject(MatDialog);
+  private readonly sessione = inject(SessioneService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly quote = inject(QuoteService);
 
   readonly tipi = TIPI;
   readonly meta = TIPO_META;
   readonly annoCorrente = new Date().getFullYear();
   readonly anni = [0, 1, 2, 3].map(i => this.annoCorrente - i);
-  readonly colonne = ['tipo', 'periodo', 'scadenza', 'importo', 'pagante', 'stato', 'azioni'];
+  readonly irene = computed(() => this.sessione.utente()?.modalitaBollette === 'IRENE');
+  readonly colonne = computed(() =>
+    this.irene()
+      ? ['tipo', 'periodo', 'scadenza', 'importo', 'quote', 'stato', 'azioni']
+      : ['tipo', 'periodo', 'scadenza', 'importo', 'pagante', 'stato', 'azioni']
+  );
 
+  versione = signal(0);
+  quoteMappa = signal<ReadonlyMap<number, QuotaPersona[]>>(new Map());
+  /** I saldi con i coinquilini esistono solo nella modalità classica. */
+  readonly saldiClassici = computed(() => (this.irene() ? null : this.saldi()));
   vista = signal<'casa' | 'mia'>('casa');
   riepilogo = signal<RiepilogoBollette | null>(null);
   scadenze = signal<Scadenza[]>([]);
@@ -90,8 +110,12 @@ export class BolletteComponent implements OnInit {
     this.service.riepilogo().subscribe(r => this.riepilogo.set(r));
     this.service.scadenze().subscribe(s => this.scadenze.set(s));
     this.service.canoni().subscribe(c => this.canoni.set(c));
-    this.service.saldi().subscribe(s => this.saldi.set(s));
+    // i saldi esistono solo nella modalità classica
+    if (!this.irene()) {
+      this.service.saldi().subscribe(s => this.saldi.set(s));
+    }
     this.caricaLista();
+    this.versione.update(v => v + 1);
     this.notifiche.aggiorna();
   }
 
@@ -103,6 +127,7 @@ export class BolletteComponent implements OnInit {
           this.bollette.set(p.contenuto);
           this.totale.set(p.totaleElementi);
           this.caricamento.set(false);
+          if (this.irene()) this.caricaQuote(p.contenuto.map(b => b.id));
         },
         error: () => this.caricamento.set(false)
       });
@@ -144,10 +169,6 @@ export class BolletteComponent implements OnInit {
     return v.map((y, i) => `${(i / (v.length - 1)) * 100},${28 - ((y - min) / spazio) * 24}`).join(' ');
   }
 
-  statoLabel(b: Bolletta): string {
-    return b.stato === 'PAGATA' ? 'Pagata' : b.scaduta ? 'Scaduta' : 'Da pagare';
-  }
-
   statoClasse(b: Bolletta): string {
     return b.stato === 'PAGATA' ? 'ok' : b.scaduta ? 'ko' : 'attesa';
   }
@@ -168,11 +189,6 @@ export class BolletteComponent implements OnInit {
     if (g === -1) return 'Scaduta ieri';
     if (g === 0) return 'Scade oggi';
     return g === 1 ? 'Scade domani' : `Scade tra ${g} giorni`;
-  }
-
-  pagaScadenza(s: Scadenza): void {
-    if (s.bollettaId === null) return;
-    this.service.trova(s.bollettaId).subscribe(b => this.paga(b));
   }
 
   // ---------- canoni ----------
@@ -292,7 +308,12 @@ export class BolletteComponent implements OnInit {
         width: '600px',
         maxWidth: '95vw',
         autoFocus: false,
-        data: { ...extra, coinquilini: this.coinquilini(), fornitori: this.fornitori() }
+        data: {
+          ...extra,
+          coinquilini: this.coinquilini(),
+          fornitori: this.fornitori(),
+          irene: this.irene(),
+        }
       })
       .afterClosed()
       .subscribe(salvata => {
@@ -318,7 +339,11 @@ export class BolletteComponent implements OnInit {
   }
 
   elimina(bolletta: Bolletta): void {
-    if (!confirm(`Eliminare la bolletta ${this.meta[bolletta.tipo].label.toLowerCase()} di ${bolletta.fornitore}?`)) {
+    const nome = `${this.meta[bolletta.tipo].label.toLowerCase()} di ${bolletta.fornitore}`;
+    const testo = this.irene()
+      ? `Eliminare la bolletta ${nome}? Verranno eliminati anche gli invii registrati e le spese collegate.`
+      : `Eliminare la bolletta ${nome}?`;
+    if (!confirm(testo)) {
       return;
     }
     this.service.elimina(bolletta.id).subscribe(() => {
@@ -333,7 +358,11 @@ export class BolletteComponent implements OnInit {
         width: '680px',
         maxWidth: '95vw',
         autoFocus: false,
-        data: { coinquilini: this.coinquilini(), fornitori: this.fornitori() }
+        data: {
+          coinquilini: this.coinquilini(),
+          fornitori: this.fornitori(),
+          irene: this.irene(),
+        }
       })
       .afterClosed()
       .subscribe(esito => {
@@ -352,5 +381,75 @@ export class BolletteComponent implements OnInit {
 
   getMeta(tipo: TipoBolletta) {
     return this.meta[tipo];
+  }
+
+  statoLabel(b: Bolletta): string {
+    if (b.stato === 'PAGATA') return this.irene() ? 'Saldata' : 'Pagata';
+    return b.scaduta ? 'Scaduta' : this.irene() ? 'Da saldare' : 'Da pagare';
+  }
+
+  pagaScadenza(s: Scadenza): void {
+    if (s.bollettaId === null) return;
+    this.service.trova(s.bollettaId).subscribe(b => this.azionePaga(b));
+  }
+
+// ---------- modalità Irene ----------
+  private caricaQuote(ids: number[]): void {
+    if (ids.length === 0) {
+      this.quoteMappa.set(new Map());
+      return;
+    }
+    this.quote.perBollette(ids).subscribe(lista =>
+      this.quoteMappa.set(new Map(lista.map(q => [q.bollettaId, q.persone])))
+    );
+  }
+
+  quoteDi(id: number): QuotaPersona[] {
+    return this.quoteMappa().get(id) ?? [];
+  }
+
+  tooltipQuota(q: QuotaPersona): string {
+    const base = `${q.nome} · ${STATO_QUOTA[q.stato].label}`;
+    return q.mancante > 0.005 ? `${base} · manca ${euro(q.mancante)}` : base;
+  }
+
+  /** Nella modalità classica si segna come pagata, in quella Irene si registra un invio. */
+  azionePaga(b: Bolletta): void {
+    if (this.irene()) {
+      this.registraInvio(b);
+    } else {
+      this.paga(b);
+    }
+  }
+
+  registraInvio(b: Bolletta): void {
+    this.dialog
+      .open(VersamentoDialogComponent, {
+        width: '600px',
+        maxWidth: '95vw',
+        autoFocus: false,
+        data: { bollettaId: b.id }
+      })
+      .afterClosed()
+      .subscribe(registrati => {
+        if (registrati) {
+          this.snackBar.open('Invio registrato', 'OK', { duration: 3000 });
+          this.ricarica();
+        }
+      });
+  }
+
+  dettaglioQuote(b: Bolletta): void {
+    this.dialog
+      .open(QuoteDettaglioDialogComponent, {
+        width: '640px',
+        maxWidth: '95vw',
+        autoFocus: false,
+        data: { bollettaId: b.id }
+      })
+      .afterClosed()
+      .subscribe(modificato => {
+        if (modificato) this.ricarica();
+      });
   }
 }

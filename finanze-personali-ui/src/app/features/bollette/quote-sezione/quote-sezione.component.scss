@@ -1,0 +1,224 @@
+:host {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.box {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 22px;
+  background: var(--app-card);
+  border: 1px solid var(--app-border);
+}
+
+.box-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--app-text);
+  }
+
+  p {
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: var(--app-text-muted);
+  }
+}
+
+.azioni-testa {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  .tondo {
+    border: 1px solid var(--app-border);
+    --mat-icon-button-icon-color: var(--app-text);
+  }
+}
+
+.mini-toggle {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid var(--app-border);
+
+  button {
+    padding: 5px 14px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--app-text-muted);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+
+    &.on {
+      background: var(--app-primary);
+      color: var(--app-on-primary);
+    }
+  }
+}
+
+.vuoto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 4px;
+  font-size: 14px;
+  color: var(--app-text-muted);
+
+  mat-icon { flex-shrink: 0; color: var(--app-primary); }
+}
+
+.tabella-scroll { overflow-x: auto; }
+
+.prospetto {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--app-border);
+  }
+
+  th {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+    color: var(--app-text-muted);
+  }
+
+  tbody tr:hover { background: color-mix(in srgb, var(--t) 6%, transparent); }
+  tfoot tr:last-child td { border-bottom: none; }
+}
+
+.persona {
+  white-space: nowrap;
+
+  small {
+    margin-left: 6px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--app-text);
+    background: color-mix(in srgb, var(--app-primary) 20%, transparent);
+  }
+}
+
+.iniziale {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
+  border-radius: 50%;
+  font-size: 11px;
+  color: var(--app-on-primary);
+  background: var(--app-primary);
+}
+
+.utenza {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 150px;
+}
+
+.mini {
+  --t: #7C3AED;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  color: var(--t);
+  background: color-mix(in srgb, var(--t) 20%, transparent);
+
+  mat-icon { width: 20px; height: 20px; font-size: 20px; }
+}
+
+.nome-utenza {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+
+  strong { font-weight: 500; color: var(--app-text); }
+  small { font-size: 12px; color: var(--app-text-muted); }
+}
+
+.cella {
+  --c: var(--app-text-muted);
+
+  &[data-stato='manca'] { --c: var(--app-expense); }
+  &[data-stato='piu'] { --c: var(--app-primary); }
+  &[data-stato='pari'] { --c: var(--app-income); }
+
+  button {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 4px 8px;
+    margin: -4px -8px;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    font: inherit;
+    text-align: left;
+    color: inherit;
+    cursor: pointer;
+
+    &:disabled { cursor: default; }
+    &:not(:disabled):hover { background: color-mix(in srgb, var(--c) 10%, transparent); }
+  }
+
+  strong {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--app-text);
+  }
+
+  small {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 12px;
+    color: var(--c);
+
+    mat-icon { width: 14px; height: 14px; font-size: 14px; }
+  }
+}
+
+.num {
+  text-align: right !important;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+
+  strong { font-weight: 500; color: var(--app-text); }
+}
+
+.somma td {
+  border-top: 2px solid var(--app-border);
+  background: color-mix(in srgb, var(--app-text) 4%, transparent);
+}
+
+.azioni-riga td { padding-top: 6px; padding-bottom: 6px; }

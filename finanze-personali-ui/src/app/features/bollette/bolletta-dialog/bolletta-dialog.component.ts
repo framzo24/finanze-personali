@@ -19,12 +19,14 @@ import { BolletteService } from '@app/core/services/bollette.service';
 import { NATURE, TIPI, TIPO_META, daIso, isoData, quotaDi } from '@app/core/utils/bollette';
 import {CurrencyPipe} from "@angular/common";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import { quotaIrene } from '@app/core/utils/quote';
 
 export interface BollettaDialogData {
   bolletta?: Bolletta;
   tipo?: TipoBolletta;
   coinquilini: Coinquilino[];
   fornitori: Partial<Record<TipoBolletta, string>>;
+  irene?: boolean;
 }
 
 function importoValido(controllo: AbstractControl): ValidationErrors | null {
@@ -57,6 +59,7 @@ export class BollettaDialogComponent {
   readonly data = inject<BollettaDialogData>(MAT_DIALOG_DATA);
 
   readonly bolletta = this.data.bolletta ?? null;
+  readonly irene = this.data.irene === true;
   readonly tipi = TIPI;
   readonly nature = NATURE;
   readonly invio = signal(false);
@@ -89,7 +92,7 @@ export class BollettaDialogComponent {
   readonly quota = computed(() => {
     const importo = this.valori().importo;
     if (importo === null || importo === undefined || Number.isNaN(Number(importo))) return null;
-    return quotaDi(Number(importo), this.valori().paganteId ?? null);
+    return this.irene ? quotaIrene(Number(importo)) : quotaDi(Number(importo), this.valori().paganteId ?? null);
   });
 
   readonly paganteNome = computed(() => {

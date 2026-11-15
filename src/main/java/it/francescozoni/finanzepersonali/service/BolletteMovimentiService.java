@@ -1,10 +1,7 @@
 package it.francescozoni.finanzepersonali.service;
 
 import it.francescozoni.finanzepersonali.mapper.BollettaMapper;
-import it.francescozoni.finanzepersonali.model.Bolletta;
-import it.francescozoni.finanzepersonali.model.Categoria;
-import it.francescozoni.finanzepersonali.model.Movimento;
-import it.francescozoni.finanzepersonali.model.Rimborso;
+import it.francescozoni.finanzepersonali.model.*;
 import it.francescozoni.finanzepersonali.model.enums.StatoMovimento;
 import it.francescozoni.finanzepersonali.model.enums.TipoBolletta;
 import it.francescozoni.finanzepersonali.model.enums.TipoMovimento;
@@ -78,6 +75,23 @@ public class BolletteMovimentiService {
     public void elimina(Movimento m) {
         m.setDeleted(true);
         movimenti.save(m);
+    }
+
+    /** La tua uscita per un invio al proprietario, nella categoria dell'utenza. */
+    public Movimento creaPerVersamento(Versamento v) {
+        Bolletta b = v.getBolletta();
+        Movimento m = Movimento.builder()
+                .utente(v.getUtente())
+                .descrizione("Bolletta " + b.getTipo().getEtichetta().toLowerCase(Locale.ITALY) + " · " + b.getFornitore())
+                .importo(v.getImporto())
+                .tipo(TipoMovimento.USCITA)
+                .stato(StatoMovimento.COMPLETATO)
+                .dataMovimento(v.getData().atStartOfDay())
+                .note("Il tuo invio per la bolletta di " + euro(b.getImporto())
+                        + " · periodo dal " + b.getPeriodoDal().format(DATA) + " al " + b.getPeriodoAl().format(DATA))
+                .categoria(categoriaPer(v.getUtente().getId(), b.getTipo()))
+                .build();
+        return movimenti.save(m);
     }
 
     // ---------- appoggio ----------

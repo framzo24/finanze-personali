@@ -1,16 +1,32 @@
-<h2 mat-dialog-title>Da quando contare i saldi</h2>
+<h2 mat-dialog-title>{{ irene ? 'Impostazioni del conteggio' : 'Da quando contare i saldi' }}</h2>
 
 <mat-dialog-content>
+  @if (irene) {
+  <mat-form-field appearance="outline" class="nome">
+    <mat-label>Nome del proprietario</mat-label>
+    <label>
+      <input matInput [formControl]="proprietario" maxlength="80" placeholder="Proprietario">
+    </label>
+    <mat-hint>Compare nei titoli e nei messaggi da copiare</mat-hint>
+  </mat-form-field>
+
+  <p class="intro">
+    Le bollette con scadenza prima della data scelta non entrano nei conti da inviare.
+    Utile se le hai registrate ma erano già state sistemate.
+  </p>
+  } @else {
   <p class="intro">
     Le bollette pagate prima della data scelta, e i rimborsi di allora, non entrano nei saldi. Serve se lo storico
     che hai caricato era già stato sistemato tra voi.
   </p>
+  }
 
   <mat-radio-group class="scelte" [value]="modo()" (change)="modo.set($event.value)">
     <mat-radio-button value="data" class="scelta" [class.sel]="modo() === 'data'">
       <div class="opzione">
         <strong>Da una data</strong>
-        <span>Contano solo le bollette pagate e i rimborsi da quel giorno in poi.</span>
+        <span>{{ irene ? 'Contano solo le bollette con scadenza da quel giorno in poi.'
+                       : 'Contano solo le bollette pagate e i rimborsi da quel giorno in poi.' }}</span>
       </div>
     </mat-radio-button>
 
@@ -26,7 +42,9 @@
   <div class="data-riga">
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>Dal giorno</mat-label>
-      <input matInput [matDatepicker]="dal" [formControl]="dataCtrl">
+      <label>
+        <input matInput [matDatepicker]="dal" [formControl]="dataCtrl">
+      </label>
       <mat-datepicker-toggle matIconSuffix [for]="dal"></mat-datepicker-toggle>
       <mat-datepicker #dal></mat-datepicker>
     </mat-form-field>

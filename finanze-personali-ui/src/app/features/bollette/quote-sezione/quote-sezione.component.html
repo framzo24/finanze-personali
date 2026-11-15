@@ -1,0 +1,128 @@
+<section class="box">
+  <header class="box-head">
+    <div>
+      <h2>Da inviare a {{ prospetto()?.proprietario ?? 'proprietario' }}</h2>
+      <p>Quote uguali: ognuno invia un terzo di ogni bolletta</p>
+    </div>
+
+    <div class="azioni-testa">
+      <div class="mini-toggle" role="group" aria-label="Quali bollette">
+        <button type="button" [class.on]="soloAperte()" [attr.aria-pressed]="soloAperte()"
+                (click)="soloAperte.set(true)">Da inviare</button>
+        <button type="button" [class.on]="!soloAperte()" [attr.aria-pressed]="!soloAperte()"
+                (click)="soloAperte.set(false)">Tutte</button>
+      </div>
+      <button mat-icon-button class="tondo" matTooltip="Impostazioni" aria-label="Impostazioni del conteggio"
+              (click)="impostazioni()">
+        <mat-icon>tune</mat-icon>
+      </button>
+      <button mat-stroked-button (click)="copia()">
+        <mat-icon>content_copy</mat-icon>
+        Copia messaggio
+      </button>
+      <button mat-flat-button (click)="registra()">
+        <mat-icon>send</mat-icon>
+        Registra invio
+      </button>
+    </div>
+  </header>
+
+  @if (prospetto(); as pr) {
+  @if (pr.utenze.length === 0) {
+  <div class="vuoto">
+    <mat-icon>task_alt</mat-icon>
+    <span>
+          {{ soloAperte() ? 'Non c\'è niente da inviare. Quando registri una bolletta, qui vedi la quota di ciascuno.'
+                          : 'Ancora nessuna bolletta registrata.' }}
+        </span>
+  </div>
+  } @else {
+  <div class="tabella-scroll">
+    <table class="prospetto">
+      <thead>
+      <tr>
+        <th>Utenza</th>
+        @for (i of indici(); track i) {
+        @let per = pr.persone[i];
+        <th class="persona">
+          <span class="iniziale">{{ per.nome.charAt(0) }}</span>
+          {{ per.nome }}@if (per.tu) { <small>tu</small> }
+        </th>
+        }
+        @if (!soloMia()) {
+        <th class="num">Totale</th>
+        }
+      </tr>
+      </thead>
+
+      <tbody>
+      @for (r of pr.utenze; track r.tipo) {
+      <tr [style.--t]="meta[r.tipo!].colore">
+        <td class="utenza">
+          <span class="mini"><mat-icon>{{ meta[r.tipo!].icona }}</mat-icon></span>
+          <span class="nome-utenza">
+                    <strong>{{ meta[r.tipo!].label }}</strong>
+                    <small>{{ r.bollette }} {{ r.bollette === 1 ? 'bolletta' : 'bollette' }}</small>
+                  </span>
+        </td>
+
+        @for (i of indici(); track i) {
+        @let c = r.celle[i];
+        <td class="cella" [attr.data-stato]="stato(c)">
+          <button type="button" [disabled]="stato(c) !== 'manca'"
+                  [matTooltip]="stato(c) === 'manca' ? 'Registra un invio' : ''"
+                  (click)="registra(i, r.tipo)">
+            <strong>{{ c.quota | currency:'EUR' }}</strong>
+            @switch (stato(c)) {
+            @case ('manca') { <small>Manca {{ c.mancante | currency:'EUR' }}</small> }
+            @case ('piu') { <small>{{ -c.mancante | currency:'EUR' }} in più</small> }
+            @default { <small class="ok"><mat-icon>check</mat-icon>A posto</small> }
+            }
+          </button>
+        </td>
+        }
+
+        @if (!soloMia()) {
+        <td class="num"><strong>{{ r.totale | currency:'EUR' }}</strong></td>
+        }
+      </tr>
+      }
+      </tbody>
+
+      <tfoot>
+      <tr class="somma">
+        <td class="utenza"><strong>Somma</strong></td>
+        @for (i of indici(); track i) {
+        @let c = pr.somma.celle[i];
+        <td class="cella" [attr.data-stato]="stato(c)">
+          <strong>{{ c.quota | currency:'EUR' }}</strong>
+          @switch (stato(c)) {
+          @case ('manca') { <small>Manca {{ c.mancante | currency:'EUR' }}</small> }
+          @case ('piu') { <small>{{ -c.mancante | currency:'EUR' }} in più</small> }
+          @default { <small class="ok"><mat-icon>check</mat-icon>A posto</small> }
+          }
+        </td>
+        }
+        @if (!soloMia()) {
+        <td class="num"><strong>{{ pr.somma.totale | currency:'EUR' }}</strong></td>
+        }
+      </tr>
+
+      <tr class="azioni-riga">
+        <td></td>
+        @for (i of indici(); track i) {
+        <td>
+          <button mat-button type="button" (click)="registra(i)">Registra invio</button>
+          @if (!pr.persone[i].tu) {
+          <button mat-button type="button" (click)="copia(i)">Copia messaggio</button>
+          }
+        </td>
+        }
+        @if (!soloMia()) { <td></td> }
+      </tr>
+      </tfoot>
+    </table>
+  </div>
+  }
+  }
+</section>

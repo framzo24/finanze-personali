@@ -81,7 +81,14 @@
 </div>
 }
 
-@if (saldi(); as s) {
+@if (irene()) {
+<app-quote-sezione
+  [versione]="versione()"
+  [soloMia]="vista() === 'mia'"
+  (cambiato)="ricarica()"></app-quote-sezione>
+}
+
+@if (saldiClassici(); as s) {
 @if (s.coinquilini.length > 0) {
 <section class="box saldi">
   <header class="box-head">
@@ -182,10 +189,12 @@
             </span>
 
         @if (!s.prevista) {
-        <button mat-icon-button matTooltip="Segna come pagata" aria-label="Segna come pagata"
-                (click)="pagaScadenza(s)">
-          <mat-icon>check_circle</mat-icon>
-        </button>
+          <button mat-icon-button
+                  [matTooltip]="irene() ? 'Registra un invio' : 'Segna come pagata'"
+                  [attr.aria-label]="irene() ? 'Registra un invio' : 'Segna come pagata'"
+                  (click)="pagaScadenza(s)">
+            <mat-icon>{{ irene() ? 'send' : 'check_circle' }}</mat-icon>
+          </button>
         } @else {
         <button mat-button (click)="nuova(s.tipo)">Registra</button>
         }
@@ -322,6 +331,17 @@
         <td mat-cell *matCellDef="let b">{{ b.paganteNome }}</td>
       </ng-container>
 
+      <ng-container matColumnDef="quote">
+        <th mat-header-cell *matHeaderCellDef>Quote</th>
+        <td mat-cell *matCellDef="let b">
+          <div class="quote-dots">
+            @for (q of quoteDi(b.id); track q.nome) {
+            <span class="qd" [attr.data-stato]="q.stato" [matTooltip]="tooltipQuota(q)">{{ q.nome.charAt(0) }}</span>
+            }
+          </div>
+        </td>
+      </ng-container>
+
       <ng-container matColumnDef="stato">
         <th mat-header-cell *matHeaderCellDef>Stato</th>
         <td mat-cell *matCellDef="let b">
@@ -335,9 +355,17 @@
       <ng-container matColumnDef="azioni">
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let b" class="actions">
+          @if (irene()) {
+          <button mat-icon-button matTooltip="Quote e invii" aria-label="Quote e invii" (click)="dettaglioQuote(b)">
+            <mat-icon>groups</mat-icon>
+          </button>
+          }
           @if (b.stato === 'DA_PAGARE') {
-          <button mat-icon-button matTooltip="Segna come pagata" (click)="paga(b)">
-            <mat-icon>check_circle</mat-icon>
+          <button mat-icon-button
+                  [matTooltip]="irene() ? 'Registra un invio' : 'Segna come pagata'"
+                  [attr.aria-label]="irene() ? 'Registra un invio' : 'Segna come pagata'"
+                  (click)="azionePaga(b)">
+            <mat-icon>{{ irene() ? 'send' : 'check_circle' }}</mat-icon>
           </button>
           }
           <button mat-icon-button matTooltip="Modifica" (click)="modifica(b)">
@@ -349,8 +377,8 @@
         </td>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="colonne"></tr>
-      <tr mat-row *matRowDef="let row; columns: colonne"></tr>
+      <tr mat-header-row *matHeaderRowDef="colonne()"></tr>
+      <tr mat-row *matRowDef="let row; columns: colonne()"></tr>
     </table>
   </div>
 

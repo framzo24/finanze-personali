@@ -1,0 +1,92 @@
+<h2 mat-dialog-title>Registra un invio</h2>
+
+<mat-dialog-content>
+  @if (!caricamento() && persone().length === 0) {
+  <div class="vuoto">
+    <mat-icon>task_alt</mat-icon>
+    <span>Non ci sono bollette da saldare.</span>
+  </div>
+  } @else {
+  <form [formGroup]="form" class="form" (ngSubmit)="salva()">
+
+    <mat-form-field appearance="outline">
+      <mat-label>Chi ha inviato</mat-label>
+      <mat-select formControlName="coinquilinoId">
+        @for (p of persone(); track p.nome) {
+        <mat-option [value]="p.coinquilinoId">{{ p.nome }}{{ p.tu ? ' (tu)' : '' }}</mat-option>
+        }
+      </mat-select>
+      @if (!sonoIo()) {
+      <mat-hint>Verrà segnato come dichiarato da lui</mat-hint>
+      }
+    </mat-form-field>
+
+    <p class="titoletto">Bollette</p>
+
+    @if (righe().length === 0) {
+    <p class="nessuna">Questa persona non ha niente da inviare per le bollette scelte.</p>
+    }
+
+    <div class="righe">
+      @for (r of righe(); track r.bolletta.bollettaId; let i = $index) {
+      <div class="riga" [style.--t]="meta[r.bolletta.tipo].colore" [class.spenta]="!r.scelta">
+        <mat-checkbox [checked]="r.scelta" (change)="imposta(i, { scelta: $event.checked })"
+                      [aria-label]="'Includi ' + meta[r.bolletta.tipo].label"></mat-checkbox>
+
+        <span class="mini"><mat-icon>{{ meta[r.bolletta.tipo].icona }}</mat-icon></span>
+
+        <span class="testo">
+              <strong>{{ meta[r.bolletta.tipo].label }} · {{ r.bolletta.fornitore }}</strong>
+              <small>
+                {{ r.bolletta.periodoDal | date:'d MMM' }} – {{ r.bolletta.periodoAl | date:'d MMM y' }}
+                · manca {{ r.mancante | currency:'EUR' }}
+              </small>
+            </span>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="importo">
+          <input matInput type="number" step="0.01" min="0" aria-label="Importo inviato"
+                 [value]="r.importo ?? ''" [disabled]="!r.scelta"
+                 (input)="importoDigitato(i, $any($event.target).valueAsNumber)">
+          <span matTextSuffix>€</span>
+        </mat-form-field>
+      </div>
+      }
+    </div>
+
+    <div class="riga-doppia">
+      <mat-form-field appearance="outline">
+        <mat-label>Data</mat-label>
+        <label>
+          <input matInput [matDatepicker]="pick" formControlName="data" [max]="oggi">
+        </label>
+        <mat-datepicker-toggle matIconSuffix [for]="pick"></mat-datepicker-toggle>
+        <mat-datepicker #pick></mat-datepicker>
+        <mat-error>Scegli una data</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Nota (facoltativa)</mat-label>
+        <label>
+          <input matInput formControlName="nota">
+        </label>
+      </mat-form-field>
+    </div>
+
+    @if (sonoIo()) {
+    <div class="movimento">
+      <mat-slide-toggle formControlName="registraMovimento">Registra come spesa nei movimenti</mat-slide-toggle>
+      <span>I soldi sono usciti dal tuo conto, quindi compaiono tra le tue uscite.</span>
+    </div>
+    } @else {
+    <p class="nota">Gli invii dichiarati dagli altri non creano nessun movimento.</p>
+    }
+  </form>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="annulla()">Annulla</button>
+  <button mat-flat-button type="button" [disabled]="!valido() || invio()" (click)="salva()">
+    {{ invio() ? 'Salvataggio…' : 'Registra ' + (totale() | currency:'EUR') }}
+  </button>
+</mat-dialog-actions>

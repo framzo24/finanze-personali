@@ -5,14 +5,13 @@ import it.francescozoni.finanzepersonali.mapper.BollettaMapper;
 import it.francescozoni.finanzepersonali.model.Bolletta;
 import it.francescozoni.finanzepersonali.model.Coinquilino;
 import it.francescozoni.finanzepersonali.model.ImpostazioneBolletta;
-import it.francescozoni.finanzepersonali.model.enums.LivelloScadenza;
-import it.francescozoni.finanzepersonali.model.enums.NaturaBolletta;
-import it.francescozoni.finanzepersonali.model.enums.StatoBolletta;
-import it.francescozoni.finanzepersonali.model.enums.TipoBolletta;
+import it.francescozoni.finanzepersonali.model.enums.*;
 import it.francescozoni.finanzepersonali.repository.BollettaRepository;
 import it.francescozoni.finanzepersonali.repository.ImpostazioneBollettaRepository;
 import it.francescozoni.finanzepersonali.repository.UtenteRepository;
+import it.francescozoni.finanzepersonali.security.ModalitaCorrente;
 import it.francescozoni.finanzepersonali.security.UtenteCorrente;
+import it.francescozoni.finanzepersonali.util.QuoteIrene;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,15 +35,19 @@ public class BolletteScadenzeService {
     private final ImpostazioneBollettaRepository impostazioni;
     private final UtenteRepository utenti;
     private final UtenteCorrente utenteCorrente;
+    private final ModalitaCorrente modalita;
+    private final QuoteService quoteService;
 
     public BolletteScadenzeService(BollettaRepository bollette,
                                    ImpostazioneBollettaRepository impostazioni,
                                    UtenteRepository utenti,
-                                   UtenteCorrente utenteCorrente) {
+                                   UtenteCorrente utenteCorrente, ModalitaCorrente modalita, QuoteService quoteService) {
         this.bollette = bollette;
         this.impostazioni = impostazioni;
         this.utenti = utenti;
         this.utenteCorrente = utenteCorrente;
+        this.modalita = modalita;
+        this.quoteService = quoteService;
     }
 
     // ---------- scadenze ----------
@@ -105,7 +108,7 @@ public class BolletteScadenzeService {
 
         LocalDate dal = ultima.getPeriodoAl().plusDays(1);
         LocalDate al = dal.plusMonths(imp.getPeriodicitaMesi()).minusDays(1);
-        long scarto = Math.min(Math.max(ChronoUnit.DAYS.between(ultima.getPeriodoAl(), ultima.getDataScadenza()), 20), 90);
+        long scarto = Math.clamp(ChronoUnit.DAYS.between(ultima.getPeriodoAl(), ultima.getDataScadenza()), 20, 90);
         LocalDate scadenza = al.plusDays(scarto);
 
         long giorni = ChronoUnit.DAYS.between(oggi, scadenza);
@@ -114,7 +117,10 @@ public class BolletteScadenzeService {
         }
 
         BigDecimal stima = stima(dellTipo);
-        BigDecimal quota = stima == null ? null : stima.divide(BigDecimal.valueOf(3), 2, RoundingMode.HALF_UP);
+        BigDecimal quota = stima == null ? null
+                : modalita.get() == ModalitaBollette.IRENE
+                ? QuoteIrene.quota(stima, QuoteIrene.INDICE_TU)
+                : stima.divide(BigDecimal.valueOf(3), 2, RoundingMode.HALF_UP);
         Coinquilino pagante = ultima.getPagante();
 
         return Optional.of(new ScadenzaResponse(
@@ -143,13 +149,36 @@ public class BolletteScadenzeService {
 
     // ---------- notifiche ----------
 
-    /** Solo quello che riguarda te: se una bolletta la paga un coinquilino non serve avvisarti. */
+    /**
+     * Solo quello che riguarda te: se una bolletta la paga un coinquilino non serve avvisarti.
+     * Quello che ti riguarda: in modalità Irene anche le quote che gli altri non hanno ancora inviato. */
     public List<NotificaResponse> notifiche() {
         NumberFormat euro = NumberFormat.getCurrencyInstance(Locale.ITALY);
+        boolean irene = modalita.get() == ModalitaBollette.IRENE;
+
+        Map<Long, QuoteDto.BollettaQuote> quote = new HashMap<>();
+        String proprietario = "";
+        if (irene) {
+            quoteService.aperte().forEach(q -> quote.put(q.bollettaId(), q));
+            proprietario = quoteService.proprietario().toLowerCase(Locale.ITALY);
+        }
+
         List<NotificaResponse> risultato = new ArrayList<>();
 
         for (ScadenzaResponse s : scadenze()) {
-            if (s.livello() == LivelloScadenza.PROSSIMA || s.paganteId() != null) {
+            if (s.livello() == LivelloScadenza.PROSSIMA) {
+                continue;
+            }
+
+            if (irene && !s.prevista()) {
+                QuoteDto.BollettaQuote q = quote.get(s.bollettaId());
+                if (q != null) {
+                    risultato.addAll(notificheQuote(s, q, euro, proprietario));
+                }
+                continue;
+            }
+
+            if (s.paganteId() != null) {
                 continue;
             }
 
@@ -179,6 +208,31 @@ public class BolletteScadenzeService {
 
         risultato.sort(Comparator.comparing(NotificaResponse::livello).thenComparing(NotificaResponse::data));
         return risultato;
+    }
+
+    private List<NotificaResponse> notificheQuote(ScadenzaResponse s, QuoteDto.BollettaQuote q, NumberFormat euro,
+                                                  String proprietario) {
+        List<NotificaResponse> lista = new ArrayList<>();
+        String nome = etichetta(s.tipo());
+        long g = s.giorni();
+        String quando = g < 0 ? "scaduta " + (g == -1 ? "ieri" : "da " + (-g) + " giorni")
+                : g == 0 ? "scade oggi" : g == 1 ? "scade domani" : "scade tra " + g + " giorni";
+
+        for (QuoteDto.QuotaPersona p : q.persone()) {
+            boolean manca = p.mancante().signum() > 0
+                    && (p.stato() == QuoteDto.StatoQuota.DA_INVIARE || p.stato() == QuoteDto.StatoQuota.PARZIALE);
+            if (!manca) {
+                continue;
+            }
+
+            String titolo = p.tu() ? "Quota " + nome + " da inviare" : p.nome() + " non ha inviato la quota " + nome;
+            String messaggio = euro.format(p.mancante()) + (p.tu() ? " al " + proprietario : "") + " · " + quando;
+            String id = "b" + s.bollettaId() + "-q" + (p.coinquilinoId() == null ? "tu" : p.coinquilinoId())
+                    + "-" + s.livello();
+
+            lista.add(new NotificaResponse(id, s.livello(), s.tipo(), titolo, messaggio, s.bollettaId(), s.data()));
+        }
+        return lista;
     }
 
     private String etichetta(TipoBolletta tipo) {

@@ -14,36 +14,44 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Fornitore</mat-label>
-        <input matInput formControlName="fornitore">
+        <label>
+          <input matInput formControlName="fornitore">
+        </label>
         <mat-error>Il fornitore è obbligatorio</mat-error>
       </mat-form-field>
     </div>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Pagante predefinito</mat-label>
-      <mat-select formControlName="paganteId">
-        <mat-option [value]="null">Tu</mat-option>
-        @for (c of data.coinquilini; track c.id) {
-        <mat-option [value]="c.id">{{ c.nome }}</mat-option>
-        }
-      </mat-select>
-      <mat-hint>Vale per le righe senza pagante</mat-hint>
-    </mat-form-field>
+    @if (!data.irene) {
+      <mat-form-field appearance="outline">
+        <mat-label>Pagante predefinito</mat-label>
+        <mat-select formControlName="paganteId">
+          <mat-option [value]="null">Tu</mat-option>
+          @for (c of data.coinquilini; track c.id) {
+          <mat-option [value]="c.id">{{ c.nome }}</mat-option>
+          }
+        </mat-select>
+        <mat-hint>Vale per le righe senza pagante</mat-hint>
+      </mat-form-field>
+    }
 
     <div class="guida">
       <mat-icon>info</mat-icon>
       <div>
-        <p>Una bolletta per riga. Colonne separate da <code>;</code> oppure da tabulazione, quindi puoi incollare da un foglio di calcolo:</p>
+        <p>Una bolletta per riga. Colonne separate da <code>;</code> oppure da tabulazione, quindi puoi incollare da un
+          foglio di calcolo:</p>
         <p><code>inizio ; fine ; scadenza ; importo ; consumo ; pagante</code></p>
         <p>Esempio: <code>01/01/2025;28/02/2025;15/03/2025;98,40;312;Giovanni</code></p>
-        <p>Consumo e pagante sono facoltativi. Tutte le bollette caricate risultano già pagate, alla data di scadenza.</p>
+        <p>Consumo e pagante sono facoltativi. Tutte le bollette caricate risultano già pagate, alla data di
+          scadenza.</p>
       </div>
     </div>
 
     <mat-form-field appearance="outline">
       <mat-label>Righe da caricare</mat-label>
-      <textarea matInput rows="9" formControlName="testo" spellcheck="false"
-                placeholder="01/01/2025;28/02/2025;15/03/2025;98,40;312"></textarea>
+      <label>
+        <textarea matInput rows="9" formControlName="testo" spellcheck="false"
+                  placeholder="01/01/2025;28/02/2025;15/03/2025;98,40;312"></textarea>
+      </label>
     </mat-form-field>
 
     @if (risultato().righe.length > 0 || risultato().errori.length > 0) {

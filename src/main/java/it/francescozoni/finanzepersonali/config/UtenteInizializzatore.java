@@ -1,6 +1,7 @@
 package it.francescozoni.finanzepersonali.config;
 
 import it.francescozoni.finanzepersonali.model.Utente;
+import it.francescozoni.finanzepersonali.model.enums.ModalitaBollette;
 import it.francescozoni.finanzepersonali.repository.UtenteRepository;
 import it.francescozoni.finanzepersonali.service.AuthService;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,11 @@ public class UtenteInizializzatore implements ApplicationRunner {
                             .passwordHash(null)
                             .build());
                 });
+
+        if (proprietario.getModalitaBollette() == null) {
+            proprietario.setModalitaBollette(ModalitaBollette.CLASSICA);
+            proprietario = utenti.save(proprietario);
+        }
 
         // i dati creati prima dell'autenticazione diventano tuoi
         assegna("movimenti", proprietario);
